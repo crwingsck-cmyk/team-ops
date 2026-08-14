@@ -48,19 +48,19 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
         {meeting.agenda && (
           <div className="mb-4">
             <h4 className="text-sm font-black text-slate-600 uppercase tracking-wider mb-1.5">議程</h4>
-            <p className="text-lg text-slate-700 whitespace-pre-wrap">{meeting.agenda}</p>
+            <p className="text-lg italic text-slate-700 whitespace-pre-wrap">{meeting.agenda}</p>
           </div>
         )}
         {meeting.minutes && (
           <div className="mb-4">
             <h4 className="text-sm font-black text-slate-600 uppercase tracking-wider mb-1.5">會議記錄</h4>
-            <p className="text-lg text-slate-700 whitespace-pre-wrap">{meeting.minutes}</p>
+            <p className="text-lg italic text-slate-700 whitespace-pre-wrap">{meeting.minutes}</p>
           </div>
         )}
         {meeting.decisions && (
           <div>
             <h4 className="text-sm font-black text-slate-600 uppercase tracking-wider mb-1.5">決議事項</h4>
-            <p className="text-lg text-slate-700 whitespace-pre-wrap">{meeting.decisions}</p>
+            <p className="text-lg italic text-slate-700 whitespace-pre-wrap">{meeting.decisions}</p>
           </div>
         )}
       </Card>

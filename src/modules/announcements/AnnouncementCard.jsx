@@ -29,7 +29,7 @@ export default function AnnouncementCard({ announcement, layout = "grid", isAdmi
           <Badge tone={ANNOUNCEMENT_CATEGORIES[announcement.category]} className="shrink-0">{announcement.category}</Badge>
           <div className="min-w-0">
             <h3 className="font-black italic text-slate-800 text-xl truncate">{announcement.title}</h3>
-            <p className="text-lg text-slate-600 truncate">{announcement.content}</p>
+            <p className="text-lg italic text-slate-600 truncate">{announcement.content}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
@@ -70,7 +70,7 @@ export default function AnnouncementCard({ announcement, layout = "grid", isAdmi
           <Users size={16} /> 發布對象：{announcement.audience}
         </p>
       )}
-      <p className="text-lg text-slate-600 mb-4 whitespace-pre-wrap line-clamp-4">{announcement.content}</p>
+      <p className="text-lg italic text-slate-600 mb-4 whitespace-pre-wrap line-clamp-4">{announcement.content}</p>
       {announcement.links?.length > 0 && (
         <div className="flex flex-wrap gap-4 mb-3">
           {announcement.links.map((l, i) => (

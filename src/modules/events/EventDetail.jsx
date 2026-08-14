@@ -34,7 +34,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
       <Card className="mb-6">
         <h2 className="text-2xl font-black italic text-slate-800 mb-3">{event.title}</h2>
-        {event.description && <p className="text-lg text-slate-600 mb-4 whitespace-pre-wrap">{event.description}</p>}
+        {event.description && <p className="text-lg italic text-slate-600 mb-4 whitespace-pre-wrap">{event.description}</p>}
         <div className="flex flex-wrap gap-4 text-base text-slate-600">
           <span className="flex items-center gap-1.5"><Calendar size={17} />{event.date}{event.startTime && ` ${event.startTime}${event.endTime ? `-${event.endTime}` : ""}`}</span>
           {event.location && <span className="flex items-center gap-1.5"><MapPin size={17} />{event.location}</span>}
@@ -60,7 +60,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                 <div>
                   <p className="font-bold text-xl text-slate-800">{r.name}</p>
                   {r.contact && <p className="text-base text-slate-500">{r.contact}</p>}
-                  {r.notes && <p className="text-base text-slate-500 mt-0.5">{r.notes}</p>}
+                  {r.notes && <p className="text-base italic text-slate-500 mt-0.5">{r.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Select value={r.status} onChange={(e) => update(r.id, { status: e.target.value })} className="!py-1.5 !text-sm w-32">
