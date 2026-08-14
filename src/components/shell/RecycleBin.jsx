@@ -51,15 +51,15 @@ export default function RecycleBin({ open, onClose }) {
       ) : (
         <ul className="space-y-2 max-h-[60vh] overflow-y-auto">
           {items.map((item) => (
-            <li key={`${item.collectionName}-${item.id}`} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50">
+            <li key={`${item.collectionName}-${item.id}`} className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-50 hover:scale-[1.02] transition-all duration-200">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-xs font-bold shrink-0">
+                  <span className="px-2.5 py-1 rounded-md bg-slate-200 text-slate-700 text-sm font-bold shrink-0">
                     {COLLECTION_LABELS[item.collectionName] || item.collectionName}
                   </span>
-                  <p className="font-bold text-base text-slate-800 truncate">{item.title ?? item.name ?? item.description ?? "未命名"}</p>
+                  <p className="font-bold text-xl text-slate-800 truncate">{item.title ?? item.name ?? item.description ?? "未命名"}</p>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-base text-slate-500 mt-1.5">
                   {item.deletedBy?.name ? `${item.deletedBy.name} 刪除於 ` : "刪除於 "}
                   {formatRelativeTime(item.deletedAt)}
                 </p>
@@ -70,7 +70,7 @@ export default function RecycleBin({ open, onClose }) {
                   className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-indigo-600"
                   title="復原"
                 >
-                  <RotateCcw size={14} />
+                  <RotateCcw size={18} />
                 </button>
                 <button
                   onClick={() => {
@@ -81,7 +81,7 @@ export default function RecycleBin({ open, onClose }) {
                   className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-rose-600"
                   title="永久刪除"
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={18} />
                 </button>
               </div>
             </li>

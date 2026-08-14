@@ -38,21 +38,21 @@ export default function DashboardPage() {
       <Card>
         <div className="flex items-center gap-2 mb-4">
           <Megaphone className="text-indigo-500" size={18} />
-          <h3 className="font-black italic text-slate-800 text-base">最新公告</h3>
+          <h3 className="font-black italic text-slate-800 text-xl">最新公告</h3>
         </div>
         {loadingAnnouncements ? (
-          <p className="text-sm text-slate-400 italic">載入中...</p>
+          <p className="text-base text-slate-400 italic">載入中...</p>
         ) : recentAnnouncements.length === 0 ? (
           <EmptyState icon={Megaphone} title="還沒有公告" />
         ) : (
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {recentAnnouncements.map((a) => (
-              <li key={a.id} className="pb-3 border-b border-slate-100 last:border-0 last:pb-0">
-                <div className="flex items-center gap-2 mb-1">
+              <li key={a.id} className="pb-4 border-b border-slate-100 last:border-0 last:pb-0">
+                <div className="flex items-center gap-2 mb-1.5">
                   <Badge tone={ANNOUNCEMENT_CATEGORIES[a.category]}>{a.category}</Badge>
-                  <span className="text-xs text-slate-500">{a.publishDate}</span>
+                  <span className="text-sm text-slate-500">{a.publishDate}</span>
                 </div>
-                <p className="text-base font-bold text-slate-800">{a.title}</p>
+                <p className="text-xl font-bold text-slate-800">{a.title}</p>
               </li>
             ))}
           </ul>
@@ -62,21 +62,21 @@ export default function DashboardPage() {
       <Card>
         <div className="flex items-center gap-2 mb-4">
           <CalendarDays className="text-emerald-500" size={18} />
-          <h3 className="font-black italic text-slate-800 text-base">即將到來的活動</h3>
+          <h3 className="font-black italic text-slate-800 text-xl">即將到來的活動</h3>
         </div>
         {loadingEvents ? (
-          <p className="text-sm text-slate-400 italic">載入中...</p>
+          <p className="text-base text-slate-400 italic">載入中...</p>
         ) : upcomingEvents.length === 0 ? (
           <EmptyState icon={CalendarDays} title="近期沒有活動" />
         ) : (
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {upcomingEvents.map((e) => (
-              <li key={e.id} className="pb-3 border-b border-slate-100 last:border-0 last:pb-0">
-                <p className="text-base font-bold text-slate-800">{e.title}</p>
-                <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
+              <li key={e.id} className="pb-4 border-b border-slate-100 last:border-0 last:pb-0">
+                <p className="text-xl font-bold text-slate-800">{e.title}</p>
+                <div className="flex items-center gap-3 text-sm text-slate-500 mt-1.5">
                   <span>{e.date}{e.startTime && ` ${e.startTime}`}</span>
                   {e.location && (
-                    <span className="flex items-center gap-1"><MapPin size={11} />{e.location}</span>
+                    <span className="flex items-center gap-1"><MapPin size={14} />{e.location}</span>
                   )}
                 </div>
               </li>
@@ -93,20 +93,20 @@ export default function DashboardPage() {
       >
         <div className="flex items-center gap-2">
           <Activity className="text-amber-500" size={18} />
-          <h3 className="font-black italic text-slate-800 text-base">近期活動紀錄</h3>
+          <h3 className="font-black italic text-slate-800 text-xl">近期活動紀錄</h3>
         </div>
-        {showActivity ? <ChevronUp className="text-slate-400" size={18} /> : <ChevronDown className="text-slate-400" size={18} />}
+        {showActivity ? <ChevronUp className="text-slate-400" size={20} /> : <ChevronDown className="text-slate-400" size={20} />}
       </button>
       {showActivity && (
         <div className="mt-4">
           {loadingActivity ? (
-            <p className="text-sm text-slate-400 italic">載入中...</p>
+            <p className="text-base text-slate-400 italic">載入中...</p>
           ) : recentActivity.length === 0 ? (
             <EmptyState icon={Activity} title="還沒有任何操作紀錄" />
           ) : (
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {recentActivity.map((log) => (
-                <li key={log.id} className="flex items-center justify-between gap-3 text-sm py-1.5 border-b border-slate-50 last:border-0">
+                <li key={log.id} className="flex items-center justify-between gap-3 text-base py-2 border-b border-slate-50 last:border-0">
                   <span className="text-slate-700 truncate">
                     <span className="font-bold text-slate-800">{log.userName}</span>
                     {" "}{ACTIVITY_ACTION_LABELS[log.action] || log.action}
@@ -114,7 +114,7 @@ export default function DashboardPage() {
                     <span className="text-slate-500">{COLLECTION_LABELS[log.collectionName] || log.collectionName}</span>
                     {"「"}{log.label}{"」"}
                   </span>
-                  <span className="text-xs text-slate-400 shrink-0">{formatRelativeTime(log.at)}</span>
+                  <span className="text-sm text-slate-400 shrink-0">{formatRelativeTime(log.at)}</span>
                 </li>
               ))}
             </ul>

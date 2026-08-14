@@ -40,34 +40,34 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
       </button>
 
       <Card className="mb-6">
-        <h2 className="text-xl font-black italic text-slate-800 mb-1">{meeting.title}</h2>
-        <p className="text-sm text-slate-500 mb-4">{meeting.date}</p>
+        <h2 className="text-2xl font-black italic text-slate-800 mb-2">{meeting.title}</h2>
+        <p className="text-lg text-slate-500 mb-4">{meeting.date}</p>
         {meeting.attendeeNamesSnapshot?.length > 0 && (
-          <p className="text-sm text-slate-600 mb-4">出席者：{meeting.attendeeNamesSnapshot.join("、")}</p>
+          <p className="text-lg text-slate-600 mb-4">出席者：{meeting.attendeeNamesSnapshot.join("、")}</p>
         )}
         {meeting.agenda && (
           <div className="mb-4">
-            <h4 className="text-xs font-black text-slate-600 uppercase tracking-wider mb-1">議程</h4>
-            <p className="text-base text-slate-700 whitespace-pre-wrap">{meeting.agenda}</p>
+            <h4 className="text-sm font-black text-slate-600 uppercase tracking-wider mb-1.5">議程</h4>
+            <p className="text-lg text-slate-700 whitespace-pre-wrap">{meeting.agenda}</p>
           </div>
         )}
         {meeting.minutes && (
           <div className="mb-4">
-            <h4 className="text-xs font-black text-slate-600 uppercase tracking-wider mb-1">會議記錄</h4>
-            <p className="text-base text-slate-700 whitespace-pre-wrap">{meeting.minutes}</p>
+            <h4 className="text-sm font-black text-slate-600 uppercase tracking-wider mb-1.5">會議記錄</h4>
+            <p className="text-lg text-slate-700 whitespace-pre-wrap">{meeting.minutes}</p>
           </div>
         )}
         {meeting.decisions && (
           <div>
-            <h4 className="text-xs font-black text-slate-600 uppercase tracking-wider mb-1">決議事項</h4>
-            <p className="text-base text-slate-700 whitespace-pre-wrap">{meeting.decisions}</p>
+            <h4 className="text-sm font-black text-slate-600 uppercase tracking-wider mb-1.5">決議事項</h4>
+            <p className="text-lg text-slate-700 whitespace-pre-wrap">{meeting.decisions}</p>
           </div>
         )}
       </Card>
 
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-black italic text-slate-700 text-base">待辦事項</h3>
+          <h3 className="font-black italic text-slate-700 text-xl">待辦事項</h3>
           <Button icon={Plus} onClick={() => { setEditing(null); setShowForm(true); }}>新增待辦</Button>
         </div>
         {actionItems.length === 0 ? (

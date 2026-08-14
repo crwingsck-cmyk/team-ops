@@ -33,18 +33,18 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       </button>
 
       <Card className="mb-6">
-        <h2 className="text-xl font-black italic text-slate-800 mb-2">{event.title}</h2>
-        {event.description && <p className="text-base text-slate-600 mb-3 whitespace-pre-wrap">{event.description}</p>}
-        <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-          <span className="flex items-center gap-1.5"><Calendar size={13} />{event.date}{event.startTime && ` ${event.startTime}${event.endTime ? `-${event.endTime}` : ""}`}</span>
-          {event.location && <span className="flex items-center gap-1.5"><MapPin size={13} />{event.location}</span>}
+        <h2 className="text-2xl font-black italic text-slate-800 mb-3">{event.title}</h2>
+        {event.description && <p className="text-lg text-slate-600 mb-4 whitespace-pre-wrap">{event.description}</p>}
+        <div className="flex flex-wrap gap-4 text-base text-slate-600">
+          <span className="flex items-center gap-1.5"><Calendar size={17} />{event.date}{event.startTime && ` ${event.startTime}${event.endTime ? `-${event.endTime}` : ""}`}</span>
+          {event.location && <span className="flex items-center gap-1.5"><MapPin size={17} />{event.location}</span>}
         </div>
       </Card>
 
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-black italic text-slate-700 text-base flex items-center gap-2">
-            <Users size={16} /> 報名名單（{registrations.length}{event.capacity ? ` / ${event.capacity}` : ""}）
+          <h3 className="font-black italic text-slate-700 text-xl flex items-center gap-2">
+            <Users size={20} /> 報名名單（{registrations.length}{event.capacity ? ` / ${event.capacity}` : ""}）
           </h3>
           <Button icon={Plus} onClick={() => setShowForm(true)}>新增報名</Button>
         </div>
@@ -56,21 +56,21 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         ) : (
           <ul className="space-y-2">
             {registrations.map((r) => (
-              <li key={r.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50">
+              <li key={r.id} className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-50 hover:scale-[1.02] transition-all duration-200">
                 <div>
-                  <p className="font-bold text-base text-slate-800">{r.name}</p>
-                  {r.contact && <p className="text-sm text-slate-500">{r.contact}</p>}
-                  {r.notes && <p className="text-sm text-slate-500 mt-0.5">{r.notes}</p>}
+                  <p className="font-bold text-xl text-slate-800">{r.name}</p>
+                  {r.contact && <p className="text-base text-slate-500">{r.contact}</p>}
+                  {r.notes && <p className="text-base text-slate-500 mt-0.5">{r.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Select value={r.status} onChange={(e) => update(r.id, { status: e.target.value })} className="!py-1.5 !text-xs w-28">
+                  <Select value={r.status} onChange={(e) => update(r.id, { status: e.target.value })} className="!py-1.5 !text-sm w-32">
                     <option value="registered">已報名</option>
                     <option value="waitlisted">候補</option>
                     <option value="cancelled">已取消</option>
                   </Select>
                   {isAdmin && (
                     <button onClick={() => remove(r.id)} className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-rose-600">
-                      <Trash2 size={14} />
+                      <Trash2 size={18} />
                     </button>
                   )}
                 </div>

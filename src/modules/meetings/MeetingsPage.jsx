@@ -62,29 +62,29 @@ export default function MeetingsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {meetings.map((m) => (
             <Card key={m.id} className="cursor-pointer" onClick={() => setSelectedId(m.id)}>
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-black italic text-slate-800 text-lg">{m.title}</h3>
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="font-black italic text-slate-800 text-2xl">{m.title}</h3>
                 <div className="flex gap-1">
                   <button
                     onClick={(e) => { e.stopPropagation(); setEditing(m); setShowForm(true); }}
                     className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600"
                   >
-                    <Pencil size={14} />
+                    <Pencil size={18} />
                   </button>
                   {isAdmin && (
                     <button
                       onClick={(e) => { e.stopPropagation(); setDeleting(m); }}
                       className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={18} />
                     </button>
                   )}
                 </div>
               </div>
-              <p className="text-sm text-slate-500 mb-3">{m.date}</p>
-              <div className="flex items-center justify-between text-sm text-slate-500">
+              <p className="text-lg text-slate-500 mb-3">{m.date}</p>
+              <div className="flex items-center justify-between text-lg text-slate-500">
                 <span>{m.attendeeNamesSnapshot?.length || 0} 位出席</span>
-                <ChevronRight size={14} />
+                <ChevronRight size={18} />
               </div>
             </Card>
           ))}
