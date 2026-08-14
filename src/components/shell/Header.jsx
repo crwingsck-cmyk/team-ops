@@ -1,17 +1,7 @@
-import { useState } from "react";
 import { HeartHandshake } from "lucide-react";
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import { useAuth } from "../../hooks/useAuth";
-import Modal from "../ui/Modal";
-import Button from "../ui/Button";
-import Input from "../ui/Input";
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24">
@@ -24,11 +14,6 @@ const GoogleIcon = () => (
 
 export default function Header() {
   const { user } = useAuth();
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [mode, setMode] = useState("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const handleGoogleSignIn = async () => {
     try {
@@ -40,25 +25,7 @@ export default function Header() {
 
   const handleSignOut = () => signOut(auth);
 
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    try {
-      if (mode === "signin") {
-        await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        await createUserWithEmailAndPassword(auth, email, password);
-      }
-      setShowEmailModal(false);
-      setEmail("");
-      setPassword("");
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
   return (
-    <>
     <header className="sticky top-4 z-40 mb-8 backdrop-blur-2xl bg-slate-800/90 border border-slate-700/50 rounded-[2rem] shadow-2xl shadow-black/10 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800"></div>
       <div className="relative px-4 py-3 xl:px-6 xl:py-5 flex flex-col xl:flex-row justify-between items-center gap-3 xl:gap-4">
@@ -97,53 +64,16 @@ export default function Header() {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowEmailModal(true)}
-                className="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white text-xs font-black italic uppercase tracking-widest transition-all"
-              >
-                Email 登入
-              </button>
-              <button
-                onClick={handleGoogleSignIn}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-black italic uppercase tracking-widest transition-all shadow-lg"
-              >
-                <GoogleIcon />
-                Google 登入
-              </button>
-            </div>
+            <button
+              onClick={handleGoogleSignIn}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-black italic uppercase tracking-widest transition-all shadow-lg"
+            >
+              <GoogleIcon />
+              Google 登入
+            </button>
           )}
         </div>
       </div>
     </header>
-
-    <Modal
-      open={showEmailModal}
-      onClose={() => setShowEmailModal(false)}
-      title={mode === "signin" ? "Email 登入" : "建立帳號"}
-    >
-      <form onSubmit={handleEmailSubmit} className="space-y-4">
-        <Input label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-        <Input
-          label="密碼"
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p className="text-xs text-rose-600">{error}</p>}
-        <div className="flex items-center justify-between pt-2">
-          <button
-            type="button"
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="text-xs text-indigo-600 font-bold"
-          >
-            {mode === "signin" ? "還沒有帳號？建立一個" : "已經有帳號？登入"}
-          </button>
-          <Button type="submit">{mode === "signin" ? "登入" : "建立帳號"}</Button>
-        </div>
-      </form>
-    </Modal>
-    </>
   );
 }
