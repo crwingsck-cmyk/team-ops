@@ -54,12 +54,12 @@ export default function RecycleBin({ open, onClose }) {
             <li key={`${item.collectionName}-${item.id}`} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-md bg-slate-200 text-slate-600 text-[10px] font-bold shrink-0">
+                  <span className="px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-xs font-bold shrink-0">
                     {COLLECTION_LABELS[item.collectionName] || item.collectionName}
                   </span>
-                  <p className="font-bold text-sm text-slate-800 truncate">{item.title ?? item.name ?? item.description ?? "未命名"}</p>
+                  <p className="font-bold text-base text-slate-800 truncate">{item.title ?? item.name ?? item.description ?? "未命名"}</p>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   {item.deletedBy?.name ? `${item.deletedBy.name} 刪除於 ` : "刪除於 "}
                   {formatRelativeTime(item.deletedAt)}
                 </p>

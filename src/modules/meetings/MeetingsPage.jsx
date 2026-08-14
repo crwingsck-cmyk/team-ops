@@ -63,7 +63,7 @@ export default function MeetingsPage() {
           {meetings.map((m) => (
             <Card key={m.id} className="cursor-pointer" onClick={() => setSelectedId(m.id)}>
               <div className="flex items-start justify-between mb-2">
-                <h3 className="font-black italic text-slate-800">{m.title}</h3>
+                <h3 className="font-black italic text-slate-800 text-lg">{m.title}</h3>
                 <div className="flex gap-1">
                   <button
                     onClick={(e) => { e.stopPropagation(); setEditing(m); setShowForm(true); }}
@@ -81,8 +81,8 @@ export default function MeetingsPage() {
                   )}
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mb-3">{m.date}</p>
-              <div className="flex items-center justify-between text-xs text-slate-400">
+              <p className="text-sm text-slate-500 mb-3">{m.date}</p>
+              <div className="flex items-center justify-between text-sm text-slate-500">
                 <span>{m.attendeeNamesSnapshot?.length || 0} 位出席</span>
                 <ChevronRight size={14} />
               </div>

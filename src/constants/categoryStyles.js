@@ -42,6 +42,13 @@ export const ACTIVITY_ACTION_LABELS = {
   purge: "永久刪除",
 };
 
+export const LINK_TYPE_LABELS = {
+  webpage: "網頁",
+  google_drive: "Google Drive",
+  youtube: "YouTube",
+  other: "其他",
+};
+
 export const COLLECTION_LABELS = {
   announcements: "公告",
   events: "活動",

@@ -42,7 +42,7 @@ export default function Header() {
           </div>
           <div className="text-left">
             <h1 className="text-lg xl:text-2xl font-bold text-slate-100 italic leading-tight">TeamOps</h1>
-            <p className="hidden sm:block text-[9px] xl:text-[10px] font-medium text-slate-400 tracking-wider italic">
+            <p className="hidden sm:block text-xs xl:text-sm font-medium text-slate-300 tracking-wider italic">
               慈濟團隊工作台
             </p>
           </div>
@@ -59,8 +59,8 @@ export default function Header() {
                 </div>
               )}
               <div className="hidden xl:block text-right">
-                <p className="text-xs font-black text-slate-200 italic">{user.displayName || user.email}</p>
-                <p className="text-[10px] text-slate-500 italic">已登入</p>
+                <p className="text-sm font-black text-slate-200 italic">{user.displayName || user.email}</p>
+                <p className="text-xs text-slate-400 italic">已登入</p>
               </div>
               {isAdmin && (
                 <button

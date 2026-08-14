@@ -34,16 +34,16 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
       <Card className="mb-6">
         <h2 className="text-xl font-black italic text-slate-800 mb-2">{event.title}</h2>
-        {event.description && <p className="text-sm text-slate-500 mb-3 whitespace-pre-wrap">{event.description}</p>}
-        <div className="flex flex-wrap gap-4 text-xs text-slate-500">
-          <span className="flex items-center gap-1.5"><Calendar size={12} />{event.date}{event.startTime && ` ${event.startTime}${event.endTime ? `-${event.endTime}` : ""}`}</span>
-          {event.location && <span className="flex items-center gap-1.5"><MapPin size={12} />{event.location}</span>}
+        {event.description && <p className="text-base text-slate-600 mb-3 whitespace-pre-wrap">{event.description}</p>}
+        <div className="flex flex-wrap gap-4 text-sm text-slate-600">
+          <span className="flex items-center gap-1.5"><Calendar size={13} />{event.date}{event.startTime && ` ${event.startTime}${event.endTime ? `-${event.endTime}` : ""}`}</span>
+          {event.location && <span className="flex items-center gap-1.5"><MapPin size={13} />{event.location}</span>}
         </div>
       </Card>
 
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-black italic text-slate-700 flex items-center gap-2">
+          <h3 className="font-black italic text-slate-700 text-base flex items-center gap-2">
             <Users size={16} /> 報名名單（{registrations.length}{event.capacity ? ` / ${event.capacity}` : ""}）
           </h3>
           <Button icon={Plus} onClick={() => setShowForm(true)}>新增報名</Button>
@@ -58,9 +58,9 @@ export default function EventDetail({ event, isAdmin, onBack }) {
             {registrations.map((r) => (
               <li key={r.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50">
                 <div>
-                  <p className="font-bold text-sm text-slate-800">{r.name}</p>
-                  {r.contact && <p className="text-xs text-slate-500">{r.contact}</p>}
-                  {r.notes && <p className="text-xs text-slate-400 mt-0.5">{r.notes}</p>}
+                  <p className="font-bold text-base text-slate-800">{r.name}</p>
+                  {r.contact && <p className="text-sm text-slate-500">{r.contact}</p>}
+                  {r.notes && <p className="text-sm text-slate-500 mt-0.5">{r.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Select value={r.status} onChange={(e) => update(r.id, { status: e.target.value })} className="!py-1.5 !text-xs w-28">

@@ -6,11 +6,11 @@ export default function ActionItemRow({ item, isAdmin, onEdit, onDelete }) {
   return (
     <li className="flex items-start justify-between gap-3 p-3 rounded-xl bg-slate-50">
       <div>
-        <p className="font-bold text-sm text-slate-800">{item.description}</p>
+        <p className="font-bold text-base text-slate-800">{item.description}</p>
         <div className="flex items-center gap-2 mt-1.5">
           <Badge tone={ACTION_ITEM_STATUS[item.status]}>{ACTION_ITEM_STATUS[item.status]?.label}</Badge>
-          {item.assigneeName && <span className="text-[10px] text-slate-400">負責人：{item.assigneeName}</span>}
-          {item.dueDate && <span className="text-[10px] text-slate-400">截止：{item.dueDate}</span>}
+          {item.assigneeName && <span className="text-xs text-slate-500">負責人：{item.assigneeName}</span>}
+          {item.dueDate && <span className="text-xs text-slate-500">截止：{item.dueDate}</span>}
         </div>
       </div>
       <div className="flex gap-1 shrink-0">

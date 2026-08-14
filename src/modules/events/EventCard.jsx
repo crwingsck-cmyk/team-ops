@@ -13,11 +13,11 @@ export default function EventCard({ event, registrationCount, layout = "grid", i
         <div className="flex items-center gap-4 min-w-0">
           <Badge tone={EVENT_STATUS[event.status]} className="shrink-0">{EVENT_STATUS[event.status]?.label}</Badge>
           <div className="min-w-0">
-            <h3 className="font-black italic text-slate-800 truncate">{event.title}</h3>
-            <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
-              <span className="flex items-center gap-1"><Calendar size={12} />{event.date}{event.startTime && ` ${event.startTime}`}</span>
-              {event.location && <span className="flex items-center gap-1 truncate"><MapPin size={12} />{event.location}</span>}
-              <span className="flex items-center gap-1"><Users size={12} />{registrationCount}{event.capacity ? `/${event.capacity}` : ""}</span>
+            <h3 className="font-black italic text-slate-800 text-base truncate">{event.title}</h3>
+            <div className="flex items-center gap-3 text-sm text-slate-600 mt-0.5">
+              <span className="flex items-center gap-1"><Calendar size={13} />{event.date}{event.startTime && ` ${event.startTime}`}</span>
+              {event.location && <span className="flex items-center gap-1 truncate"><MapPin size={13} />{event.location}</span>}
+              <span className="flex items-center gap-1"><Users size={13} />{registrationCount}{event.capacity ? `/${event.capacity}` : ""}</span>
             </div>
           </div>
         </div>
@@ -50,12 +50,12 @@ export default function EventCard({ event, registrationCount, layout = "grid", i
           )}
         </div>
       </div>
-      <h3 className="font-black italic text-slate-800 mb-2">{event.title}</h3>
-      <div className="space-y-1 text-xs text-slate-500">
-        <div className="flex items-center gap-1.5"><Calendar size={12} />{event.date}{event.startTime && ` ${event.startTime}`}</div>
-        {event.location && <div className="flex items-center gap-1.5"><MapPin size={12} />{event.location}</div>}
+      <h3 className="font-black italic text-slate-800 text-lg mb-2">{event.title}</h3>
+      <div className="space-y-1.5 text-sm text-slate-600">
+        <div className="flex items-center gap-1.5"><Calendar size={13} />{event.date}{event.startTime && ` ${event.startTime}`}</div>
+        {event.location && <div className="flex items-center gap-1.5"><MapPin size={13} />{event.location}</div>}
         <div className="flex items-center gap-1.5">
-          <Users size={12} />
+          <Users size={13} />
           {registrationCount} 人已報名{event.capacity ? ` / 上限 ${event.capacity} 人` : ""}
         </div>
       </div>

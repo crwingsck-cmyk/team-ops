@@ -4,9 +4,9 @@ import Input from "../../components/ui/Input";
 import Textarea from "../../components/ui/Textarea";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
-import { ANNOUNCEMENT_CATEGORIES } from "../../constants/categoryStyles";
+import { ANNOUNCEMENT_CATEGORIES, LINK_TYPE_LABELS } from "../../constants/categoryStyles";
 
-const EMPTY = { title: "", content: "", category: "一般", publishDate: "", expiryDate: "", links: [] };
+const EMPTY = { title: "", content: "", category: "一般", audience: "", publishDate: "", expiryDate: "", links: [] };
 
 export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
@@ -15,7 +15,7 @@ export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
     setForm(initial ? { ...EMPTY, ...initial, links: initial.links || [] } : { ...EMPTY, publishDate: new Date().toISOString().slice(0, 10) });
   }, [initial]);
 
-  const addLink = () => setForm((f) => ({ ...f, links: [...f.links, { label: "", url: "" }] }));
+  const addLink = () => setForm((f) => ({ ...f, links: [...f.links, { label: "", url: "", type: "webpage" }] }));
   const updateLink = (i, key, value) =>
     setForm((f) => ({ ...f, links: f.links.map((l, idx) => (idx === i ? { ...l, [key]: value } : l)) }));
   const removeLink = (i) => setForm((f) => ({ ...f, links: f.links.filter((_, idx) => idx !== i) }));
@@ -29,12 +29,20 @@ export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input label="標題" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       <Textarea label="內容" required rows={5} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <Select label="分類" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
           {Object.keys(ANNOUNCEMENT_CATEGORIES).map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </Select>
+        <Input
+          label="發布對象（選填）"
+          value={form.audience}
+          onChange={(e) => setForm({ ...form, audience: e.target.value })}
+          placeholder="例：全體志工、教育志業體"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
         <Input label="發布日期" type="date" value={form.publishDate} onChange={(e) => setForm({ ...form, publishDate: e.target.value })} />
         <Input label="到期日期（選填）" type="date" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} />
       </div>
@@ -49,11 +57,20 @@ export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
         <div className="space-y-2">
           {form.links.map((l, i) => (
             <div key={i} className="flex gap-2">
+              <select
+                value={l.type || "webpage"}
+                onChange={(e) => updateLink(i, "type", e.target.value)}
+                className="w-28 px-2 py-2 rounded-lg border border-slate-200 text-xs bg-white"
+              >
+                {Object.entries(LINK_TYPE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
               <input
                 placeholder="名稱"
                 value={l.label}
                 onChange={(e) => updateLink(i, "label", e.target.value)}
-                className="w-28 px-3 py-2 rounded-lg border border-slate-200 text-xs"
+                className="w-24 px-3 py-2 rounded-lg border border-slate-200 text-xs"
               />
               <input
                 placeholder="https://..."

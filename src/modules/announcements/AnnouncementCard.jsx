@@ -1,7 +1,23 @@
-import { Pencil, Trash2, Link as LinkIcon } from "lucide-react";
+import { Pencil, Trash2, Link as LinkIcon, HardDrive, Youtube, Users } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import { ANNOUNCEMENT_CATEGORIES } from "../../constants/categoryStyles";
+
+const LINK_TYPE_ICONS = {
+  webpage: LinkIcon,
+  google_drive: HardDrive,
+  youtube: Youtube,
+  other: LinkIcon,
+};
+
+function LinkPill({ link }) {
+  const Icon = LINK_TYPE_ICONS[link.type] || LinkIcon;
+  return (
+    <a href={link.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-sm text-indigo-600 font-bold">
+      <Icon size={13} /> {link.label || link.url}
+    </a>
+  );
+}
 
 export default function AnnouncementCard({ announcement, layout = "grid", isAdmin, onEdit, onDelete }) {
   const isExpired = announcement.expiryDate && announcement.expiryDate < new Date().toISOString().slice(0, 10);
@@ -12,12 +28,12 @@ export default function AnnouncementCard({ announcement, layout = "grid", isAdmi
         <div className="flex items-center gap-4 min-w-0">
           <Badge tone={ANNOUNCEMENT_CATEGORIES[announcement.category]} className="shrink-0">{announcement.category}</Badge>
           <div className="min-w-0">
-            <h3 className="font-black italic text-slate-800 truncate">{announcement.title}</h3>
-            <p className="text-xs text-slate-500 truncate">{announcement.content}</p>
+            <h3 className="font-black italic text-slate-800 text-base truncate">{announcement.title}</h3>
+            <p className="text-sm text-slate-600 truncate">{announcement.content}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-[10px] text-slate-400">{announcement.publishDate}</span>
+          <span className="text-xs text-slate-500">{announcement.publishDate}</span>
           <div className="flex gap-1">
             <button onClick={() => onEdit(announcement)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
               <Pencil size={14} />
@@ -48,18 +64,21 @@ export default function AnnouncementCard({ announcement, layout = "grid", isAdmi
           )}
         </div>
       </div>
-      <h3 className="font-black italic text-slate-800 mb-1">{announcement.title}</h3>
-      <p className="text-sm text-slate-500 mb-3 whitespace-pre-wrap line-clamp-4">{announcement.content}</p>
+      <h3 className="font-black italic text-slate-800 text-lg mb-1">{announcement.title}</h3>
+      {announcement.audience && (
+        <p className="flex items-center gap-1 text-xs text-slate-500 font-bold mb-2">
+          <Users size={12} /> 發布對象：{announcement.audience}
+        </p>
+      )}
+      <p className="text-base text-slate-600 mb-3 whitespace-pre-wrap line-clamp-4">{announcement.content}</p>
       {announcement.links?.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-2">
+        <div className="flex flex-wrap gap-3 mb-2">
           {announcement.links.map((l, i) => (
-            <a key={i} href={l.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-indigo-600 font-bold">
-              <LinkIcon size={11} /> {l.label || l.url}
-            </a>
+            <LinkPill key={i} link={l} />
           ))}
         </div>
       )}
-      <p className="text-[10px] text-slate-400">
+      <p className="text-xs text-slate-500">
         發布：{announcement.publishDate}
         {announcement.expiryDate && ` · 到期：${announcement.expiryDate}`}
       </p>
