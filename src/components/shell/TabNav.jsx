@@ -8,8 +8,8 @@ export default function TabNav({ tabs, activeTab, onChange }) {
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
-            className={`col-span-1 relative px-2 xl:px-5 py-2 xl:py-2.5 rounded-xl font-medium text-xs xl:text-sm tracking-wide transition-all duration-300 italic
-              ${isActive ? "bg-slate-700 text-slate-100 shadow-lg shadow-black/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"}`}
+            className={`col-span-1 relative px-2 xl:px-5 py-2 xl:py-2.5 rounded-xl font-semibold text-xs xl:text-sm tracking-wide transition-all duration-300 italic
+              ${isActive ? "bg-slate-700 text-slate-100 shadow-lg shadow-black/20" : "text-slate-300 hover:text-white hover:bg-slate-800/50"}`}
           >
             <div className="flex flex-col xl:flex-row items-center justify-center gap-0.5 xl:gap-2">
               <Icon size={18} className="xl:w-5 xl:h-5" />
