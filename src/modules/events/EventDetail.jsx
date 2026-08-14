@@ -7,6 +7,7 @@ import Button from "../../components/ui/Button";
 import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
 import EmptyState from "../../components/ui/EmptyState";
+import ZoomableText from "../../components/ui/ZoomableText";
 import RegistrationForm from "./RegistrationForm";
 
 export default function EventDetail({ event, isAdmin, onBack }) {
@@ -34,7 +35,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
       <Card className="mb-6">
         <h2 className="text-2xl font-black italic text-slate-800 mb-3">{event.title}</h2>
-        {event.description && <p className="text-lg italic text-slate-600 mb-4 whitespace-pre-wrap">{event.description}</p>}
+        {event.description && <ZoomableText text={event.description} colorClass="text-slate-600" className="mb-4" />}
         <div className="flex flex-wrap gap-4 text-base text-slate-600">
           <span className="flex items-center gap-1.5"><Calendar size={17} />{event.date}{event.startTime && ` ${event.startTime}${event.endTime ? `-${event.endTime}` : ""}`}</span>
           {event.location && <span className="flex items-center gap-1.5"><MapPin size={17} />{event.location}</span>}

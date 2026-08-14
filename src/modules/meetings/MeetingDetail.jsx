@@ -7,6 +7,7 @@ import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import EmptyState from "../../components/ui/EmptyState";
+import ZoomableText from "../../components/ui/ZoomableText";
 import ActionItemRow from "./ActionItemRow";
 import ActionItemForm from "./ActionItemForm";
 
@@ -45,24 +46,9 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
         {meeting.attendeeNamesSnapshot?.length > 0 && (
           <p className="text-lg text-slate-600 mb-4">出席者：{meeting.attendeeNamesSnapshot.join("、")}</p>
         )}
-        {meeting.agenda && (
-          <div className="mb-4">
-            <h4 className="text-sm font-black text-slate-600 uppercase tracking-wider mb-1.5">議程</h4>
-            <p className="text-lg italic text-slate-700 whitespace-pre-wrap">{meeting.agenda}</p>
-          </div>
-        )}
-        {meeting.minutes && (
-          <div className="mb-4">
-            <h4 className="text-sm font-black text-slate-600 uppercase tracking-wider mb-1.5">會議記錄</h4>
-            <p className="text-lg italic text-slate-700 whitespace-pre-wrap">{meeting.minutes}</p>
-          </div>
-        )}
-        {meeting.decisions && (
-          <div>
-            <h4 className="text-sm font-black text-slate-600 uppercase tracking-wider mb-1.5">決議事項</h4>
-            <p className="text-lg italic text-slate-700 whitespace-pre-wrap">{meeting.decisions}</p>
-          </div>
-        )}
+        <ZoomableText label="議程" text={meeting.agenda} colorClass="text-slate-700" className="mb-4" />
+        <ZoomableText label="會議記錄" text={meeting.minutes} colorClass="text-slate-700" className="mb-4" />
+        <ZoomableText label="決議事項" text={meeting.decisions} colorClass="text-slate-700" />
       </Card>
 
       <Card>

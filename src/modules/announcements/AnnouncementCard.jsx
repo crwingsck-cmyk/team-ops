@@ -1,6 +1,7 @@
 import { Pencil, Trash2, Link as LinkIcon, HardDrive, Youtube, Users } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
+import ZoomableText from "../../components/ui/ZoomableText";
 import { ANNOUNCEMENT_CATEGORIES } from "../../constants/categoryStyles";
 
 const LINK_TYPE_ICONS = {
@@ -70,7 +71,7 @@ export default function AnnouncementCard({ announcement, layout = "grid", isAdmi
           <Users size={16} /> 發布對象：{announcement.audience}
         </p>
       )}
-      <p className="text-lg italic text-slate-600 mb-4 whitespace-pre-wrap line-clamp-4">{announcement.content}</p>
+      <ZoomableText text={announcement.content} colorClass="text-slate-600" className="mb-4" />
       {announcement.links?.length > 0 && (
         <div className="flex flex-wrap gap-4 mb-3">
           {announcement.links.map((l, i) => (
