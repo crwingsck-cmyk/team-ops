@@ -1,7 +1,10 @@
-import { HeartHandshake } from "lucide-react";
+import { useState } from "react";
+import { HeartHandshake, Trash2 } from "lucide-react";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import { useAuth } from "../../hooks/useAuth";
+import { useMembership } from "../../hooks/useMembership";
+import RecycleBin from "./RecycleBin";
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24">
@@ -14,6 +17,8 @@ const GoogleIcon = () => (
 
 export default function Header() {
   const { user } = useAuth();
+  const { isAdmin } = useMembership();
+  const [showRecycleBin, setShowRecycleBin] = useState(false);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -26,6 +31,7 @@ export default function Header() {
   const handleSignOut = () => signOut(auth);
 
   return (
+    <>
     <header className="sticky top-4 z-40 mb-8 backdrop-blur-2xl bg-slate-800/90 border border-slate-700/50 rounded-[2rem] shadow-2xl shadow-black/10 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800"></div>
       <div className="relative px-4 py-3 xl:px-6 xl:py-5 flex flex-col xl:flex-row justify-between items-center gap-3 xl:gap-4">
@@ -56,6 +62,15 @@ export default function Header() {
                 <p className="text-xs font-black text-slate-200 italic">{user.displayName || user.email}</p>
                 <p className="text-[10px] text-slate-500 italic">已登入</p>
               </div>
+              {isAdmin && (
+                <button
+                  onClick={() => setShowRecycleBin(true)}
+                  className="p-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white transition-all"
+                  title="資源回收桶"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
               <button
                 onClick={handleSignOut}
                 className="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white text-xs font-black italic uppercase tracking-widest transition-all"
@@ -75,5 +90,8 @@ export default function Header() {
         </div>
       </div>
     </header>
+
+    {isAdmin && <RecycleBin open={showRecycleBin} onClose={() => setShowRecycleBin(false)} />}
+    </>
   );
 }

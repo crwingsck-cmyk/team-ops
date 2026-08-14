@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, Megaphone } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
+import { useMembership } from "../../hooks/useMembership";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
@@ -19,6 +20,7 @@ export default function AnnouncementsPage() {
     orderByDirection: sort,
   });
   const { create, update, remove } = useFirestoreCrud("announcements");
+  const { isAdmin } = useMembership();
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -63,6 +65,7 @@ export default function AnnouncementsPage() {
               key={a.id}
               announcement={a}
               layout={view}
+              isAdmin={isAdmin}
               onEdit={(item) => { setEditing(item); setShowForm(true); }}
               onDelete={setDeleting}
             />

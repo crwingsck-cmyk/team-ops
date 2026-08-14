@@ -7,19 +7,43 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/team-ops/v1/members/$(request.auth.uid));
     }
 
-    // Each signed-in user may read their own membership record, to know
-    // whether they've been allow-listed. Membership docs are only ever
-    // written by an admin directly in the Firestore console (or later via
-    // a Cloud Function/Admin SDK) — never from the client.
+    function isAdmin() {
+      return isMember() &&
+        get(/databases/$(database)/documents/team-ops/v1/members/$(request.auth.uid)).data.get('role', 'member') == 'admin';
+    }
+
+    function unchangedDeletedAt() {
+      return resource.data.get('deletedAt', null) == request.resource.data.get('deletedAt', null);
+    }
+
+    // Each signed-in user may read their own membership record (and its role),
+    // to know whether they've been allow-listed and what they can do.
+    // Membership docs are only ever written by an admin directly in the
+    // Firestore console (or later via a Cloud Function/Admin SDK) — never
+    // from the client.
     match /team-ops/v1/members/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if false;
     }
 
-    // Every other collection is shared team data — any allow-listed member
-    // can read/write everything (v1 has no further role distinctions).
+    // Append-only audit trail — any member can read/write new entries,
+    // nobody can edit or delete existing ones (integrity of the log).
+    match /team-ops/v1/activityLog/{document=**} {
+      allow read, create: if isMember();
+      allow update, delete: if false;
+    }
+
+    // Every other collection is shared team data. Any member can read,
+    // create, and edit. "Delete" in the UI is implemented as a soft-delete
+    // (an update that sets deletedAt) — unchangedDeletedAt() stops a regular
+    // member from toggling that field themselves, so only an admin can
+    // soft-delete, restore, or permanently delete.
     match /team-ops/v1/{collection}/{document=**} {
-      allow read, write: if collection != 'members' && isMember();
+      allow read: if collection != 'members' && collection != 'activityLog' && isMember();
+      allow create: if collection != 'members' && collection != 'activityLog' && isMember();
+      allow update: if collection != 'members' && collection != 'activityLog' && isMember()
+                      && (isAdmin() || unchangedDeletedAt());
+      allow delete: if collection != 'members' && collection != 'activityLog' && isAdmin();
     }
   }
 }

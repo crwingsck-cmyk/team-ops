@@ -6,12 +6,14 @@ import { useAuth } from "./useAuth";
 export function useMembership() {
   const { user, loading: authLoading } = useAuth();
   const [isMember, setIsMember] = useState(false);
+  const [role, setRole] = useState("member");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
       setIsMember(false);
+      setRole("member");
       setLoading(false);
       return;
     }
@@ -22,15 +24,17 @@ export function useMembership() {
       ref,
       (snap) => {
         setIsMember(snap.exists());
+        setRole(snap.data()?.role ?? "member");
         setLoading(false);
       },
       () => {
         setIsMember(false);
+        setRole("member");
         setLoading(false);
       }
     );
     return unsubscribe;
   }, [user, authLoading]);
 
-  return { isMember, loading: authLoading || loading };
+  return { isMember, role, isAdmin: role === "admin", loading: authLoading || loading };
 }

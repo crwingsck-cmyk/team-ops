@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Plus, CalendarDays } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
+import { useMembership } from "../../hooks/useMembership";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
@@ -18,6 +19,7 @@ export default function EventsPage() {
   const { data: events, loading } = useCollection("events", { orderByField: "date", orderByDirection: sort });
   const { data: registrations } = useCollection("registrations");
   const { create, update, remove } = useFirestoreCrud("events");
+  const { isAdmin } = useMembership();
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -36,7 +38,7 @@ export default function EventsPage() {
   const selected = events.find((e) => e.id === selectedId);
 
   if (selected) {
-    return <EventDetail event={selected} onBack={() => setSelectedId(null)} />;
+    return <EventDetail event={selected} isAdmin={isAdmin} onBack={() => setSelectedId(null)} />;
   }
 
   const openCreate = () => {
@@ -78,6 +80,7 @@ export default function EventsPage() {
               key={e.id}
               event={e}
               layout={view}
+              isAdmin={isAdmin}
               registrationCount={registrationCountByEvent[e.id] || 0}
               onOpen={(item) => setSelectedId(item.id)}
               onEdit={(item) => { setEditing(item); setShowForm(true); }}

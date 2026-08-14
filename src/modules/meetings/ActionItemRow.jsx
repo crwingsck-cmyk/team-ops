@@ -2,7 +2,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import Badge from "../../components/ui/Badge";
 import { ACTION_ITEM_STATUS } from "../../constants/categoryStyles";
 
-export default function ActionItemRow({ item, onEdit, onDelete }) {
+export default function ActionItemRow({ item, isAdmin, onEdit, onDelete }) {
   return (
     <li className="flex items-start justify-between gap-3 p-3 rounded-xl bg-slate-50">
       <div>
@@ -17,9 +17,11 @@ export default function ActionItemRow({ item, onEdit, onDelete }) {
         <button onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-indigo-600">
           <Pencil size={14} />
         </button>
-        <button onClick={() => onDelete(item)} className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-rose-600">
-          <Trash2 size={14} />
-        </button>
+        {isAdmin && (
+          <button onClick={() => onDelete(item)} className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-rose-600">
+            <Trash2 size={14} />
+          </button>
+        )}
       </div>
     </li>
   );

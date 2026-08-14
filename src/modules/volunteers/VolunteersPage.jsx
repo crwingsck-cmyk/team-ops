@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Plus, Users } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
+import { useMembership } from "../../hooks/useMembership";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
@@ -13,6 +14,7 @@ import VolunteerFilterBar from "./VolunteerFilterBar";
 export default function VolunteersPage() {
   const { data: volunteers, loading } = useCollection("volunteers");
   const { create, update, remove } = useFirestoreCrud("volunteers");
+  const { isAdmin } = useMembership();
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
@@ -72,6 +74,7 @@ export default function VolunteersPage() {
             <VolunteerCard
               key={v.id}
               volunteer={v}
+              isAdmin={isAdmin}
               onEdit={openEdit}
               onDelete={setDeleting}
             />

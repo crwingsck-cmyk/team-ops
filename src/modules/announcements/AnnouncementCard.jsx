@@ -3,7 +3,7 @@ import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import { ANNOUNCEMENT_CATEGORIES } from "../../constants/categoryStyles";
 
-export default function AnnouncementCard({ announcement, layout = "grid", onEdit, onDelete }) {
+export default function AnnouncementCard({ announcement, layout = "grid", isAdmin, onEdit, onDelete }) {
   const isExpired = announcement.expiryDate && announcement.expiryDate < new Date().toISOString().slice(0, 10);
 
   if (layout === "list") {
@@ -22,9 +22,11 @@ export default function AnnouncementCard({ announcement, layout = "grid", onEdit
             <button onClick={() => onEdit(announcement)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
               <Pencil size={14} />
             </button>
-            <button onClick={() => onDelete(announcement)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
-              <Trash2 size={14} />
-            </button>
+            {isAdmin && (
+              <button onClick={() => onDelete(announcement)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
+                <Trash2 size={14} />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -39,9 +41,11 @@ export default function AnnouncementCard({ announcement, layout = "grid", onEdit
           <button onClick={() => onEdit(announcement)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
             <Pencil size={14} />
           </button>
-          <button onClick={() => onDelete(announcement)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
-            <Trash2 size={14} />
-          </button>
+          {isAdmin && (
+            <button onClick={() => onDelete(announcement)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
+              <Trash2 size={14} />
+            </button>
+          )}
         </div>
       </div>
       <h3 className="font-black italic text-slate-800 mb-1">{announcement.title}</h3>

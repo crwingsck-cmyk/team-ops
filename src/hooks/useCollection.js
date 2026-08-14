@@ -12,7 +12,10 @@ export function docRef(collectionName, id) {
   return doc(db, ...ROOT_PATH, collectionName, id);
 }
 
-export function useCollection(collectionName, { orderByField, orderByDirection = "asc" } = {}) {
+export function useCollection(
+  collectionName,
+  { orderByField, orderByDirection = "asc", includeDeleted = false, onlyDeleted = false } = {}
+) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,7 +29,13 @@ export function useCollection(collectionName, { orderByField, orderByDirection =
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        setData(snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })));
+        let docs = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+        if (onlyDeleted) {
+          docs = docs.filter((d) => d.deletedAt);
+        } else if (!includeDeleted) {
+          docs = docs.filter((d) => !d.deletedAt);
+        }
+        setData(docs);
         setLoading(false);
       },
       (err) => {
@@ -36,7 +45,7 @@ export function useCollection(collectionName, { orderByField, orderByDirection =
     );
 
     return unsubscribe;
-  }, [collectionName, orderByField, orderByDirection]);
+  }, [collectionName, orderByField, orderByDirection, includeDeleted, onlyDeleted]);
 
   return { data, loading, error };
 }

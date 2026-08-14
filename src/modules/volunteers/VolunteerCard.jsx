@@ -3,7 +3,7 @@ import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import { VOLUNTEER_STATUS } from "../../constants/categoryStyles";
 
-export default function VolunteerCard({ volunteer, onEdit, onDelete }) {
+export default function VolunteerCard({ volunteer, isAdmin, onEdit, onDelete }) {
   return (
     <Card>
       <div className="flex items-start justify-between mb-3">
@@ -17,9 +17,11 @@ export default function VolunteerCard({ volunteer, onEdit, onDelete }) {
           <button onClick={() => onEdit(volunteer)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
             <Pencil size={14} />
           </button>
-          <button onClick={() => onDelete(volunteer)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
-            <Trash2 size={14} />
-          </button>
+          {isAdmin && (
+            <button onClick={() => onDelete(volunteer)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
+              <Trash2 size={14} />
+            </button>
+          )}
         </div>
       </div>
       <div className="space-y-1 text-xs text-slate-500 mb-3">

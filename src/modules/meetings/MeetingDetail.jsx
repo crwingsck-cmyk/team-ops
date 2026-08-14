@@ -10,7 +10,7 @@ import EmptyState from "../../components/ui/EmptyState";
 import ActionItemRow from "./ActionItemRow";
 import ActionItemForm from "./ActionItemForm";
 
-export default function MeetingDetail({ meeting, onBack }) {
+export default function MeetingDetail({ meeting, isAdmin, onBack }) {
   const { data: volunteers } = useCollection("volunteers");
   const { data: allActionItems } = useCollection("actionItems");
   const { create, update, remove } = useFirestoreCrud("actionItems");
@@ -78,6 +78,7 @@ export default function MeetingDetail({ meeting, onBack }) {
               <ActionItemRow
                 key={item.id}
                 item={item}
+                isAdmin={isAdmin}
                 onEdit={(i) => { setEditing(i); setShowForm(true); }}
                 onDelete={setDeleting}
               />

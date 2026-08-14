@@ -9,7 +9,7 @@ import Modal from "../../components/ui/Modal";
 import EmptyState from "../../components/ui/EmptyState";
 import RegistrationForm from "./RegistrationForm";
 
-export default function EventDetail({ event, onBack }) {
+export default function EventDetail({ event, isAdmin, onBack }) {
   const { data: volunteers } = useCollection("volunteers");
   const { data: allRegistrations, loading } = useCollection("registrations");
   const { create, update, remove } = useFirestoreCrud("registrations");
@@ -68,9 +68,11 @@ export default function EventDetail({ event, onBack }) {
                     <option value="waitlisted">候補</option>
                     <option value="cancelled">已取消</option>
                   </Select>
-                  <button onClick={() => remove(r.id)} className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-rose-600">
-                    <Trash2 size={14} />
-                  </button>
+                  {isAdmin && (
+                    <button onClick={() => remove(r.id)} className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-rose-600">
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </div>
               </li>
             ))}

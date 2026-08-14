@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, ClipboardList, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
+import { useMembership } from "../../hooks/useMembership";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
@@ -14,6 +15,7 @@ export default function MeetingsPage() {
   const { data: meetings, loading } = useCollection("meetings", { orderByField: "date", orderByDirection: "desc" });
   const { data: volunteers } = useCollection("volunteers");
   const { create, update, remove } = useFirestoreCrud("meetings");
+  const { isAdmin } = useMembership();
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -23,7 +25,7 @@ export default function MeetingsPage() {
   const selected = meetings.find((m) => m.id === selectedId);
 
   if (selected) {
-    return <MeetingDetail meeting={selected} onBack={() => setSelectedId(null)} />;
+    return <MeetingDetail meeting={selected} isAdmin={isAdmin} onBack={() => setSelectedId(null)} />;
   }
 
   const openCreate = () => {
@@ -69,12 +71,14 @@ export default function MeetingsPage() {
                   >
                     <Pencil size={14} />
                   </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setDeleting(m); }}
-                    className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setDeleting(m); }}
+                      className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </div>
               </div>
               <p className="text-xs text-slate-400 mb-3">{m.date}</p>

@@ -3,7 +3,7 @@ import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import { EVENT_STATUS } from "../../constants/categoryStyles";
 
-export default function EventCard({ event, registrationCount, layout = "grid", onOpen, onEdit, onDelete }) {
+export default function EventCard({ event, registrationCount, layout = "grid", isAdmin, onOpen, onEdit, onDelete }) {
   if (layout === "list") {
     return (
       <div
@@ -25,9 +25,11 @@ export default function EventCard({ event, registrationCount, layout = "grid", o
           <button onClick={(e) => { e.stopPropagation(); onEdit(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
             <Pencil size={14} />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
-            <Trash2 size={14} />
-          </button>
+          {isAdmin && (
+            <button onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
+              <Trash2 size={14} />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -41,9 +43,11 @@ export default function EventCard({ event, registrationCount, layout = "grid", o
           <button onClick={(e) => { e.stopPropagation(); onEdit(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
             <Pencil size={14} />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
-            <Trash2 size={14} />
-          </button>
+          {isAdmin && (
+            <button onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
+              <Trash2 size={14} />
+            </button>
+          )}
         </div>
       </div>
       <h3 className="font-black italic text-slate-800 mb-2">{event.title}</h3>

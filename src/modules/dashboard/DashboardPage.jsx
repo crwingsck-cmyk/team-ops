@@ -1,10 +1,11 @@
 import { useMemo } from "react";
-import { Megaphone, CalendarDays, MapPin } from "lucide-react";
+import { Megaphone, CalendarDays, MapPin, Activity } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import EmptyState from "../../components/ui/EmptyState";
-import { ANNOUNCEMENT_CATEGORIES } from "../../constants/categoryStyles";
+import { ANNOUNCEMENT_CATEGORIES, ACTIVITY_ACTION_LABELS, COLLECTION_LABELS } from "../../constants/categoryStyles";
+import { formatRelativeTime } from "../../lib/time";
 
 export default function DashboardPage() {
   const { data: announcements, loading: loadingAnnouncements } = useCollection("announcements", {
@@ -15,6 +16,10 @@ export default function DashboardPage() {
     orderByField: "date",
     orderByDirection: "asc",
   });
+  const { data: activityLog, loading: loadingActivity } = useCollection("activityLog", {
+    orderByField: "at",
+    orderByDirection: "desc",
+  });
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -23,8 +28,10 @@ export default function DashboardPage() {
     () => events.filter((e) => e.date >= today && e.status !== "cancelled").slice(0, 5),
     [events, today]
   );
+  const recentActivity = useMemo(() => activityLog.slice(0, 12), [activityLog]);
 
   return (
+    <div className="space-y-6">
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <div className="flex items-center gap-2 mb-4">
@@ -75,6 +82,34 @@ export default function DashboardPage() {
           </ul>
         )}
       </Card>
+    </div>
+
+    <Card>
+      <div className="flex items-center gap-2 mb-4">
+        <Activity className="text-amber-500" size={18} />
+        <h3 className="font-black italic text-slate-800">近期活動紀錄</h3>
+      </div>
+      {loadingActivity ? (
+        <p className="text-sm text-slate-400 italic">載入中...</p>
+      ) : recentActivity.length === 0 ? (
+        <EmptyState icon={Activity} title="還沒有任何操作紀錄" />
+      ) : (
+        <ul className="space-y-2">
+          {recentActivity.map((log) => (
+            <li key={log.id} className="flex items-center justify-between gap-3 text-sm py-1.5 border-b border-slate-50 last:border-0">
+              <span className="text-slate-600 truncate">
+                <span className="font-bold text-slate-800">{log.userName}</span>
+                {" "}{ACTIVITY_ACTION_LABELS[log.action] || log.action}
+                {"了"}
+                <span className="text-slate-400">{COLLECTION_LABELS[log.collectionName] || log.collectionName}</span>
+                {"「"}{log.label}{"」"}
+              </span>
+              <span className="text-[10px] text-slate-400 shrink-0">{formatRelativeTime(log.at)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
     </div>
   );
 }

@@ -33,3 +33,20 @@ export const VOLUNTEER_STATUS = {
   active: { label: "在職", bg: "bg-emerald-100", text: "text-emerald-700" },
   inactive: { label: "非在職", bg: "bg-slate-100", text: "text-slate-500" },
 };
+
+export const ACTIVITY_ACTION_LABELS = {
+  create: "新增",
+  update: "編輯",
+  delete: "刪除",
+  restore: "復原",
+  purge: "永久刪除",
+};
+
+export const COLLECTION_LABELS = {
+  announcements: "公告",
+  events: "活動",
+  registrations: "報名",
+  volunteers: "志工",
+  meetings: "會議",
+  actionItems: "待辦事項",
+};
