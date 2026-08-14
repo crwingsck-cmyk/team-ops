@@ -22,7 +22,7 @@ export default function ConfirmDialog({ open, onClose, onConfirm, title = "確�
         </>
       }
     >
-      <p className="text-sm text-slate-600">{message || "確定要刪除這筆資料嗎？此操作無法復原。"}</p>
+      <p className="text-lg text-slate-600">{message || "確定要刪除這筆資料嗎？此操作無法復原。"}</p>
     </Modal>
   );
 }

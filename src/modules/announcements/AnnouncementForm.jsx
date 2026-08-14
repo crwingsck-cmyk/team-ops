@@ -48,19 +48,19 @@ export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="block text-xs font-bold text-slate-500">相關連結（選填）</span>
-          <button type="button" onClick={addLink} className="text-xs text-indigo-600 font-bold flex items-center gap-1">
-            <Plus size={12} /> 新增連結
+        <div className="flex items-center justify-between mb-2">
+          <span className="block text-base font-bold text-slate-600">相關連結（選填）</span>
+          <button type="button" onClick={addLink} className="text-base text-indigo-600 font-bold flex items-center gap-1">
+            <Plus size={16} /> 新增連結
           </button>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {form.links.map((l, i) => (
             <div key={i} className="flex gap-2">
               <select
                 value={l.type || "webpage"}
                 onChange={(e) => updateLink(i, "type", e.target.value)}
-                className="w-28 px-2 py-2 rounded-lg border border-slate-200 text-xs bg-white"
+                className="w-32 px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
               >
                 {Object.entries(LINK_TYPE_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>
@@ -70,16 +70,16 @@ export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
                 placeholder="名稱"
                 value={l.label}
                 onChange={(e) => updateLink(i, "label", e.target.value)}
-                className="w-24 px-3 py-2 rounded-lg border border-slate-200 text-xs"
+                className="w-28 px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
               />
               <input
                 placeholder="https://..."
                 value={l.url}
                 onChange={(e) => updateLink(i, "url", e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-xs"
+                className="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
               />
               <button type="button" onClick={() => removeLink(i)} className="p-2 text-slate-400 hover:text-rose-600">
-                <X size={14} />
+                <X size={18} />
               </button>
             </div>
           ))}

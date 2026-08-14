@@ -33,14 +33,14 @@ export default function MeetingForm({ initial, volunteers, onSubmit, onCancel })
       <Input label="日期" type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
       {volunteers.length > 0 && (
         <div>
-          <span className="block text-xs font-bold text-slate-500 mb-1.5">出席者</span>
+          <span className="block text-base font-bold text-slate-600 mb-2">出席者</span>
           <div className="flex flex-wrap gap-2">
             {volunteers.map((v) => (
               <button
                 type="button"
                 key={v.id}
                 onClick={() => toggleAttendee(v.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-4 py-2 rounded-lg text-base font-bold hover:scale-[1.03] transition-all duration-200 ${
                   form.attendeeIds.includes(v.id) ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >

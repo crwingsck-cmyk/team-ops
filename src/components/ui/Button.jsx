@@ -16,10 +16,10 @@ export default function Button({
   return (
     <button
       type={type}
-      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest italic transition-all disabled:opacity-50 disabled:cursor-not-allowed ${VARIANTS[variant]} ${className}`}
+      className={`inline-flex items-center gap-2 px-5 py-3 rounded-xl font-black text-sm uppercase tracking-widest italic transition-all disabled:opacity-50 disabled:cursor-not-allowed ${VARIANTS[variant]} ${className}`}
       {...props}
     >
-      {Icon && <Icon size={14} />}
+      {Icon && <Icon size={16} />}
       {children}
     </button>
   );
