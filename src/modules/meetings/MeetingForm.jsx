@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import Input from "../../components/ui/Input";
 import Textarea from "../../components/ui/Textarea";
-import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 
-const EMPTY = { title: "", date: "", divisionId: "", attendeeIds: [], agenda: "", minutes: "", decisions: "" };
+const EMPTY = { title: "", date: "", attendeeIds: [], agenda: "", minutes: "", decisions: "" };
 
-export default function MeetingForm({ initial, volunteers, divisions, onSubmit, onCancel }) {
+export default function MeetingForm({ initial, volunteers, onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
 
   useEffect(() => {
-    setForm(initial ? { ...EMPTY, ...initial, divisionId: initial.divisionId || "", attendeeIds: initial.attendeeIds || [] } : EMPTY);
+    setForm(initial ? { ...EMPTY, ...initial, attendeeIds: initial.attendeeIds || [] } : EMPTY);
   }, [initial]);
 
   const toggleAttendee = (id) => {
@@ -25,21 +24,13 @@ export default function MeetingForm({ initial, volunteers, divisions, onSubmit, 
     const attendeeNamesSnapshot = form.attendeeIds
       .map((id) => volunteers.find((v) => v.id === id)?.name)
       .filter(Boolean);
-    onSubmit({ ...form, divisionId: form.divisionId || null, attendeeNamesSnapshot });
+    onSubmit({ ...form, attendeeNamesSnapshot });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input label="會議名稱" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-      <div className="grid grid-cols-2 gap-3">
-        <Input label="日期" type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-        <Select label="所屬志業體（選填）" value={form.divisionId} onChange={(e) => setForm({ ...form, divisionId: e.target.value })}>
-          <option value="">（未指定）</option>
-          {divisions.map((d) => (
-            <option key={d.id} value={d.id}>{d.name}</option>
-          ))}
-        </Select>
-      </div>
+      <Input label="日期" type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
       {volunteers.length > 0 && (
         <div>
           <span className="block text-xs font-bold text-slate-500 mb-1.5">出席者</span>

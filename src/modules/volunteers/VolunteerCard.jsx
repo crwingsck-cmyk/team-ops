@@ -3,9 +3,7 @@ import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import { VOLUNTEER_STATUS } from "../../constants/categoryStyles";
 
-export default function VolunteerCard({ volunteer, divisionsById, onEdit, onDelete }) {
-  const divisionNames = (volunteer.divisionIds || []).map((id) => divisionsById[id]?.name).filter(Boolean);
-
+export default function VolunteerCard({ volunteer, onEdit, onDelete }) {
   return (
     <Card>
       <div className="flex items-start justify-between mb-3">
@@ -36,13 +34,6 @@ export default function VolunteerCard({ volunteer, divisionsById, onEdit, onDele
         <div className="flex flex-wrap gap-1 mb-2">
           {volunteer.skills.map((s) => (
             <span key={s} className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold">{s}</span>
-          ))}
-        </div>
-      )}
-      {divisionNames.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {divisionNames.map((n) => (
-            <span key={n} className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold">{n}</span>
           ))}
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Plus, ClipboardList, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
@@ -13,7 +13,6 @@ import MeetingDetail from "./MeetingDetail";
 export default function MeetingsPage() {
   const { data: meetings, loading } = useCollection("meetings", { orderByField: "date", orderByDirection: "desc" });
   const { data: volunteers } = useCollection("volunteers");
-  const { data: divisions } = useCollection("divisions");
   const { create, update, remove } = useFirestoreCrud("meetings");
 
   const [showForm, setShowForm] = useState(false);
@@ -21,17 +20,10 @@ export default function MeetingsPage() {
   const [deleting, setDeleting] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
 
-  const divisionsById = useMemo(() => Object.fromEntries(divisions.map((d) => [d.id, d])), [divisions]);
   const selected = meetings.find((m) => m.id === selectedId);
 
   if (selected) {
-    return (
-      <MeetingDetail
-        meeting={selected}
-        divisionName={selected.divisionId ? divisionsById[selected.divisionId]?.name : null}
-        onBack={() => setSelectedId(null)}
-      />
-    );
+    return <MeetingDetail meeting={selected} onBack={() => setSelectedId(null)} />;
   }
 
   const openCreate = () => {
@@ -85,10 +77,7 @@ export default function MeetingsPage() {
                   </button>
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mb-3">
-                {m.date}
-                {m.divisionId && ` · ${divisionsById[m.divisionId]?.name || ""}`}
-              </p>
+              <p className="text-xs text-slate-400 mb-3">{m.date}</p>
               <div className="flex items-center justify-between text-xs text-slate-400">
                 <span>{m.attendeeNamesSnapshot?.length || 0} 位出席</span>
                 <ChevronRight size={14} />
@@ -99,7 +88,7 @@ export default function MeetingsPage() {
       )}
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title={editing ? "編輯會議" : "新增會議"}>
-        <MeetingForm initial={editing} volunteers={volunteers} divisions={divisions} onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
+        <MeetingForm initial={editing} volunteers={volunteers} onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
       </Modal>
 
       <ConfirmDialog

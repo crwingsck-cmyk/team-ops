@@ -10,7 +10,7 @@ import EmptyState from "../../components/ui/EmptyState";
 import ActionItemRow from "./ActionItemRow";
 import ActionItemForm from "./ActionItemForm";
 
-export default function MeetingDetail({ meeting, divisionName, onBack }) {
+export default function MeetingDetail({ meeting, onBack }) {
   const { data: volunteers } = useCollection("volunteers");
   const { data: allActionItems } = useCollection("actionItems");
   const { create, update, remove } = useFirestoreCrud("actionItems");
@@ -41,10 +41,7 @@ export default function MeetingDetail({ meeting, divisionName, onBack }) {
 
       <Card className="mb-6">
         <h2 className="text-xl font-black italic text-slate-800 mb-1">{meeting.title}</h2>
-        <p className="text-xs text-slate-400 mb-4">
-          {meeting.date}
-          {divisionName && ` · ${divisionName}`}
-        </p>
+        <p className="text-xs text-slate-400 mb-4">{meeting.date}</p>
         {meeting.attendeeNamesSnapshot?.length > 0 && (
           <p className="text-xs text-slate-500 mb-4">出席者：{meeting.attendeeNamesSnapshot.join("、")}</p>
         )}

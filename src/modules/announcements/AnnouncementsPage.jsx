@@ -6,13 +6,17 @@ import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import EmptyState from "../../components/ui/EmptyState";
+import ListControls from "../../components/ui/ListControls";
 import AnnouncementCard from "./AnnouncementCard";
 import AnnouncementForm from "./AnnouncementForm";
 
 export default function AnnouncementsPage() {
+  const [sort, setSort] = useState("desc");
+  const [view, setView] = useState("grid");
+
   const { data: announcements, loading } = useCollection("announcements", {
     orderByField: "publishDate",
-    orderByDirection: "desc",
+    orderByDirection: sort,
   });
   const { create, update, remove } = useFirestoreCrud("announcements");
 
@@ -41,6 +45,8 @@ export default function AnnouncementsPage() {
         <Button icon={Plus} onClick={openCreate}>發布公告</Button>
       </div>
 
+      {announcements.length > 0 && <ListControls view={view} onViewChange={setView} sort={sort} onSortChange={setSort} />}
+
       {loading ? (
         <div className="text-center py-16 text-slate-400 italic">載入中...</div>
       ) : announcements.length === 0 ? (
@@ -51,11 +57,12 @@ export default function AnnouncementsPage() {
           action={<Button icon={Plus} onClick={openCreate}>發布公告</Button>}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "flex flex-col gap-3"}>
           {announcements.map((a) => (
             <AnnouncementCard
               key={a.id}
               announcement={a}
+              layout={view}
               onEdit={(item) => { setEditing(item); setShowForm(true); }}
               onDelete={setDeleting}
             />

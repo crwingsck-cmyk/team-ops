@@ -10,13 +10,12 @@ const EMPTY = {
   email: "",
   lineId: "",
   skills: "",
-  divisionIds: [],
   joinDate: "",
   status: "active",
   notes: "",
 };
 
-export default function VolunteerForm({ initial, divisions, onSubmit, onCancel }) {
+export default function VolunteerForm({ initial, onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
 
   useEffect(() => {
@@ -25,21 +24,11 @@ export default function VolunteerForm({ initial, divisions, onSubmit, onCancel }
         ...EMPTY,
         ...initial,
         skills: (initial.skills || []).join(", "),
-        divisionIds: initial.divisionIds || [],
       });
     } else {
       setForm(EMPTY);
     }
   }, [initial]);
-
-  const toggleDivision = (id) => {
-    setForm((f) => ({
-      ...f,
-      divisionIds: f.divisionIds.includes(id)
-        ? f.divisionIds.filter((d) => d !== id)
-        : [...f.divisionIds, id],
-    }));
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -69,27 +58,6 @@ export default function VolunteerForm({ initial, divisions, onSubmit, onCancel }
         onChange={(e) => setForm({ ...form, skills: e.target.value })}
         placeholder="例：司機, 香積, 翻譯"
       />
-      {divisions.length > 0 && (
-        <div>
-          <span className="block text-xs font-bold text-slate-500 mb-1.5">隸屬志業體</span>
-          <div className="flex flex-wrap gap-2">
-            {divisions.map((d) => (
-              <button
-                type="button"
-                key={d.id}
-                onClick={() => toggleDivision(d.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  form.divisionIds.includes(d.id)
-                    ? "bg-indigo-600 text-white"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                {d.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
       <Select label="狀態" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
         <option value="active">在職</option>
         <option value="inactive">非在職</option>

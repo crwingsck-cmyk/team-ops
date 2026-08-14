@@ -6,13 +6,16 @@ import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import EmptyState from "../../components/ui/EmptyState";
+import ListControls from "../../components/ui/ListControls";
 import EventCard from "./EventCard";
 import EventForm from "./EventForm";
 import EventDetail from "./EventDetail";
 
 export default function EventsPage() {
-  const { data: events, loading } = useCollection("events", { orderByField: "date", orderByDirection: "desc" });
-  const { data: divisions } = useCollection("divisions");
+  const [sort, setSort] = useState("desc");
+  const [view, setView] = useState("grid");
+
+  const { data: events, loading } = useCollection("events", { orderByField: "date", orderByDirection: sort });
   const { data: registrations } = useCollection("registrations");
   const { create, update, remove } = useFirestoreCrud("events");
 
@@ -21,7 +24,6 @@ export default function EventsPage() {
   const [deleting, setDeleting] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
 
-  const divisionsById = useMemo(() => Object.fromEntries(divisions.map((d) => [d.id, d])), [divisions]);
   const registrationCountByEvent = useMemo(() => {
     const counts = {};
     for (const r of registrations) {
@@ -34,13 +36,7 @@ export default function EventsPage() {
   const selected = events.find((e) => e.id === selectedId);
 
   if (selected) {
-    return (
-      <EventDetail
-        event={selected}
-        divisionName={selected.divisionId ? divisionsById[selected.divisionId]?.name : null}
-        onBack={() => setSelectedId(null)}
-      />
-    );
+    return <EventDetail event={selected} onBack={() => setSelectedId(null)} />;
   }
 
   const openCreate = () => {
@@ -64,6 +60,8 @@ export default function EventsPage() {
         <Button icon={Plus} onClick={openCreate}>新增活動</Button>
       </div>
 
+      {events.length > 0 && <ListControls view={view} onViewChange={setView} sort={sort} onSortChange={setSort} />}
+
       {loading ? (
         <div className="text-center py-16 text-slate-400 italic">載入中...</div>
       ) : events.length === 0 ? (
@@ -74,13 +72,13 @@ export default function EventsPage() {
           action={<Button icon={Plus} onClick={openCreate}>新增活動</Button>}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "flex flex-col gap-3"}>
           {events.map((e) => (
             <EventCard
               key={e.id}
               event={e}
+              layout={view}
               registrationCount={registrationCountByEvent[e.id] || 0}
-              divisionName={e.divisionId ? divisionsById[e.divisionId]?.name : null}
               onOpen={(item) => setSelectedId(item.id)}
               onEdit={(item) => { setEditing(item); setShowForm(true); }}
               onDelete={setDeleting}
@@ -90,7 +88,7 @@ export default function EventsPage() {
       )}
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title={editing ? "編輯活動" : "新增活動"}>
-        <EventForm initial={editing} divisions={divisions} onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
+        <EventForm initial={editing} onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
       </Modal>
 
       <ConfirmDialog

@@ -13,22 +13,20 @@ const EMPTY = {
   location: "",
   capacity: "",
   registrationDeadline: "",
-  divisionId: "",
   status: "published",
 };
 
-export default function EventForm({ initial, divisions, onSubmit, onCancel }) {
+export default function EventForm({ initial, onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
 
   useEffect(() => {
-    setForm(initial ? { ...EMPTY, ...initial, divisionId: initial.divisionId || "", capacity: initial.capacity ?? "" } : EMPTY);
+    setForm(initial ? { ...EMPTY, ...initial, capacity: initial.capacity ?? "" } : EMPTY);
   }, [initial]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit({
       ...form,
-      divisionId: form.divisionId || null,
       capacity: form.capacity === "" ? null : Number(form.capacity),
       registrationDeadline: form.registrationDeadline || null,
       endTime: form.endTime || null,
@@ -49,19 +47,11 @@ export default function EventForm({ initial, divisions, onSubmit, onCancel }) {
         <Input label="人數上限（選填）" type="number" min="0" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })} />
         <Input label="報名截止日期（選填）" type="date" value={form.registrationDeadline} onChange={(e) => setForm({ ...form, registrationDeadline: e.target.value })} />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Select label="所屬志業體（選填）" value={form.divisionId} onChange={(e) => setForm({ ...form, divisionId: e.target.value })}>
-          <option value="">（未指定）</option>
-          {divisions.map((d) => (
-            <option key={d.id} value={d.id}>{d.name}</option>
-          ))}
-        </Select>
-        <Select label="狀態" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-          <option value="draft">草稿</option>
-          <option value="published">已發布</option>
-          <option value="cancelled">已取消</option>
-        </Select>
-      </div>
+      <Select label="狀態" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+        <option value="draft">草稿</option>
+        <option value="published">已發布</option>
+        <option value="cancelled">已取消</option>
+      </Select>
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="secondary" onClick={onCancel}>取消</Button>
         <Button type="submit">儲存</Button>

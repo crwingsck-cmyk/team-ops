@@ -9,7 +9,7 @@ import Modal from "../../components/ui/Modal";
 import EmptyState from "../../components/ui/EmptyState";
 import RegistrationForm from "./RegistrationForm";
 
-export default function EventDetail({ event, divisionName, onBack }) {
+export default function EventDetail({ event, onBack }) {
   const { data: volunteers } = useCollection("volunteers");
   const { data: allRegistrations, loading } = useCollection("registrations");
   const { create, update, remove } = useFirestoreCrud("registrations");
@@ -38,7 +38,6 @@ export default function EventDetail({ event, divisionName, onBack }) {
         <div className="flex flex-wrap gap-4 text-xs text-slate-500">
           <span className="flex items-center gap-1.5"><Calendar size={12} />{event.date}{event.startTime && ` ${event.startTime}${event.endTime ? `-${event.endTime}` : ""}`}</span>
           {event.location && <span className="flex items-center gap-1.5"><MapPin size={12} />{event.location}</span>}
-          {divisionName && <span>志業體：{divisionName}</span>}
         </div>
       </Card>
 

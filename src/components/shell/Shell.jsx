@@ -1,4 +1,4 @@
-import { LayoutDashboard, Megaphone, CalendarDays, Users, ClipboardList, Building2 } from "lucide-react";
+import { LayoutDashboard, Megaphone, CalendarDays, Users, ClipboardList } from "lucide-react";
 import Header from "./Header";
 import TabNav from "./TabNav";
 
@@ -8,7 +8,6 @@ export const TABS = [
   { id: "events", label: "活動", icon: CalendarDays },
   { id: "volunteers", label: "志工", icon: Users },
   { id: "meetings", label: "會議", icon: ClipboardList },
-  { id: "divisions", label: "志業體", icon: Building2 },
 ];
 
 export default function Shell({ activeTab, onTabChange, children }) {

@@ -12,7 +12,6 @@ import VolunteerFilterBar from "./VolunteerFilterBar";
 
 export default function VolunteersPage() {
   const { data: volunteers, loading } = useCollection("volunteers");
-  const { data: divisions } = useCollection("divisions");
   const { create, update, remove } = useFirestoreCrud("volunteers");
 
   const [search, setSearch] = useState("");
@@ -20,8 +19,6 @@ export default function VolunteersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
-
-  const divisionsById = useMemo(() => Object.fromEntries(divisions.map((d) => [d.id, d])), [divisions]);
 
   const filtered = useMemo(() => {
     return volunteers.filter((v) => {
@@ -75,7 +72,6 @@ export default function VolunteersPage() {
             <VolunteerCard
               key={v.id}
               volunteer={v}
-              divisionsById={divisionsById}
               onEdit={openEdit}
               onDelete={setDeleting}
             />
@@ -86,7 +82,6 @@ export default function VolunteersPage() {
       <Modal open={showForm} onClose={() => setShowForm(false)} title={editing ? "編輯志工" : "新增志工"}>
         <VolunteerForm
           initial={editing}
-          divisions={divisions}
           onSubmit={handleSubmit}
           onCancel={() => setShowForm(false)}
         />

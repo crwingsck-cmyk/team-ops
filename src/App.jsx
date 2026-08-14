@@ -9,7 +9,6 @@ import AnnouncementsPage from "./modules/announcements/AnnouncementsPage";
 import EventsPage from "./modules/events/EventsPage";
 import VolunteersPage from "./modules/volunteers/VolunteersPage";
 import MeetingsPage from "./modules/meetings/MeetingsPage";
-import DivisionsPage from "./modules/divisions/DivisionsPage";
 
 const PAGES = {
   dashboard: DashboardPage,
@@ -17,7 +16,6 @@ const PAGES = {
   events: EventsPage,
   volunteers: VolunteersPage,
   meetings: MeetingsPage,
-  divisions: DivisionsPage,
 };
 
 export default function App() {
@@ -36,7 +34,7 @@ export default function App() {
         <EmptyState
           icon={LogIn}
           title="請先登入"
-          description="登入後即可查看與編輯團隊共用的活動、志工、會議與志業體資料。"
+          description="登入後即可查看與編輯團隊共用的公告、活動、志工與會議資料。"
         />
       ) : !isMember ? (
         <EmptyState
