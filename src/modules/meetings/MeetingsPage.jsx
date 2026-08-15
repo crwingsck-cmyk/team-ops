@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, ClipboardList, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { Plus, ClipboardList, ChevronRight, Pencil, Trash2, Video } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useMembership } from "../../hooks/useMembership";
@@ -83,7 +83,10 @@ export default function MeetingsPage() {
               </div>
               <p className="text-lg text-slate-500 mb-3">{m.date}</p>
               <div className="flex items-center justify-between text-lg text-slate-500">
-                <span>{m.attendeeNamesSnapshot?.length || 0} 位出席</span>
+                <span className="flex items-center gap-3">
+                  {m.attendeeNamesSnapshot?.length || 0} 位出席
+                  {m.meetingLink && <Video size={17} className="text-indigo-500" />}
+                </span>
                 <ChevronRight size={18} />
               </div>
             </Card>

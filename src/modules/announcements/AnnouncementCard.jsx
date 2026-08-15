@@ -1,24 +1,9 @@
-import { Pencil, Trash2, Link as LinkIcon, HardDrive, Youtube, Users } from "lucide-react";
+import { Pencil, Trash2, Users } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import ZoomableText from "../../components/ui/ZoomableText";
+import LinkPill from "../../components/ui/LinkPill";
 import { ANNOUNCEMENT_CATEGORIES } from "../../constants/categoryStyles";
-
-const LINK_TYPE_ICONS = {
-  webpage: LinkIcon,
-  google_drive: HardDrive,
-  youtube: Youtube,
-  other: LinkIcon,
-};
-
-function LinkPill({ link }) {
-  const Icon = LINK_TYPE_ICONS[link.type] || LinkIcon;
-  return (
-    <a href={link.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-lg text-indigo-600 font-bold">
-      <Icon size={18} /> {link.label || link.url}
-    </a>
-  );
-}
 
 export default function AnnouncementCard({ announcement, layout = "grid", isAdmin, onEdit, onDelete }) {
   const isExpired = announcement.expiryDate && announcement.expiryDate < new Date().toISOString().slice(0, 10);
@@ -27,6 +12,9 @@ export default function AnnouncementCard({ announcement, layout = "grid", isAdmi
     return (
       <div className={`flex items-center justify-between gap-4 bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 ${isExpired ? "opacity-60" : ""}`}>
         <div className="flex items-center gap-4 min-w-0">
+          {announcement.posterUrl && (
+            <img src={announcement.posterUrl} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
+          )}
           <Badge tone={ANNOUNCEMENT_CATEGORIES[announcement.category]} className="shrink-0">{announcement.category}</Badge>
           <div className="min-w-0">
             <h3 className="font-black italic text-slate-800 text-xl truncate">{announcement.title}</h3>
@@ -65,6 +53,9 @@ export default function AnnouncementCard({ announcement, layout = "grid", isAdmi
           )}
         </div>
       </div>
+      {announcement.posterUrl && (
+        <img src={announcement.posterUrl} alt="" className="w-full max-h-56 object-contain bg-slate-100 rounded-2xl mb-3" />
+      )}
       <h3 className="font-black italic text-slate-800 text-2xl mb-2">{announcement.title}</h3>
       {announcement.audience && (
         <p className="flex items-center gap-1.5 text-base text-slate-500 font-bold mb-3">

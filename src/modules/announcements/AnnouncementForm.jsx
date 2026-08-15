@@ -4,12 +4,24 @@ import Input from "../../components/ui/Input";
 import Textarea from "../../components/ui/Textarea";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
+import ImageUploadField from "../../components/ui/ImageUploadField";
 import { ANNOUNCEMENT_CATEGORIES, LINK_TYPE_LABELS } from "../../constants/categoryStyles";
 
-const EMPTY = { title: "", content: "", category: "一般", audience: "", publishDate: "", expiryDate: "", links: [] };
+const EMPTY = {
+  title: "",
+  content: "",
+  category: "一般",
+  audience: "",
+  publishDate: "",
+  expiryDate: "",
+  links: [],
+  posterUrl: "",
+  posterPath: "",
+};
 
 export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     setForm(initial ? { ...EMPTY, ...initial, links: initial.links || [] } : { ...EMPTY, publishDate: new Date().toISOString().slice(0, 10) });
@@ -46,6 +58,14 @@ export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
         <Input label="發布日期" type="date" value={form.publishDate} onChange={(e) => setForm({ ...form, publishDate: e.target.value })} />
         <Input label="到期日期（選填）" type="date" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} />
       </div>
+
+      <ImageUploadField
+        folder="announcements"
+        url={form.posterUrl}
+        path={form.posterPath}
+        onChange={({ url, path }) => setForm((f) => ({ ...f, posterUrl: url, posterPath: path }))}
+        onUploadingChange={setUploading}
+      />
 
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -88,7 +108,7 @@ export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
 
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="secondary" onClick={onCancel}>取消</Button>
-        <Button type="submit">儲存</Button>
+        <Button type="submit" disabled={uploading}>儲存</Button>
       </div>
     </form>
   );

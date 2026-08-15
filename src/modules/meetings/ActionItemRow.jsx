@@ -7,11 +7,13 @@ export default function ActionItemRow({ item, isAdmin, onEdit, onDelete }) {
     <li className="flex items-start justify-between gap-3 p-4 rounded-xl bg-slate-50 hover:scale-[1.02] transition-all duration-200">
       <div>
         <p className="font-bold text-xl text-slate-800">{item.description}</p>
-        <div className="flex items-center gap-3 mt-2">
+        <div className="flex flex-wrap items-center gap-3 mt-2">
           <Badge tone={ACTION_ITEM_STATUS[item.status]}>{ACTION_ITEM_STATUS[item.status]?.label}</Badge>
           {item.assigneeName && <span className="text-base text-slate-500">負責人：{item.assigneeName}</span>}
-          {item.dueDate && <span className="text-base text-slate-500">截止：{item.dueDate}</span>}
+          {item.helperNames && <span className="text-base text-slate-500">協助：{item.helperNames}</span>}
+          {item.dueDate && <span className="text-base text-slate-500">期限：{item.dueDate}</span>}
         </div>
+        {item.expectedOutcome && <p className="text-base text-slate-500 italic mt-1">預期成果：{item.expectedOutcome}</p>}
       </div>
       <div className="flex gap-1 shrink-0">
         <button onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-indigo-600">

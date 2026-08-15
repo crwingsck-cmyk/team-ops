@@ -6,6 +6,7 @@ import Badge from "../../components/ui/Badge";
 import EmptyState from "../../components/ui/EmptyState";
 import { ANNOUNCEMENT_CATEGORIES, ACTIVITY_ACTION_LABELS, COLLECTION_LABELS } from "../../constants/categoryStyles";
 import { formatRelativeTime } from "../../lib/time";
+import { getDays, dateRangeText, sameLocationForAllDays } from "../../lib/eventDays";
 
 export default function DashboardPage() {
   const [showActivity, setShowActivity] = useState(false);
@@ -27,65 +28,13 @@ export default function DashboardPage() {
 
   const recentAnnouncements = useMemo(() => announcements.slice(0, 5), [announcements]);
   const upcomingEvents = useMemo(
-    () => events.filter((e) => e.date >= today && e.status !== "cancelled").slice(0, 5),
+    () => events.filter((e) => (e.endDate || e.date) >= today && e.status !== "cancelled").slice(0, 5),
     [events, today]
   );
   const recentActivity = useMemo(() => activityLog.slice(0, 12), [activityLog]);
 
   return (
     <div className="space-y-6">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card>
-        <div className="flex items-center gap-2 mb-4">
-          <Megaphone className="text-indigo-500" size={18} />
-          <h3 className="font-black italic text-slate-800 text-xl">最新公告</h3>
-        </div>
-        {loadingAnnouncements ? (
-          <p className="text-base text-slate-400 italic">載入中...</p>
-        ) : recentAnnouncements.length === 0 ? (
-          <EmptyState icon={Megaphone} title="還沒有公告" />
-        ) : (
-          <ul className="space-y-4">
-            {recentAnnouncements.map((a) => (
-              <li key={a.id} className="pb-4 border-b border-slate-100 last:border-0 last:pb-0">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Badge tone={ANNOUNCEMENT_CATEGORIES[a.category]}>{a.category}</Badge>
-                  <span className="text-sm text-slate-500">{a.publishDate}</span>
-                </div>
-                <p className="text-xl font-bold text-slate-800">{a.title}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
-
-      <Card>
-        <div className="flex items-center gap-2 mb-4">
-          <CalendarDays className="text-emerald-500" size={18} />
-          <h3 className="font-black italic text-slate-800 text-xl">即將到來的活動</h3>
-        </div>
-        {loadingEvents ? (
-          <p className="text-base text-slate-400 italic">載入中...</p>
-        ) : upcomingEvents.length === 0 ? (
-          <EmptyState icon={CalendarDays} title="近期沒有活動" />
-        ) : (
-          <ul className="space-y-4">
-            {upcomingEvents.map((e) => (
-              <li key={e.id} className="pb-4 border-b border-slate-100 last:border-0 last:pb-0">
-                <p className="text-xl font-bold text-slate-800">{e.title}</p>
-                <div className="flex items-center gap-3 text-sm text-slate-500 mt-1.5">
-                  <span>{e.date}{e.startTime && ` ${e.startTime}`}</span>
-                  {e.location && (
-                    <span className="flex items-center gap-1"><MapPin size={14} />{e.location}</span>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
-    </div>
-
     <Card>
       <button
         onClick={() => setShowActivity((v) => !v)}
@@ -122,6 +71,63 @@ export default function DashboardPage() {
         </div>
       )}
     </Card>
+
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card>
+        <div className="flex items-center gap-2 mb-4">
+          <Megaphone className="text-indigo-500" size={18} />
+          <h3 className="font-black italic text-slate-800 text-xl">最新公告</h3>
+        </div>
+        {loadingAnnouncements ? (
+          <p className="text-base text-slate-400 italic">載入中...</p>
+        ) : recentAnnouncements.length === 0 ? (
+          <EmptyState icon={Megaphone} title="還沒有公告" />
+        ) : (
+          <ul className="space-y-4">
+            {recentAnnouncements.map((a) => (
+              <li key={a.id} className="pb-4 border-b border-slate-100 last:border-0 last:pb-0">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Badge tone={ANNOUNCEMENT_CATEGORIES[a.category]}>{a.category}</Badge>
+                  <span className="text-sm text-slate-500">{a.publishDate}</span>
+                </div>
+                <p className="text-xl font-bold text-slate-800">{a.title}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <Card>
+        <div className="flex items-center gap-2 mb-4">
+          <CalendarDays className="text-emerald-500" size={18} />
+          <h3 className="font-black italic text-slate-800 text-xl">即將到來的活動</h3>
+        </div>
+        {loadingEvents ? (
+          <p className="text-base text-slate-400 italic">載入中...</p>
+        ) : upcomingEvents.length === 0 ? (
+          <EmptyState icon={CalendarDays} title="近期沒有活動" />
+        ) : (
+          <ul className="space-y-4">
+            {upcomingEvents.map((e) => {
+              const days = getDays(e);
+              const commonLocation = sameLocationForAllDays(days);
+              const locationText = commonLocation !== null ? commonLocation : (days.length > 1 ? "多個地點" : "");
+              return (
+                <li key={e.id} className="pb-4 border-b border-slate-100 last:border-0 last:pb-0">
+                  <p className="text-xl font-bold text-slate-800">{e.title}</p>
+                  <div className="flex items-center gap-3 text-sm text-slate-500 mt-1.5">
+                    <span>{dateRangeText(e)}{days.length === 1 && days[0]?.startTime && ` ${days[0].startTime}`}</span>
+                    {locationText && (
+                      <span className="flex items-center gap-1"><MapPin size={14} />{locationText}</span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Card>
+    </div>
     </div>
   );
 }

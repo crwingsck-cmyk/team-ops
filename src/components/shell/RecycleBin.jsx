@@ -4,6 +4,7 @@ import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { COLLECTION_LABELS } from "../../constants/categoryStyles";
 import { daysSince, formatRelativeTime } from "../../lib/time";
+import { deleteImage } from "../../lib/storage";
 import Modal from "../ui/Modal";
 import EmptyState from "../ui/EmptyState";
 
@@ -32,11 +33,16 @@ export default function RecycleBin({ open, onClose }) {
       .sort((a, b) => (b.deletedAt?.toMillis?.() || 0) - (a.deletedAt?.toMillis?.() || 0));
   }, [sources]);
 
+  const purge = (item) => {
+    if (item.posterPath) deleteImage(item.posterPath);
+    item.crud.permanentlyDelete(item.id);
+  };
+
   useEffect(() => {
     if (!open) return;
     for (const item of items) {
       if (daysSince(item.deletedAt) > PURGE_AFTER_DAYS) {
-        item.crud.permanentlyDelete(item.id);
+        purge(item);
       }
     }
     // Only run the sweep when the bin is opened / its contents change, not on every render.
@@ -75,7 +81,7 @@ export default function RecycleBin({ open, onClose }) {
                 <button
                   onClick={() => {
                     if (window.confirm(`確定要永久刪除「${item.title ?? item.name ?? item.description ?? "此項目"}」嗎？此操作無法復原。`)) {
-                      item.crud.permanentlyDelete(item.id);
+                      purge(item);
                     }
                   }}
                   className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-rose-600"
