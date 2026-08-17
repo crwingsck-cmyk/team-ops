@@ -19,12 +19,15 @@ export default function Header() {
   const { user } = useAuth();
   const { isAdmin } = useMembership();
   const [showRecycleBin, setShowRecycleBin] = useState(false);
+  const [signInError, setSignInError] = useState("");
 
   const handleGoogleSignIn = async () => {
+    setSignInError("");
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (err) {
       console.error(err);
+      setSignInError(`${err.code || "登入失敗"}：${err.message || String(err)}`);
     }
   };
 
@@ -79,13 +82,18 @@ export default function Header() {
               </button>
             </div>
           ) : (
-            <button
-              onClick={handleGoogleSignIn}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-black italic uppercase tracking-widest transition-all shadow-lg"
-            >
-              <GoogleIcon />
-              Google 登入
-            </button>
+            <div className="flex flex-col items-end gap-2">
+              <button
+                onClick={handleGoogleSignIn}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-black italic uppercase tracking-widest transition-all shadow-lg"
+              >
+                <GoogleIcon />
+                Google 登入
+              </button>
+              {signInError && (
+                <p className="max-w-xs text-right text-xs font-bold text-rose-300 break-words">{signInError}</p>
+              )}
+            </div>
           )}
         </div>
       </div>
