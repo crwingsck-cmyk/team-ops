@@ -22,10 +22,16 @@ export default function Header() {
   const [signInError, setSignInError] = useState("");
 
   useEffect(() => {
-    getRedirectResult(auth).catch((err) => {
-      console.error(err);
-      setSignInError(`${err.code || "登入失敗"}：${err.message || String(err)}`);
-    });
+    getRedirectResult(auth)
+      .then((result) => {
+        if (!result) {
+          setSignInError("診斷：redirect 完成但沒有取回登入結果（result 為 null），瀏覽器可能把中間狀態弄丟了。");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setSignInError(`${err.code || "登入失敗"}：${err.message || String(err)}`);
+      });
   }, []);
 
   const handleGoogleSignIn = async () => {
