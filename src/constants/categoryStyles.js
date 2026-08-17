@@ -74,6 +74,8 @@ export const TC_IDENTIFICATION_LABELS = {
   training: "培訓 PeiXun",
   trainee: "見習 Trainee",
   volunteer: "志工 Volunteer",
+  zi_qing: "慈青 Tzu Ching",
+  zi_shao: "慈少 Tzu Shao",
   da_de: "大德 Da De",
 };
 
@@ -126,6 +128,7 @@ export const ACTIVITY_ACTION_LABELS = {
 
 export const LINK_TYPE_LABELS = {
   webpage: "網頁",
+  google_form: "Google 表單",
   google_drive: "Google Drive",
   youtube: "YouTube",
   zoom: "Zoom 會議",

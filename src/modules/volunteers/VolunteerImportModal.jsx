@@ -67,6 +67,8 @@ const SELECT_FIELDS = [
       da_de: ["大德", "Da De"],
       tzu_cheng: ["慈誠", "Tzu-Cheng"],
       commissioner: ["委員", "Commissioner"],
+      zi_qing: ["慈青", "Tzu Ching"],
+      zi_shao: ["慈少", "Tzu Shao"],
     } },
 ];
 

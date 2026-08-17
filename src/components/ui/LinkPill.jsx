@@ -1,7 +1,8 @@
-import { Link as LinkIcon, HardDrive, Youtube, Video, ClipboardList } from "lucide-react";
+import { Link as LinkIcon, HardDrive, Youtube, Video, ClipboardList, FileText } from "lucide-react";
 
 const LINK_TYPE_ICONS = {
   webpage: LinkIcon,
+  google_form: FileText,
   google_drive: HardDrive,
   youtube: Youtube,
   zoom: Video,

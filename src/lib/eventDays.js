@@ -4,6 +4,10 @@ export function getDays(event) {
   return [];
 }
 
+export function eventFirstDate(event) {
+  return getDays(event)[0]?.date || "";
+}
+
 export function dateRangeText(event) {
   const days = getDays(event);
   const { date, endDate } = computeDateRange(days);

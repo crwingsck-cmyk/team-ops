@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Plus, Users2, Upload, Trash2, MapPin, Calendar, Users, Search, Settings2 } from "lucide-react";
+import { ArrowLeft, Plus, Users2, Trash2, MapPin, Calendar, Users, Search, Settings2, Check } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import Card from "../../components/ui/Card";
@@ -14,14 +14,28 @@ import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import MultiSelectFilter from "../../components/ui/MultiSelectFilter";
 import RegistrationForm from "./RegistrationForm";
 import BulkRegistrationForm from "./BulkRegistrationForm";
-import RegistrationImportModal from "./RegistrationImportModal";
 import { TC_IDENTIFICATION_LABELS, GENDER_LABELS, REGISTRATION_STATUS, registrationStatusSelectClass } from "../../constants/categoryStyles";
 import { heqiHuaiXieliText } from "../../lib/volunteer";
-import { getDays } from "../../lib/eventDays";
+import { getDays, eventFirstDate } from "../../lib/eventDays";
 import { chineseIncludes } from "../../lib/chineseSearch";
 
 function tcIdentificationLabel(key) {
   return TC_IDENTIFICATION_LABELS[key]?.split(" ")[0] || "";
+}
+
+function registrantSearchText(r) {
+  return [
+    r.name,
+    r.phone,
+    tcIdentificationLabel(r.tcIdentification),
+    r.heqiHuaiXieli,
+    r.raw.gender && GENDER_LABELS[r.raw.gender],
+    r.raw.invitedBy,
+    r.raw.area,
+    r.raw.notes,
+    r.raw.attendingDates?.join(" "),
+    REGISTRATION_STATUS[r.raw.status]?.label,
+  ].filter(Boolean).join(" ");
 }
 
 function resolveRegistrant(r, volunteersById) {
@@ -40,16 +54,12 @@ function resolveRegistrant(r, volunteersById) {
 
 const REGISTRATION_FILTER_FIELDS = [
   { key: "tcIdentification", label: "慈濟身份" },
-  { key: "gender", label: "性別", source: "raw" },
-  { key: "attendingDates", label: "參與日期", array: true, source: "raw" },
-  { key: "area", label: "住的地區", source: "raw" },
   { key: "invitedBy", label: "邀約人姓名", source: "raw" },
-  { key: "participantCount", label: "同行人數", source: "raw" },
   { key: "heQi", label: "和氣" },
   { key: "huAi", label: "互愛" },
   { key: "xieLi", label: "協力" },
 ];
-const DEFAULT_REG_FILTER_KEYS = ["tcIdentification", "attendingDates", "xieLi"];
+const DEFAULT_REG_FILTER_KEYS = ["tcIdentification", "xieLi", "invitedBy"];
 
 export default function EventDetail({ event, isAdmin, onBack }) {
   const { data: volunteers } = useCollection("volunteers");
@@ -58,7 +68,6 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
   const [showForm, setShowForm] = useState(false);
   const [showBulkForm, setShowBulkForm] = useState(false);
-  const [showImportForm, setShowImportForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [deletingOne, setDeletingOne] = useState(null);
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
@@ -93,10 +102,6 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         map[f.key] = Object.keys(TC_IDENTIFICATION_LABELS).map((k) => ({ value: k, label: tcIdentificationLabel(k) }));
         return;
       }
-      if (f.key === "gender") {
-        map[f.key] = Object.entries(GENDER_LABELS).map(([k, v]) => ({ value: k, label: v }));
-        return;
-      }
       const set = new Set();
       resolvedRegistrations.forEach((r) => {
         const val = f.source === "raw" ? r.raw[f.key] : r[f.key];
@@ -128,9 +133,46 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         }
       }
       if (!regSearch) return true;
-      return chineseIncludes(`${r.name} ${r.phone || ""}`, regSearch);
+      return chineseIncludes(registrantSearchText(r), regSearch);
     });
   }, [resolvedRegistrations, statusFilter, activeRegFilterKeys, regFilterValues, regSearch]);
+
+  const guestDirectory = useMemo(() => {
+    const map = new Map();
+    allRegistrations.forEach((r) => {
+      if (r.volunteerId) return;
+      const key = (r.name || "").trim();
+      if (!key) return;
+      map.set(key, {
+        name: r.name,
+        phone: r.phone || r.contact || "",
+        tcIdentification: r.tcIdentification || "",
+        heQi: r.heQi || "",
+        huAi: r.huAi || "",
+        xieLi: r.xieLi || "",
+        area: r.area || "",
+      });
+    });
+    return [...map.values()];
+  }, [allRegistrations]);
+
+  const regSummary = useMemo(() => {
+    let volunteerCount = 0;
+    let daDeCount = 0;
+    let childrenCount = 0;
+    let attendedCount = 0;
+    let attendedChildrenCount = 0;
+    registrations.forEach((r) => {
+      if (r.volunteerId) volunteerCount += 1;
+      else daDeCount += 1;
+      childrenCount += Number(r.childrenCount) || 0;
+      if (r.attended) {
+        attendedCount += 1;
+        attendedChildrenCount += Number(r.attendedChildrenCount ?? r.childrenCount) || 0;
+      }
+    });
+    return { volunteerCount, daDeCount, childrenCount, attendedCount, attendedChildrenCount };
+  }, [registrations]);
 
   const registeredVolunteerIds = useMemo(
     () => new Set(registrations.map((r) => r.volunteerId).filter(Boolean)),
@@ -138,7 +180,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
   );
 
   const handleSubmit = async (data) => {
-    await create({ ...data, eventId: event.id });
+    await create({ ...data, eventId: event.id, eventTitle: event.title, eventDate: eventFirstDate(event) });
     setShowForm(false);
   };
 
@@ -146,6 +188,8 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     for (const v of selectedVolunteers) {
       await create({
         eventId: event.id,
+        eventTitle: event.title,
+        eventDate: eventFirstDate(event),
         volunteerId: v.id,
         name: v.name,
         phone: v.phone || "",
@@ -153,15 +197,12 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         heQi: v.heQi || "",
         huAi: v.huAi || "",
         xieLi: v.xieLi || "",
+        childrenCount: v.childrenCount || 0,
         notes: "",
         status,
       });
     }
     setShowBulkForm(false);
-  };
-
-  const handleImportSubmit = async (data) => {
-    await create({ ...data, eventId: event.id });
   };
 
   const handleDeleteAll = async () => {
@@ -207,17 +248,34 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       <Card>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-black italic text-slate-700 text-xl flex items-center gap-2">
-            <Users size={20} /> 報名名單（{registrations.length}{event.capacity ? ` / ${event.capacity}` : ""}）
+            <Users size={20} /> 報名名單（{registrations.length + regSummary.childrenCount}{event.capacity ? ` / ${event.capacity}` : ""}）
           </h3>
           <div className="flex gap-2">
             {isAdmin && registrations.length > 0 && (
               <Button variant="danger" icon={Trash2} onClick={() => setConfirmDeleteAll(true)}>刪除全部報名</Button>
             )}
-            <Button variant="secondary" icon={Upload} onClick={() => setShowImportForm(true)}>匯入 Excel</Button>
             <Button variant="secondary" icon={Users2} onClick={() => setShowBulkForm(true)}>志工報名</Button>
             <Button icon={Plus} onClick={() => setShowForm(true)}>新增大德報名</Button>
           </div>
         </div>
+
+        {registrations.length > 0 && (
+          <div className="flex flex-wrap gap-x-6 gap-y-1 mb-4 text-sm font-bold text-slate-500">
+            <span>志工報名：<span className="text-indigo-600">{regSummary.volunteerCount}</span> 人</span>
+            <span>大德報名：<span className="text-indigo-600">{regSummary.daDeCount}</span> 人</span>
+            <span>帶小孩或家人：<span className="text-indigo-600">{regSummary.childrenCount}</span> 人</span>
+            <span>出席人數：<span className="text-emerald-600">{regSummary.attendedCount}</span> 人</span>
+            <span>出席小孩或家人：<span className="text-emerald-600">{regSummary.attendedChildrenCount}</span> 人</span>
+          </div>
+        )}
+
+        {event.links?.length > 0 && (
+          <div className="flex flex-wrap gap-4 mb-4 pb-4 border-b border-slate-100">
+            {event.links.map((l, i) => (
+              <LinkPill key={i} link={l} />
+            ))}
+          </div>
+        )}
 
         {registrations.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
@@ -324,6 +382,33 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                   {r.notes && <p className="text-base italic text-slate-500 mt-1">{r.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => update(r.id, { attended: !r.attended })}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-bold border transition-all ${
+                      r.attended
+                        ? "bg-emerald-600 text-white border-emerald-600"
+                        : "bg-white text-slate-400 border-slate-200 hover:border-emerald-400 hover:text-emerald-600"
+                    }`}
+                    title="標記已出席"
+                  >
+                    <Check size={16} /> 出席
+                  </button>
+                  {r.attended && (
+                    <input
+                      type="number"
+                      min="0"
+                      key={`${r.id}-children-${r.attendedChildrenCount ?? "default"}`}
+                      defaultValue={r.attendedChildrenCount ?? r.childrenCount ?? 0}
+                      onBlur={(e) => {
+                        const val = e.target.value === "" ? 0 : Number(e.target.value);
+                        if (val !== (r.attendedChildrenCount ?? r.childrenCount ?? 0)) {
+                          update(r.id, { attendedChildrenCount: val });
+                        }
+                      }}
+                      title="實際出席小孩或家人人數"
+                      className="w-14 px-2 py-1.5 rounded-lg border border-slate-200 text-sm text-center"
+                    />
+                  )}
                   <Select
                     value={r.status}
                     onChange={(e) => update(r.id, { status: e.target.value })}
@@ -350,7 +435,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       </Card>
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title="新增大德報名">
-        <RegistrationForm onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
+        <RegistrationForm onSubmit={handleSubmit} onCancel={() => setShowForm(false)} guestDirectory={guestDirectory} />
       </Modal>
 
       <Modal open={showBulkForm} onClose={() => setShowBulkForm(false)} title="志工報名">
@@ -359,14 +444,6 @@ export default function EventDetail({ event, isAdmin, onBack }) {
           alreadyRegisteredIds={registeredVolunteerIds}
           onSubmit={handleBulkSubmit}
           onCancel={() => setShowBulkForm(false)}
-        />
-      </Modal>
-
-      <Modal open={showImportForm} onClose={() => setShowImportForm(false)} title="匯入 Excel">
-        <RegistrationImportModal
-          existingRegistrations={registrations}
-          onImport={handleImportSubmit}
-          onClose={() => setShowImportForm(false)}
         />
       </Modal>
 

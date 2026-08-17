@@ -9,12 +9,14 @@ import AnnouncementsPage from "./modules/announcements/AnnouncementsPage";
 import EventsPage from "./modules/events/EventsPage";
 import VolunteersPage from "./modules/volunteers/VolunteersPage";
 import MeetingsPage from "./modules/meetings/MeetingsPage";
+import AttendanceHistoryPage from "./modules/attendance/AttendanceHistoryPage";
 
 const PAGES = {
   dashboard: DashboardPage,
   announcements: AnnouncementsPage,
   events: EventsPage,
   volunteers: VolunteersPage,
+  attendance: AttendanceHistoryPage,
   meetings: MeetingsPage,
 };
 

@@ -13,6 +13,8 @@ import VolunteerForm from "./VolunteerForm";
 import VolunteerFilterBar from "./VolunteerFilterBar";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import VolunteerImportModal from "./VolunteerImportModal";
+import GuestDirectory from "./GuestDirectory";
+import GuestForm from "./GuestForm";
 import { VOLUNTEER_FILTER_FIELDS, DEFAULT_VOLUNTEER_FILTER_KEYS, volunteerFilterOptionLabel } from "../../constants/volunteerFilterFields";
 import { chineseIncludes } from "../../lib/chineseSearch";
 
@@ -34,20 +36,28 @@ function loadStoredFilterKeys() {
 
 export default function VolunteersPage() {
   const { data: volunteers, loading } = useCollection("volunteers");
+  const { data: registrations } = useCollection("registrations");
+  const { data: events } = useCollection("events");
+  const { data: guests } = useCollection("guests");
   const { create, update, remove } = useFirestoreCrud("volunteers");
+  const { create: createGuest, update: updateGuest, remove: removeGuest } = useFirestoreCrud("guests");
   const { isAdmin } = useMembership();
 
+  const [dbMode, setDbMode] = useState("volunteer");
   const [search, setSearch] = useState("");
   const [activeFilterKeys, setActiveFilterKeys] = useState(loadStoredFilterKeys);
   const [filterValues, setFilterValues] = useState(() =>
     Object.fromEntries(VOLUNTEER_FILTER_FIELDS.map((f) => [f.key, "all"]))
   );
   const [showFieldPicker, setShowFieldPicker] = useState(false);
-  const [viewMode, setViewMode] = useState("card");
+  const [viewMode, setViewMode] = useState("list");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [showImport, setShowImport] = useState(false);
+  const [showGuestForm, setShowGuestForm] = useState(false);
+  const [editingGuest, setEditingGuest] = useState(null);
+  const [deletingGuest, setDeletingGuest] = useState(null);
 
   useEffect(() => {
     localStorage.setItem(FILTER_KEYS_STORAGE_KEY, JSON.stringify(activeFilterKeys));
@@ -113,70 +123,123 @@ export default function VolunteersPage() {
     setShowForm(false);
   };
 
+  const openAddGuest = () => {
+    setEditingGuest(null);
+    setShowGuestForm(true);
+  };
+
+  const openEditGuest = (guest) => {
+    setEditingGuest({ id: guest.guestId, name: guest.name, phone: guest.phone, area: guest.area, notes: guest.notes });
+    setShowGuestForm(true);
+  };
+
+  const handleGuestSubmit = async (data) => {
+    if (editingGuest) {
+      await updateGuest(editingGuest.id, data);
+    } else {
+      await createGuest(data);
+    }
+    setShowGuestForm(false);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-black italic text-slate-800">志工資料庫</h2>
+        <h2 className="text-xl font-black italic text-slate-800">{dbMode === "guest" ? "大德資料庫" : "志工資料庫"}</h2>
         <div className="flex gap-2">
           <div className="flex rounded-xl border border-slate-200 overflow-hidden">
             <button
-              onClick={() => setViewMode("card")}
-              className={`p-3 transition-colors ${viewMode === "card" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
-              title="卡片式"
+              onClick={() => setDbMode("volunteer")}
+              className={`px-4 py-3 text-sm font-bold transition-colors ${dbMode === "volunteer" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
             >
-              <LayoutGrid size={18} />
+              志工
             </button>
             <button
-              onClick={() => setViewMode("list")}
-              className={`p-3 transition-colors ${viewMode === "list" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
-              title="排列式"
+              onClick={() => setDbMode("guest")}
+              className={`px-4 py-3 text-sm font-bold transition-colors ${dbMode === "guest" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
             >
-              <List size={18} />
+              大德
             </button>
           </div>
-          <Button variant="secondary" icon={Upload} onClick={() => setShowImport(true)}>匯入 Excel</Button>
-          <Button icon={Plus} onClick={openCreate}>新增志工</Button>
+          {dbMode === "volunteer" && (
+            <>
+              <div className="flex rounded-xl border border-slate-200 overflow-hidden">
+                <button
+                  onClick={() => setViewMode("card")}
+                  className={`p-3 transition-colors ${viewMode === "card" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
+                  title="卡片式"
+                >
+                  <LayoutGrid size={18} />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-3 transition-colors ${viewMode === "list" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
+                  title="排列式"
+                >
+                  <List size={18} />
+                </button>
+              </div>
+              <Button variant="secondary" icon={Upload} onClick={() => setShowImport(true)}>匯入 Excel</Button>
+              <Button icon={Plus} onClick={openCreate}>新增志工</Button>
+            </>
+          )}
         </div>
       </div>
 
-      <VolunteerFilterBar
-        search={search}
-        onSearch={setSearch}
-        activeFilterKeys={activeFilterKeys}
-        filterValues={filterValues}
-        onFilterChange={setFilterValue}
-        fieldOptionsMap={fieldOptionsMap}
-        onOpenFieldPicker={() => setShowFieldPicker(true)}
-      />
-
-      {loading ? (
-        <div className="text-center py-16 text-slate-400 italic">載入中...</div>
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          title="還沒有志工資料"
-          description="點選「新增志工」開始建立團隊的志工資料庫。"
-          action={<Button icon={Plus} onClick={openCreate}>新增志工</Button>}
+      {dbMode === "guest" ? (
+        <GuestDirectory
+          registrations={registrations}
+          events={events}
+          guests={guests}
+          isAdmin={isAdmin}
+          onAdd={openAddGuest}
+          onEdit={openEditGuest}
+          onDelete={setDeletingGuest}
         />
-      ) : viewMode === "card" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((v) => (
-            <VolunteerCard
-              key={v.id}
-              volunteer={v}
+      ) : (
+        <>
+          <VolunteerFilterBar
+            search={search}
+            onSearch={setSearch}
+            activeFilterKeys={activeFilterKeys}
+            filterValues={filterValues}
+            onFilterChange={setFilterValue}
+            fieldOptionsMap={fieldOptionsMap}
+            onOpenFieldPicker={() => setShowFieldPicker(true)}
+          />
+
+          {loading ? (
+            <div className="text-center py-16 text-slate-400 italic">載入中...</div>
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="還沒有志工資料"
+              description="點選「新增志工」開始建立團隊的志工資料庫。"
+              action={<Button icon={Plus} onClick={openCreate}>新增志工</Button>}
+            />
+          ) : viewMode === "card" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filtered.map((v) => (
+                <VolunteerCard
+                  key={v.id}
+                  volunteer={v}
+                  isAdmin={isAdmin}
+                  onEdit={openEdit}
+                  onDelete={setDeleting}
+                />
+              ))}
+            </div>
+          ) : (
+            <VolunteerListView
+              volunteers={filtered}
               isAdmin={isAdmin}
               onEdit={openEdit}
               onDelete={setDeleting}
+              registrations={registrations}
+              events={events}
             />
-          ))}
-        </div>
-      ) : (
-        <VolunteerListView
-          volunteers={filtered}
-          isAdmin={isAdmin}
-          onEdit={openEdit}
-          onDelete={setDeleting}
-        />
+          )}
+        </>
       )}
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title={editing ? "編輯志工" : "新增志工"}>
@@ -209,6 +272,21 @@ export default function VolunteersPage() {
           onCancel={() => setShowFieldPicker(false)}
         />
       </Modal>
+
+      <Modal open={showGuestForm} onClose={() => setShowGuestForm(false)} title={editingGuest ? "編輯大德資料" : "新增大德資料"}>
+        <GuestForm
+          initial={editingGuest}
+          onSubmit={handleGuestSubmit}
+          onCancel={() => setShowGuestForm(false)}
+        />
+      </Modal>
+
+      <ConfirmDialog
+        open={!!deletingGuest}
+        onClose={() => setDeletingGuest(null)}
+        onConfirm={() => removeGuest(deletingGuest.guestId)}
+        message={deletingGuest ? `確定要刪除大德「${deletingGuest.name}」的資料嗎？` : ""}
+      />
     </div>
   );
 }

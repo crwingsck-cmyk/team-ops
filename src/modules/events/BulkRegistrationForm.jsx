@@ -15,6 +15,7 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
   const [group, setGroup] = useState("all");
   const [status, setStatus] = useState("registered");
   const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [childrenCounts, setChildrenCounts] = useState({});
 
   const available = useMemo(
     () => volunteers.filter((v) => !alreadyRegisteredIds.has(v.id)),
@@ -60,7 +61,9 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const selected = volunteers.filter((v) => selectedIds.has(v.id));
+    const selected = volunteers
+      .filter((v) => selectedIds.has(v.id))
+      .map((v) => ({ ...v, childrenCount: childrenCounts[v.id] ? Number(childrenCounts[v.id]) : 0 }));
     onSubmit(selected, status);
   };
 
@@ -128,10 +131,22 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
                 <span className="text-sm text-slate-500 truncate">{heqiHuaiXieliText(v) || "-"}</span>
                 <span className="text-sm text-slate-500 truncate">{tcIdentificationLabel(v.tcIdentification) || "-"}</span>
               </div>
+              <input
+                type="number"
+                min="0"
+                placeholder="0"
+                value={childrenCounts[v.id] || ""}
+                onChange={(e) => setChildrenCounts((prev) => ({ ...prev, [v.id]: e.target.value }))}
+                title="帶小孩或家人人數"
+                className="w-16 px-2 py-1 rounded-lg border border-slate-200 text-sm text-center shrink-0"
+              />
             </label>
           ))
         )}
       </div>
+      {selectedIds.size > 0 && (
+        <p className="text-xs text-slate-400">在志工右側輸入該志工帶來的小孩或家人人數（可留空，預設 0）</p>
+      )}
 
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="secondary" onClick={onCancel}>取消</Button>
