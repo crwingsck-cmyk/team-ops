@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HeartHandshake, Trash2 } from "lucide-react";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { GoogleAuthProvider, getRedirectResult, signInWithRedirect, signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import { useAuth } from "../../hooks/useAuth";
 import { useMembership } from "../../hooks/useMembership";
@@ -21,10 +21,17 @@ export default function Header() {
   const [showRecycleBin, setShowRecycleBin] = useState(false);
   const [signInError, setSignInError] = useState("");
 
+  useEffect(() => {
+    getRedirectResult(auth).catch((err) => {
+      console.error(err);
+      setSignInError(`${err.code || "登入失敗"}：${err.message || String(err)}`);
+    });
+  }, []);
+
   const handleGoogleSignIn = async () => {
     setSignInError("");
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      await signInWithRedirect(auth, new GoogleAuthProvider());
     } catch (err) {
       console.error(err);
       setSignInError(`${err.code || "登入失敗"}：${err.message || String(err)}`);
