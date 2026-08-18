@@ -43,11 +43,11 @@ export default function ZoomableText({ text, label, italic = true, colorClass = 
       </div>
       {html ? (
         <div
-          className={`${SIZE_STEPS[stepIndex]} ${italic ? "italic" : ""} ${colorClass} whitespace-pre-wrap transition-all duration-200`}
+          className={`${SIZE_STEPS[stepIndex]} ${italic ? "italic" : ""} ${colorClass} leading-relaxed [&_p]:my-1 transition-all duration-200`}
           dangerouslySetInnerHTML={{ __html: text }}
         />
       ) : (
-        <p className={`${SIZE_STEPS[stepIndex]} ${italic ? "italic" : ""} ${colorClass} whitespace-pre-wrap transition-all duration-200`}>
+        <p className={`${SIZE_STEPS[stepIndex]} ${italic ? "italic" : ""} ${colorClass} whitespace-pre-wrap leading-relaxed transition-all duration-200`}>
           {text}
         </p>
       )}

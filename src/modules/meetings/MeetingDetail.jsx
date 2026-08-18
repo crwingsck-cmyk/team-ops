@@ -82,7 +82,7 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
           <p className="text-lg text-slate-500 mb-4">請假 / 缺席：{meeting.absenteeNamesSnapshot.join("、")}</p>
         )}
 
-        <ZoomableText label="會議主旨" text={meeting.purpose} colorClass="text-slate-700" className="mb-4" html />
+        <ZoomableText label="會議主旨" text={meeting.purpose} colorClass="text-slate-700" className="mb-4" html italic={false} />
 
         {hasStructuredAgenda && (
           <div className="mb-4">
@@ -92,10 +92,10 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
                 <div key={i} className="p-3 rounded-xl bg-slate-50">
                   <p className="font-bold text-slate-800 mb-1">{i + 1}. {item.topic}</p>
                   {item.summary && (
-                    <div className="text-base text-slate-600 mb-1" dangerouslySetInnerHTML={{ __html: item.summary }} />
+                    <div className="text-base text-slate-600 mb-1 leading-relaxed [&_p]:my-1" dangerouslySetInnerHTML={{ __html: item.summary }} />
                   )}
                   {item.decision && (
-                    <div className="text-base text-slate-500 italic">
+                    <div className="text-base text-slate-500 leading-relaxed [&_p]:my-1">
                       決議：<span dangerouslySetInnerHTML={{ __html: item.decision }} />
                     </div>
                   )}
@@ -113,7 +113,7 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
           </>
         )}
 
-        <ZoomableText label="待搜集資訊 / 待外部確認事項" text={meeting.otherNotes} colorClass="text-slate-700" className="mb-4" html />
+        <ZoomableText label="待搜集資訊 / 待外部確認事項" text={meeting.otherNotes} colorClass="text-slate-700" className="mb-4" html italic={false} />
 
         {(meeting.nextMeetingDate || meeting.nextMeetingTime || meeting.nextMeetingTopic) && (
           <p className="text-base text-slate-500 flex flex-wrap items-baseline gap-1">

@@ -17,7 +17,7 @@ export default function ExpandableTextarea({ label, value, onChange, placeholder
         className="relative w-full text-left"
       >
         <div
-          className={`w-full min-h-[4.5rem] px-4 py-3 rounded-xl border border-slate-200 text-lg text-slate-800 hover:border-indigo-300 hover:shadow-md transition-all duration-200 overflow-hidden ${!value ? "text-slate-400" : ""}`}
+          className={`w-full min-h-[4.5rem] px-4 py-3 rounded-xl border border-slate-200 text-lg leading-relaxed text-slate-800 hover:border-indigo-300 hover:shadow-md transition-all duration-200 overflow-hidden [&_p]:my-1 ${!value ? "text-slate-400" : ""}`}
           dangerouslySetInnerHTML={{ __html: value || placeholder || "點選展開編輯" }}
         />
         <span className="absolute right-2 top-2 p-1.5 rounded-lg text-slate-400 bg-white/80">

@@ -76,7 +76,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minHeight
         onInput={(e) => onChange(e.currentTarget.innerHTML)}
         data-placeholder={placeholder}
         style={fill ? undefined : { minHeight }}
-        className={`w-full p-4 text-lg text-slate-800 focus:outline-none [&:empty]:before:content-[attr(data-placeholder)] [&:empty]:before:text-slate-400 overflow-y-auto ${fill ? "flex-1 min-h-0" : ""}`}
+        className={`w-full p-4 text-lg leading-relaxed text-slate-800 focus:outline-none [&:empty]:before:content-[attr(data-placeholder)] [&:empty]:before:text-slate-400 [&_p]:my-1 overflow-y-auto ${fill ? "flex-1 min-h-0" : ""}`}
       />
     </div>
   );
