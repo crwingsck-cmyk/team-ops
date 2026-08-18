@@ -43,7 +43,7 @@ export default function FundraisingReport() {
   const [heQi, setHeQi] = useState("all");
   const [huAi, setHuAi] = useState("all");
   const [xieLi, setXieLi] = useState("all");
-  const [viewMode, setViewMode] = useState("table");
+  const [viewMode, setViewMode] = useState("card");
   const [groupMode, setGroupMode] = useState("heQi");
 
   useEffect(() => {
@@ -73,18 +73,18 @@ export default function FundraisingReport() {
         <div className="flex gap-2">
           <div className="flex rounded-xl border border-slate-200 overflow-hidden">
             <button
-              onClick={() => setViewMode("table")}
-              className={`p-2.5 transition-colors ${viewMode === "table" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
-              title="表格檢視"
-            >
-              <Table2 size={18} />
-            </button>
-            <button
               onClick={() => setViewMode("card")}
               className={`p-2.5 transition-colors ${viewMode === "card" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
               title="卡片檢視"
             >
               <LayoutGrid size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`p-2.5 transition-colors ${viewMode === "table" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
+              title="表格檢視"
+            >
+              <Table2 size={18} />
             </button>
           </div>
           {viewMode === "table" && (

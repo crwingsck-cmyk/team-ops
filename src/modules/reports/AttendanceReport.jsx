@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Settings2, Download } from "lucide-react";
+import { Settings2, Download, Table2, LayoutGrid } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import Button from "../../components/ui/Button";
 import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
+import RecordCardGrid from "../../components/ui/RecordCardGrid";
 import { ATTENDANCE_REPORT_COLUMNS, DEFAULT_ATTENDANCE_REPORT_KEYS } from "../../constants/reportColumns";
 import { REGISTRATION_STATUS } from "../../constants/categoryStyles";
 import { eventFirstDate, dateRangeText } from "../../lib/eventDays";
@@ -35,6 +36,7 @@ export default function AttendanceReport() {
   const [selectedEventId, setSelectedEventId] = useState("");
   const [status, setStatus] = useState("all");
   const [attended, setAttended] = useState("all");
+  const [viewMode, setViewMode] = useState("card");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(activeKeys));
@@ -78,6 +80,22 @@ export default function AttendanceReport() {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h3 className="text-xl font-black italic text-slate-800">活動報名與出席報表</h3>
         <div className="flex gap-2">
+          <div className="flex rounded-xl border border-slate-200 overflow-hidden">
+            <button
+              onClick={() => setViewMode("card")}
+              className={`p-2.5 transition-colors ${viewMode === "card" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
+              title="卡片檢視"
+            >
+              <LayoutGrid size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`p-2.5 transition-colors ${viewMode === "table" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
+              title="表格檢視"
+            >
+              <Table2 size={18} />
+            </button>
+          </div>
           <Button variant="secondary" icon={Settings2} onClick={() => setShowPicker(true)}>選擇欄位</Button>
           <Button icon={Download} onClick={() => exportRowsToExcel("活動報名與出席報表.xlsx", columns, rows)}>匯出 Excel</Button>
         </div>
@@ -105,6 +123,8 @@ export default function AttendanceReport() {
 
       {loading ? (
         <div className="text-center py-16 text-slate-400 italic">載入中...</div>
+      ) : viewMode === "card" ? (
+        <RecordCardGrid columns={columns} rows={rows} />
       ) : (
         <ReportTable columns={columns} rows={rows} />
       )}

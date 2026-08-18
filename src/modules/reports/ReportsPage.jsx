@@ -6,21 +6,21 @@ import AttendanceReport from "./AttendanceReport";
 import FundraisingReport from "./FundraisingReport";
 
 const REPORT_TYPES = [
+  { id: "fundraising", label: "募款募心報表", icon: Coins },
   { id: "volunteers", label: "志工資料庫報表", icon: Users },
   { id: "guests", label: "大德資料庫報表", icon: HeartHandshake },
   { id: "attendance", label: "活動報名與出席報表", icon: CalendarCheck },
-  { id: "fundraising", label: "募款募心報表", icon: Coins },
 ];
 
 const REPORT_COMPONENTS = {
+  fundraising: FundraisingReport,
   volunteers: VolunteerReport,
   guests: GuestReport,
   attendance: AttendanceReport,
-  fundraising: FundraisingReport,
 };
 
 export default function ReportsPage() {
-  const [activeType, setActiveType] = useState("volunteers");
+  const [activeType, setActiveType] = useState("fundraising");
   const ActiveReport = REPORT_COMPONENTS[activeType];
 
   return (
