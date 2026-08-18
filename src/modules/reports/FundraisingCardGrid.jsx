@@ -15,11 +15,14 @@ function Stat({ label, value }) {
   );
 }
 
-function BreakdownRow({ label, value }) {
+function BreakdownRow({ label, count, value }) {
   return (
     <div className="flex items-center justify-between text-sm text-slate-600 py-0.5">
       <span>{label}</span>
-      <span className="font-bold text-slate-800">{value}</span>
+      <span className="font-bold text-slate-800">
+        {count !== undefined && <span className="text-slate-400 font-normal mr-2">{count}人</span>}
+        {value}
+      </span>
     </div>
   );
 }
@@ -29,13 +32,18 @@ function OrgUnitCard({ label, people }) {
   const allDonors = withDonors.flatMap((p) => p.donors);
 
   const amountByType = {};
+  const countByType = {};
   const countByStatus = {};
-  Object.keys(DONATION_TYPE_LABELS).forEach((k) => (amountByType[k] = 0));
+  Object.keys(DONATION_TYPE_LABELS).forEach((k) => {
+    amountByType[k] = 0;
+    countByType[k] = 0;
+  });
   Object.keys(PLEDGE_STATUS_LABELS).forEach((k) => (countByStatus[k] = 0));
   allDonors.forEach((d) => {
     const type = d.donationType || "casual";
     const status = d.pledgeStatus || "not_yet";
     amountByType[type] = (amountByType[type] || 0) + (Number(d.amount) || 0);
+    countByType[type] = (countByType[type] || 0) + 1;
     countByStatus[status] = (countByStatus[status] || 0) + 1;
   });
 
@@ -49,7 +57,7 @@ function OrgUnitCard({ label, people }) {
       <div className="pt-3 border-t border-slate-100">
         <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">各捐款形式金額</p>
         {Object.entries(DONATION_TYPE_LABELS).map(([k, v]) => (
-          <BreakdownRow key={k} label={v} value={amountByType[k].toLocaleString()} />
+          <BreakdownRow key={k} label={v} count={countByType[k]} value={amountByType[k].toLocaleString()} />
         ))}
       </div>
       <div className="pt-3 border-t border-slate-100 mt-3">
