@@ -115,10 +115,10 @@ export default function DashboardPage() {
               return (
                 <li key={e.id} className="pb-4 border-b border-slate-100 last:border-0 last:pb-0">
                   <p className="text-xl font-bold text-slate-800">{e.title}</p>
-                  <div className="flex items-center gap-3 text-sm text-slate-500 mt-1.5">
-                    <span>{dateRangeText(e)}{days.length === 1 && days[0]?.startTime && ` ${days[0].startTime}`}</span>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500 mt-1.5">
+                    <span className="whitespace-nowrap">{dateRangeText(e)}{days.length === 1 && days[0]?.startTime && ` ${days[0].startTime}`}</span>
                     {locationText && (
-                      <span className="flex items-center gap-1"><MapPin size={14} />{locationText}</span>
+                      <span className="flex items-center gap-1 truncate"><MapPin size={14} />{locationText}</span>
                     )}
                   </div>
                 </li>

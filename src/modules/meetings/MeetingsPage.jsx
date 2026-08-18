@@ -166,10 +166,10 @@ export default function MeetingsPage() {
               <div className="flex-1 min-w-0 flex items-center gap-4">
                 <div className="min-w-0">
                   <h3 className="font-black italic text-slate-800 text-lg truncate">{m.title}</h3>
-                  <div className="flex items-center gap-3 text-sm text-slate-500 mt-1">
-                    <span className="flex items-center gap-1"><Calendar size={14} />{m.date}</span>
-                    <span>{m.attendeeNamesSnapshot?.length || 0} 位出席</span>
-                    {m.meetingLink && <Video size={14} className="text-indigo-500" />}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500 mt-1">
+                    <span className="flex items-center gap-1 whitespace-nowrap"><Calendar size={14} />{m.date}</span>
+                    <span className="whitespace-nowrap">{m.attendeeNamesSnapshot?.length || 0} 位出席</span>
+                    {m.meetingLink && <Video size={14} className="text-indigo-500 shrink-0" />}
                   </div>
                 </div>
               </div>

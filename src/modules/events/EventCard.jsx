@@ -25,10 +25,10 @@ export default function EventCard({ event, registrationCount, layout = "grid", i
           <Badge tone={EVENT_STATUS[event.status]} className="shrink-0">{EVENT_STATUS[event.status]?.label}</Badge>
           <div className="min-w-0">
             <h3 className="font-black italic text-slate-800 text-xl truncate">{event.title}</h3>
-            <div className="flex items-center gap-3 text-base text-slate-600 mt-1">
-              <span className="flex items-center gap-1"><Calendar size={16} />{dateText}{days.length === 1 && firstDay.startTime && ` ${firstDay.startTime}`}</span>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-slate-600 mt-1">
+              <span className="flex items-center gap-1 whitespace-nowrap"><Calendar size={16} />{dateText}{days.length === 1 && firstDay.startTime && ` ${firstDay.startTime}`}</span>
               {locationText && <span className="flex items-center gap-1 truncate"><MapPin size={16} />{locationText}</span>}
-              <span className="flex items-center gap-1"><Users size={16} />{registrationCount}{event.capacity ? `/${event.capacity}` : ""}</span>
+              <span className="flex items-center gap-1 whitespace-nowrap"><Users size={16} />{registrationCount}{event.capacity ? `/${event.capacity}` : ""}</span>
             </div>
           </div>
         </div>
