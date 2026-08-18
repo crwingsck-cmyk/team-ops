@@ -23,6 +23,8 @@ export function useGuestDirectory({ registrations, events, guestDocs }) {
       }
       const g = map.get(key);
       if (r.area && !g.area) g.area = r.area;
+      if (r.inviterName && !g.inviterName) g.inviterName = r.inviterName;
+      if (r.inviterPhone && !g.inviterPhone) g.inviterPhone = r.inviterPhone;
       if (r.tcIdentification) g.tcIdentification = r.tcIdentification;
       if (r.attended) {
         const title = eventsById.get(r.eventId)?.title || r.eventTitle;

@@ -10,6 +10,8 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
   const [phone, setPhone] = useState("");
   const [tcIdentification, setTcIdentification] = useState("da_de");
   const [area, setArea] = useState("");
+  const [inviterName, setInviterName] = useState("");
+  const [inviterPhone, setInviterPhone] = useState("");
   const [childrenCount, setChildrenCount] = useState("");
   const [status, setStatus] = useState("registered");
   const [notes, setNotes] = useState("");
@@ -32,6 +34,8 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
     setPhone(match.phone || "");
     setTcIdentification(match.tcIdentification || "da_de");
     setArea(match.area || "");
+    setInviterName(match.inviterName || "");
+    setInviterPhone(match.inviterPhone || "");
   };
 
   const handleNameChange = (value) => {
@@ -66,6 +70,8 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
       phone,
       tcIdentification,
       area,
+      inviterName,
+      inviterPhone,
       childrenCount: childrenCount === "" ? 0 : Number(childrenCount),
       notes,
       status,
@@ -120,6 +126,10 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
         ))}
       </Select>
       <Input label="住的地區" value={area} onChange={(e) => setArea(e.target.value)} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Input label="邀約人姓名" value={inviterName} onChange={(e) => setInviterName(e.target.value)} />
+        <Input label="邀約人電話" value={inviterPhone} onChange={(e) => setInviterPhone(e.target.value)} />
+      </div>
       <Input
         label="帶小孩或家人人數"
         type="number"
