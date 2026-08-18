@@ -18,8 +18,22 @@ export const FUNDRAISING_COLUMNS = [
   { key: "area", label: "地區/住址" },
   { key: "donors", label: "捐款者", format: (r) => (Array.isArray(r.donors) && r.donors.length > 0 ? r.donors.map((d) => d.name).filter(Boolean).join("、") : "-") },
   { key: "amount", label: "募款金額", format: (r) => (r.amount ? r.amount.toLocaleString() : "-") },
-  { key: "pledgeStatus", label: "認捐狀態", format: (r) => enumLabel(PLEDGE_STATUS_LABELS, r.pledgeStatus || "not_yet") },
-  { key: "progress", label: "追蹤進度" },
+  {
+    key: "pledgeStatus",
+    label: "認捐狀態",
+    format: (r) =>
+      Array.isArray(r.donors) && r.donors.length > 0
+        ? r.donors.map((d) => `${d.name || "-"}：${enumLabel(PLEDGE_STATUS_LABELS, d.pledgeStatus || "not_yet")}`).join("、")
+        : "-",
+  },
+  {
+    key: "progress",
+    label: "追蹤進度",
+    format: (r) =>
+      Array.isArray(r.donors) && r.donors.length > 0
+        ? r.donors.map((d) => d.progress).filter(Boolean).join("；") || "-"
+        : "-",
+  },
   { key: "notes", label: "備註" },
 ];
 
