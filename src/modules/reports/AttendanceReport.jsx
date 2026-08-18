@@ -6,7 +6,8 @@ import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
-import RecordCardGrid from "../../components/ui/RecordCardGrid";
+import SearchableRecordCardGrid from "../../components/ui/SearchableRecordCardGrid";
+import EventAttendanceSummaryGrid from "./EventAttendanceSummaryGrid";
 import { ATTENDANCE_REPORT_COLUMNS, DEFAULT_ATTENDANCE_REPORT_KEYS } from "../../constants/reportColumns";
 import { REGISTRATION_STATUS } from "../../constants/categoryStyles";
 import { eventFirstDate, dateRangeText } from "../../lib/eventDays";
@@ -47,6 +48,11 @@ export default function AttendanceReport() {
   const sortedEvents = useMemo(
     () => events.slice().sort((a, b) => eventFirstDate(b).localeCompare(eventFirstDate(a))),
     [events]
+  );
+
+  const summaryEvents = useMemo(
+    () => (selectedEventId ? sortedEvents.filter((e) => e.id === selectedEventId) : sortedEvents),
+    [sortedEvents, selectedEventId]
   );
 
   const columns = useMemo(
@@ -124,7 +130,12 @@ export default function AttendanceReport() {
       {loading ? (
         <div className="text-center py-16 text-slate-400 italic">載入中...</div>
       ) : viewMode === "card" ? (
-        <RecordCardGrid columns={columns} rows={rows} />
+        <>
+          <p className="text-sm font-bold text-slate-500 mb-3">活動總覽</p>
+          <EventAttendanceSummaryGrid events={summaryEvents} registrations={registrations} />
+          <p className="text-sm font-bold text-slate-500 mt-8 mb-3">個人參與活動</p>
+          <SearchableRecordCardGrid columns={columns} rows={rows} />
+        </>
       ) : (
         <ReportTable columns={columns} rows={rows} />
       )}

@@ -6,7 +6,7 @@ import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
-import RecordCardGrid from "../../components/ui/RecordCardGrid";
+import SearchableRecordCardGrid from "../../components/ui/SearchableRecordCardGrid";
 import FieldTallyGrid from "../../components/ui/FieldTallyGrid";
 import { VOLUNTEER_REPORT_COLUMNS, DEFAULT_VOLUNTEER_REPORT_KEYS } from "../../constants/reportColumns";
 import { VOLUNTEER_FILTER_FIELDS, DEFAULT_VOLUNTEER_FILTER_KEYS, volunteerFilterOptionLabel } from "../../constants/volunteerFilterFields";
@@ -181,7 +181,7 @@ export default function VolunteerReport() {
           <p className="text-sm font-bold text-slate-500 mb-3">統籌總覽</p>
           <FieldTallyGrid fields={TALLY_FIELDS} rows={rows} />
           <p className="text-sm font-bold text-slate-500 mt-8 mb-3">個人卡片</p>
-          <RecordCardGrid columns={columns} rows={rows} />
+          <SearchableRecordCardGrid columns={columns} rows={rows} />
         </>
       ) : (
         <ReportTable columns={columns} rows={rows} />
