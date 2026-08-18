@@ -46,7 +46,7 @@ export function useFundraisingPeople() {
       return {
         ...p,
         recordId: record?.id || null,
-        solicitor: record?.solicitor || "",
+        donors: record?.donors || [],
         amount: record?.amount || 0,
         pledgeStatus: record?.pledgeStatus || "not_yet",
         progress: record?.progress || "",
