@@ -157,5 +157,6 @@ export const DONATION_TYPE_LABELS = {
   chuyi_shiwu: "初一十五",
   xin_lian: "心蓮",
   jing_si_tang_klang: "每月繳款巴生靜思堂建設",
+  rong_dong: "榮董",
   casual: "樂捐",
 };
