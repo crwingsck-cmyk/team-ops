@@ -1,4 +1,4 @@
-import { TC_IDENTIFICATION_LABELS, PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "./categoryStyles";
+import { TC_IDENTIFICATION_LABELS, PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS, PLEDGE_DEADLINE_LABELS } from "./categoryStyles";
 
 function enumLabel(map, value) {
   const raw = map[value];
@@ -16,6 +16,9 @@ export const FUNDRAISING_COLUMNS = [
   { key: "huAi", label: "互愛" },
   { key: "xieLi", label: "協力" },
   { key: "area", label: "地區/住址" },
+  { key: "pledgeDate", label: "發願日期", format: (r) => r.pledgeDate || "-" },
+  { key: "pledgeDeadline", label: "期限", format: (r) => (r.pledgeDeadline ? PLEDGE_DEADLINE_LABELS[r.pledgeDeadline] || r.pledgeDeadline : "-") },
+  { key: "pledgeTarget", label: "目標人數", format: (r) => (r.pledgeTarget !== "" && r.pledgeTarget != null ? r.pledgeTarget : "-") },
   { key: "donorName", label: "捐款者", format: (r) => r.donorName || "-" },
   { key: "donationType", label: "捐款形式", format: (r) => (r.donationType ? DONATION_TYPE_LABELS[r.donationType] || "-" : "-") },
   { key: "donorAmount", label: "募款金額", format: (r) => (r.donorAmount ? r.donorAmount.toLocaleString() : "-") },

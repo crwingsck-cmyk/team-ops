@@ -1,20 +1,29 @@
 import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import Button from "../../components/ui/Button";
-import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
+import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS, PLEDGE_DEADLINE_LABELS } from "../../constants/categoryStyles";
 
 const EMPTY_DONOR = { name: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", progress: "" };
-const EMPTY = { donors: [] };
+const EMPTY = { pledgeDate: "", pledgeDeadline: "", pledgeTarget: "", donors: [] };
 
 export default function FundraisingRecordForm({ person, initial, onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
+  const [customDeadline, setCustomDeadline] = useState(false);
 
   useEffect(() => {
     if (initial) {
       const donors = (initial.donors || []).map((d) => ({ ...EMPTY_DONOR, ...d, amount: d.amount ?? "" }));
-      setForm({ donors });
+      const deadline = initial.pledgeDeadline || "";
+      setForm({
+        pledgeDate: initial.pledgeDate || "",
+        pledgeDeadline: deadline,
+        pledgeTarget: initial.pledgeTarget ?? "",
+        donors,
+      });
+      setCustomDeadline(!!deadline && !PLEDGE_DEADLINE_LABELS[deadline]);
     } else {
       setForm(EMPTY);
+      setCustomDeadline(false);
     }
   }, [initial]);
 
@@ -28,7 +37,12 @@ export default function FundraisingRecordForm({ person, initial, onSubmit, onCan
     const donors = form.donors
       .filter((d) => d.name || d.amount)
       .map((d) => ({ ...d, amount: d.amount === "" ? 0 : Number(d.amount) }));
-    onSubmit({ donors });
+    onSubmit({
+      pledgeDate: form.pledgeDate,
+      pledgeDeadline: form.pledgeDeadline,
+      pledgeTarget: form.pledgeTarget === "" ? "" : Number(form.pledgeTarget),
+      donors,
+    });
   };
 
   return (
@@ -39,6 +53,61 @@ export default function FundraisingRecordForm({ person, initial, onSubmit, onCan
           <p className="text-sm text-slate-500">{person.phone || "-"}</p>
         </div>
       )}
+
+      <div className="grid grid-cols-3 gap-3">
+        <label className="block">
+          <span className="block text-sm font-bold text-slate-600 mb-1">發願日期</span>
+          <input
+            type="date"
+            value={form.pledgeDate}
+            onChange={(e) => setForm((f) => ({ ...f, pledgeDate: e.target.value }))}
+            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+          />
+        </label>
+        <label className="block">
+          <span className="block text-sm font-bold text-slate-600 mb-1">期限</span>
+          <select
+            value={customDeadline ? "custom" : form.pledgeDeadline}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "custom") {
+                setCustomDeadline(true);
+                setForm((f) => ({ ...f, pledgeDeadline: "" }));
+              } else {
+                setCustomDeadline(false);
+                setForm((f) => ({ ...f, pledgeDeadline: v }));
+              }
+            }}
+            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
+          >
+            <option value="">未設定</option>
+            {Object.entries(PLEDGE_DEADLINE_LABELS).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
+            ))}
+            <option value="custom">其他</option>
+          </select>
+          {customDeadline && (
+            <input
+              type="text"
+              placeholder="自訂期限，例如：45天"
+              value={form.pledgeDeadline}
+              onChange={(e) => setForm((f) => ({ ...f, pledgeDeadline: e.target.value }))}
+              className="w-full mt-2 px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+            />
+          )}
+        </label>
+        <label className="block">
+          <span className="block text-sm font-bold text-slate-600 mb-1">目標人數</span>
+          <input
+            type="number"
+            min="0"
+            placeholder="人數"
+            value={form.pledgeTarget}
+            onChange={(e) => setForm((f) => ({ ...f, pledgeTarget: e.target.value }))}
+            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+          />
+        </label>
+      </div>
 
       <div>
         <div className="flex items-center justify-between mb-2">

@@ -49,6 +49,9 @@ export function useFundraisingPeople() {
         recordId: record?.id || null,
         donors,
         amount: donors.reduce((sum, d) => sum + (Number(d.amount) || 0), 0),
+        pledgeDate: record?.pledgeDate || "",
+        pledgeDeadline: record?.pledgeDeadline || "",
+        pledgeTarget: record?.pledgeTarget ?? "",
       };
     });
   }, [volunteers, guests, recordsByPersonKey]);
