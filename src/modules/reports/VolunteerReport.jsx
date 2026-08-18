@@ -7,9 +7,37 @@ import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
 import RecordCardGrid from "../../components/ui/RecordCardGrid";
+import FieldTallyGrid from "../../components/ui/FieldTallyGrid";
 import { VOLUNTEER_REPORT_COLUMNS, DEFAULT_VOLUNTEER_REPORT_KEYS } from "../../constants/reportColumns";
 import { VOLUNTEER_FILTER_FIELDS, DEFAULT_VOLUNTEER_FILTER_KEYS, volunteerFilterOptionLabel } from "../../constants/volunteerFilterFields";
+import {
+  VOLUNTEER_STATUS,
+  TC_IDENTIFICATION_LABELS,
+  MARITAL_STATUS_LABELS,
+  WORK_SCHEDULE_LABELS,
+  CAR_SEATS_LABELS,
+  MISSION_BODY_LABELS,
+  GENDER_LABELS,
+} from "../../constants/categoryStyles";
 import { exportRowsToExcel } from "../../lib/exportExcel";
+
+const YES_NO = { yes: "是", no: "否" };
+
+const TALLY_FIELDS = [
+  { key: "heQi", label: "和氣", source: "dynamic" },
+  { key: "huAi", label: "互愛", source: "dynamic" },
+  { key: "xieLi", label: "協力", source: "dynamic" },
+  { key: "gender", label: "性別", source: "enum", enumOptions: GENDER_LABELS },
+  { key: "status", label: "狀態", source: "enum", enumOptions: VOLUNTEER_STATUS },
+  { key: "tcIdentification", label: "慈濟身份", source: "enum", enumOptions: TC_IDENTIFICATION_LABELS },
+  { key: "maritalStatus", label: "婚姻狀態", source: "enum", enumOptions: MARITAL_STATUS_LABELS },
+  { key: "workSchedule", label: "上班時間", source: "enum", enumOptions: WORK_SCHEDULE_LABELS },
+  { key: "carSeats", label: "車子座位數", source: "enum", enumOptions: CAR_SEATS_LABELS },
+  { key: "canDrive", label: "是否會開車", source: "enum", enumOptions: YES_NO },
+  { key: "missionBody", label: "志業體", source: "enum", enumOptions: MISSION_BODY_LABELS },
+  { key: "usesFamilyTreasure", label: "是否使用傳家寶", source: "enum", enumOptions: YES_NO },
+  { key: "position4in1", label: "四合一崗位", source: "dynamicArray" },
+];
 
 const COLUMNS_STORAGE_KEY = "team-ops:report:volunteerColumns";
 const FILTER_KEYS_STORAGE_KEY = "team-ops:report:volunteerFilterKeys";
@@ -149,7 +177,12 @@ export default function VolunteerReport() {
       {loading ? (
         <div className="text-center py-16 text-slate-400 italic">載入中...</div>
       ) : viewMode === "card" ? (
-        <RecordCardGrid columns={columns} rows={rows} />
+        <>
+          <p className="text-sm font-bold text-slate-500 mb-3">統籌總覽</p>
+          <FieldTallyGrid fields={TALLY_FIELDS} rows={rows} />
+          <p className="text-sm font-bold text-slate-500 mt-8 mb-3">個人卡片</p>
+          <RecordCardGrid columns={columns} rows={rows} />
+        </>
       ) : (
         <ReportTable columns={columns} rows={rows} />
       )}

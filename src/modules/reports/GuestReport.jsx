@@ -8,9 +8,20 @@ import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
 import RecordCardGrid from "../../components/ui/RecordCardGrid";
+import FieldTallyGrid from "../../components/ui/FieldTallyGrid";
 import { GUEST_REPORT_COLUMNS, DEFAULT_GUEST_REPORT_KEYS } from "../../constants/reportColumns";
 import { GUEST_FILTER_FIELDS, DEFAULT_GUEST_FILTER_KEYS, guestFilterOptionLabel } from "../../constants/guestFilterFields";
+import { TC_IDENTIFICATION_LABELS } from "../../constants/categoryStyles";
 import { exportRowsToExcel } from "../../lib/exportExcel";
+
+const YES_NO = { yes: "是", no: "否" };
+
+const TALLY_FIELDS = [
+  { key: "tcIdentification", label: "慈濟身份", source: "enum", enumOptions: TC_IDENTIFICATION_LABELS },
+  { key: "attended", label: "是否曾出席活動", source: "enum", enumOptions: YES_NO },
+];
+
+const tallyValueOf = (g, field) => (field.key === "attended" ? (g.attended ? "yes" : "no") : g[field.key]);
 
 const COLUMNS_STORAGE_KEY = "team-ops:report:guestColumns";
 const FILTER_KEYS_STORAGE_KEY = "team-ops:report:guestFilterKeys";
@@ -154,7 +165,12 @@ export default function GuestReport() {
       {loading ? (
         <div className="text-center py-16 text-slate-400 italic">載入中...</div>
       ) : viewMode === "card" ? (
-        <RecordCardGrid columns={columns} rows={rows} />
+        <>
+          <p className="text-sm font-bold text-slate-500 mb-3">統籌總覽</p>
+          <FieldTallyGrid fields={TALLY_FIELDS} rows={rows} getValue={tallyValueOf} />
+          <p className="text-sm font-bold text-slate-500 mt-8 mb-3">個人卡片</p>
+          <RecordCardGrid columns={columns} rows={rows} />
+        </>
       ) : (
         <ReportTable columns={columns} rows={rows} />
       )}
