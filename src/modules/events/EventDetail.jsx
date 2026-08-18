@@ -178,7 +178,10 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     let childrenCount = 0;
     let attendedCount = 0;
     let attendedChildrenCount = 0;
+    let registeredCount = 0;
     registrations.forEach((r) => {
+      if (r.status === "waitlisted") return;
+      registeredCount += 1;
       if (r.volunteerId) volunteerCount += 1;
       else daDeCount += 1;
       childrenCount += Number(r.childrenCount) || 0;
@@ -187,7 +190,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         attendedChildrenCount += Number(r.attendedChildrenCount ?? r.childrenCount) || 0;
       }
     });
-    return { volunteerCount, daDeCount, childrenCount, attendedCount, attendedChildrenCount };
+    return { volunteerCount, daDeCount, childrenCount, attendedCount, attendedChildrenCount, registeredCount };
   }, [registrations]);
 
   const registeredVolunteerIds = useMemo(
@@ -267,7 +270,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       <Card>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-black italic text-slate-700 text-xl flex items-center gap-2">
-            <Users size={20} /> 報名名單（{registrations.length + regSummary.childrenCount}{event.capacity ? ` / ${event.capacity}` : ""}）
+            <Users size={20} /> 報名名單（{regSummary.registeredCount + regSummary.childrenCount}{event.capacity ? ` / ${event.capacity}` : ""}）
           </h3>
           <div className="flex gap-2">
             {isAdmin && registrations.length > 0 && (
@@ -280,12 +283,16 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         </div>
 
         {registrations.length > 0 && (
-          <div className="flex flex-wrap gap-x-6 gap-y-1 mb-4 text-sm font-bold text-slate-500">
-            <span>志工報名：<span className="text-indigo-600">{regSummary.volunteerCount}</span> 人</span>
-            <span>大德報名：<span className="text-indigo-600">{regSummary.daDeCount}</span> 人</span>
-            <span>帶小孩或家人：<span className="text-indigo-600">{regSummary.childrenCount}</span> 人</span>
-            <span>出席人數：<span className="text-emerald-600">{regSummary.attendedCount}</span> 人</span>
-            <span>出席小孩或家人：<span className="text-emerald-600">{regSummary.attendedChildrenCount}</span> 人</span>
+          <div className="mb-4 text-sm font-bold text-slate-500">
+            <div className="flex flex-wrap gap-x-6 gap-y-1">
+              <span>志工報名：<span className="text-indigo-600">{regSummary.volunteerCount}</span> 人</span>
+              <span>大德報名：<span className="text-indigo-600">{regSummary.daDeCount}</span> 人</span>
+              <span>帶小孩或家人：<span className="text-indigo-600">{regSummary.childrenCount}</span> 人</span>
+            </div>
+            <div className="flex flex-wrap gap-x-6 gap-y-1 mt-1">
+              <span>出席人數：<span className="text-emerald-600">{regSummary.attendedCount}</span> 人</span>
+              <span>出席小孩或家人：<span className="text-emerald-600">{regSummary.attendedChildrenCount}</span> 人</span>
+            </div>
           </div>
         )}
 
