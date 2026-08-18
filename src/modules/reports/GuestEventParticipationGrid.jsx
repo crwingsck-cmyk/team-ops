@@ -5,11 +5,6 @@ import EmptyState from "../../components/ui/EmptyState";
 import { eventFirstDate, dateRangeText } from "../../lib/eventDays";
 
 export default function GuestEventParticipationGrid({ guests, events }) {
-  const sortedEvents = useMemo(
-    () => events.slice().sort((a, b) => eventFirstDate(b).localeCompare(eventFirstDate(a))),
-    [events]
-  );
-
   const countsByEvent = useMemo(() => {
     const counts = new Map();
     guests.forEach((g) => {
@@ -20,8 +15,16 @@ export default function GuestEventParticipationGrid({ guests, events }) {
     return counts;
   }, [guests]);
 
+  const sortedEvents = useMemo(
+    () =>
+      events
+        .filter((event) => (countsByEvent.get(event.id) || 0) > 0)
+        .sort((a, b) => eventFirstDate(b).localeCompare(eventFirstDate(a))),
+    [events, countsByEvent]
+  );
+
   if (sortedEvents.length === 0) {
-    return <EmptyState icon={CalendarCheck} title="還沒有任何活動" description="確認活動資料庫裡已經有資料。" />;
+    return <EmptyState icon={CalendarCheck} title="還沒有大德參與過任何活動" description="有大德的出席記錄後，這裡就會顯示對應的活動。" />;
   }
 
   return (
