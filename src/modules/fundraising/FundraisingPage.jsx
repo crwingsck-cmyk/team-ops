@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Settings2, Download, Search, Pencil } from "lucide-react";
-import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
-import { useGuestDirectory } from "../../hooks/useGuestDirectory";
+import { useFundraisingPeople } from "../../hooks/useFundraisingPeople";
 import Button from "../../components/ui/Button";
 import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
@@ -29,16 +28,8 @@ function loadStoredKeys() {
   return DEFAULT_FUNDRAISING_COLUMN_KEYS;
 }
 
-function uniqueSorted(values) {
-  return [...new Set(values.filter(Boolean))].sort();
-}
-
 export default function FundraisingPage() {
-  const { data: volunteers, loading: loadingVolunteers } = useCollection("volunteers");
-  const { data: guestDocs, loading: loadingGuests } = useCollection("guests");
-  const { data: registrations, loading: loadingRegs } = useCollection("registrations");
-  const { data: events, loading: loadingEvents } = useCollection("events", { includeDeleted: true });
-  const { data: fundraisingRecords, loading: loadingRecords } = useCollection("fundraisingRecords");
+  const { people, heQiOptions, huAiOptions, xieLiOptions, loading } = useFundraisingPeople();
   const { create: createRecord, update: updateRecord } = useFirestoreCrud("fundraisingRecords");
 
   const [activeColumnKeys, setActiveColumnKeys] = useState(loadStoredKeys);
@@ -52,55 +43,6 @@ export default function FundraisingPage() {
   useEffect(() => {
     localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(activeColumnKeys));
   }, [activeColumnKeys]);
-
-  const guests = useGuestDirectory({ registrations, events, guestDocs });
-
-  const recordsByPersonKey = useMemo(
-    () => new Map(fundraisingRecords.map((r) => [r.personKey, r])),
-    [fundraisingRecords]
-  );
-
-  const people = useMemo(() => {
-    const volunteerRows = volunteers.map((v) => ({
-      id: `v:${v.id}`,
-      category: "志工",
-      name: v.name,
-      phone: v.phone || "",
-      tcIdentification: v.tcIdentification || "",
-      heQi: v.heQi || "",
-      huAi: v.huAi || "",
-      xieLi: v.xieLi || "",
-      area: v.address || "",
-      notes: v.notes || "",
-    }));
-    const guestRows = guests.map((g) => ({
-      id: `g:${g.key}`,
-      category: "大德",
-      name: g.name,
-      phone: g.phone || "",
-      tcIdentification: g.tcIdentification || "",
-      heQi: "",
-      huAi: "",
-      xieLi: "",
-      area: g.area || "",
-      notes: g.notes || "",
-    }));
-    return [...volunteerRows, ...guestRows].map((p) => {
-      const record = recordsByPersonKey.get(p.id);
-      return {
-        ...p,
-        recordId: record?.id || null,
-        solicitor: record?.solicitor || "",
-        amount: record?.amount || 0,
-        pledgeStatus: record?.pledgeStatus || "not_yet",
-        progress: record?.progress || "",
-      };
-    });
-  }, [volunteers, guests, recordsByPersonKey]);
-
-  const heQiOptions = useMemo(() => uniqueSorted(volunteers.map((v) => v.heQi)), [volunteers]);
-  const huAiOptions = useMemo(() => uniqueSorted(volunteers.map((v) => v.huAi)), [volunteers]);
-  const xieLiOptions = useMemo(() => uniqueSorted(volunteers.map((v) => v.xieLi)), [volunteers]);
 
   const columns = useMemo(() => {
     const base = FUNDRAISING_COLUMNS.filter((c) => activeColumnKeys.includes(c.key));
@@ -139,8 +81,6 @@ export default function FundraisingPage() {
     }
     setEditingPerson(null);
   };
-
-  const loading = loadingVolunteers || loadingGuests || loadingRegs || loadingEvents || loadingRecords;
 
   return (
     <div>

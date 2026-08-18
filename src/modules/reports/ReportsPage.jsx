@@ -1,19 +1,22 @@
 import { useState } from "react";
-import { Users, HeartHandshake, CalendarCheck } from "lucide-react";
+import { Users, HeartHandshake, CalendarCheck, Coins } from "lucide-react";
 import VolunteerReport from "./VolunteerReport";
 import GuestReport from "./GuestReport";
 import AttendanceReport from "./AttendanceReport";
+import FundraisingReport from "./FundraisingReport";
 
 const REPORT_TYPES = [
   { id: "volunteers", label: "志工資料庫報表", icon: Users },
   { id: "guests", label: "大德資料庫報表", icon: HeartHandshake },
   { id: "attendance", label: "活動報名與出席報表", icon: CalendarCheck },
+  { id: "fundraising", label: "募款募心報表", icon: Coins },
 ];
 
 const REPORT_COMPONENTS = {
   volunteers: VolunteerReport,
   guests: GuestReport,
   attendance: AttendanceReport,
+  fundraising: FundraisingReport,
 };
 
 export default function ReportsPage() {
