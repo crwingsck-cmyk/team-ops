@@ -9,9 +9,6 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [tcIdentification, setTcIdentification] = useState("da_de");
-  const [heQi, setHeQi] = useState("");
-  const [huAi, setHuAi] = useState("");
-  const [xieLi, setXieLi] = useState("");
   const [area, setArea] = useState("");
   const [childrenCount, setChildrenCount] = useState("");
   const [status, setStatus] = useState("registered");
@@ -34,9 +31,6 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
     setName(match.name || "");
     setPhone(match.phone || "");
     setTcIdentification(match.tcIdentification || "da_de");
-    setHeQi(match.heQi || "");
-    setHuAi(match.huAi || "");
-    setXieLi(match.xieLi || "");
     setArea(match.area || "");
   };
 
@@ -71,9 +65,6 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
       name,
       phone,
       tcIdentification,
-      heQi,
-      huAi,
-      xieLi,
       area,
       childrenCount: childrenCount === "" ? 0 : Number(childrenCount),
       notes,
@@ -128,11 +119,6 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
           <option key={k} value={k}>{v.split(" ")[0]}</option>
         ))}
       </Select>
-      <div className="grid grid-cols-3 gap-3">
-        <Input label="和氣" value={heQi} onChange={(e) => setHeQi(e.target.value)} />
-        <Input label="互愛" value={huAi} onChange={(e) => setHuAi(e.target.value)} />
-        <Input label="協力" value={xieLi} onChange={(e) => setXieLi(e.target.value)} />
-      </div>
       <Input label="住的地區" value={area} onChange={(e) => setArea(e.target.value)} />
       <Input
         label="帶小孩或家人人數"

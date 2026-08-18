@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, X, Search, ChevronDown, ChevronUp } from "lucide-react";
 import Input from "../../components/ui/Input";
-import Textarea from "../../components/ui/Textarea";
-import Select from "../../components/ui/Select";
+import ExpandableTextarea from "../../components/ui/ExpandableTextarea";
 import Button from "../../components/ui/Button";
+import { chineseIncludes } from "../../lib/chineseSearch";
+import MultiSelectFilter from "../../components/ui/MultiSelectFilter";
 
 const EMPTY = {
   title: "",
@@ -12,8 +13,8 @@ const EMPTY = {
   endTime: "",
   location: "",
   meetingLink: "",
-  hostId: "",
-  recorderId: "",
+  hostName: "",
+  recorderName: "",
   attendeeIds: [],
   absenteeIds: [],
   purpose: "",
@@ -29,6 +30,95 @@ function SectionHeading({ children }) {
     <h4 className="text-sm font-black uppercase tracking-wide text-indigo-600 pt-2 border-t border-slate-100 first:border-t-0 first:pt-0">
       {children}
     </h4>
+  );
+}
+
+function NameTagList({ label, ids, volunteers, onToggle, activeColor }) {
+  const [search, setSearch] = useState("");
+  const [huAiFilter, setHuAiFilter] = useState([]);
+  const [xieLiFilter, setXieLiFilter] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  const huAiOptions = useMemo(
+    () => [...new Set(volunteers.map((v) => v.huAi).filter(Boolean))].sort().map((v) => ({ value: v, label: v })),
+    [volunteers]
+  );
+  const xieLiOptions = useMemo(
+    () => [...new Set(volunteers.map((v) => v.xieLi).filter(Boolean))].sort().map((v) => ({ value: v, label: v })),
+    [volunteers]
+  );
+
+  const filtered = volunteers.filter((v) => {
+    if (huAiFilter.length > 0 && !huAiFilter.includes(v.huAi)) return false;
+    if (xieLiFilter.length > 0 && !xieLiFilter.includes(v.xieLi)) return false;
+    if (search && !chineseIncludes(v.name, search)) return false;
+    return true;
+  });
+
+  const selected = volunteers.filter((v) => ids.includes(v.id));
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1.5 text-base font-bold text-slate-600 mb-2"
+      >
+        {label}
+        {open ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+      </button>
+
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-2">
+          {selected.map((v) => (
+            <span key={v.id} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold ${activeColor}`}>
+              {v.name}
+              <button type="button" onClick={() => onToggle(v.id)} className="hover:opacity-70">
+                <X size={14} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="relative mb-2">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onFocus={() => setOpen(true)}
+          placeholder="點選搜尋或瀏覽名單，例如打「陳」"
+          className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-base hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+        />
+      </div>
+
+      {open && (
+        <div>
+          <div className="flex gap-2 mb-2">
+            <MultiSelectFilter label="互愛" options={huAiOptions} selected={huAiFilter} onChange={setHuAiFilter} className="flex-1" />
+            <MultiSelectFilter label="協力" options={xieLiOptions} selected={xieLiFilter} onChange={setXieLiFilter} className="flex-1" />
+          </div>
+          <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-3 rounded-xl border border-slate-200 bg-slate-50">
+            {filtered.length === 0 ? (
+              <p className="text-sm text-slate-400 italic">找不到符合的志工</p>
+            ) : (
+              filtered.map((v) => (
+                <button
+                  type="button"
+                  key={v.id}
+                  onClick={() => onToggle(v.id)}
+                  className={`px-4 py-2 rounded-lg text-base font-bold hover:scale-[1.03] transition-all duration-200 ${
+                    ids.includes(v.id) ? activeColor : "bg-white text-slate-600 border border-slate-200 hover:border-indigo-300"
+                  }`}
+                >
+                  {v.name}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -49,13 +139,6 @@ export default function MeetingForm({ initial, volunteers, onSubmit, onCancel })
     );
   }, [initial]);
 
-  const toggle = (key, id) => {
-    setForm((f) => ({
-      ...f,
-      [key]: f[key].includes(id) ? f[key].filter((a) => a !== id) : [...f[key], id],
-    }));
-  };
-
   const addAgendaItem = () =>
     setForm((f) => ({ ...f, agendaItems: [...f.agendaItems, { topic: "", summary: "", decision: "" }] }));
   const updateAgendaItem = (i, key, value) =>
@@ -71,8 +154,8 @@ export default function MeetingForm({ initial, volunteers, onSubmit, onCancel })
     const nameOf = (id) => volunteers.find((v) => v.id === id)?.name || "";
     onSubmit({
       ...form,
-      hostName: nameOf(form.hostId),
-      recorderName: nameOf(form.recorderId),
+      hostName: form.hostName.trim(),
+      recorderName: form.recorderName.trim(),
       attendeeNamesSnapshot: form.attendeeIds.map(nameOf).filter(Boolean),
       absenteeNamesSnapshot: form.absenteeIds.map(nameOf).filter(Boolean),
       agendaItems: form.agendaItems.filter((item) => item.topic || item.summary || item.decision),
@@ -83,8 +166,8 @@ export default function MeetingForm({ initial, volunteers, onSubmit, onCancel })
     <form onSubmit={handleSubmit} className="space-y-4">
       <SectionHeading>基本資訊</SectionHeading>
       <Input label="會議名稱" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-      <div className="grid grid-cols-3 gap-3">
-        <Input label="日期" type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+      <Input label="日期" type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+      <div className="grid grid-cols-2 gap-3">
         <Input label="開始時間" type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} />
         <Input label="結束時間" type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} />
       </div>
@@ -96,61 +179,49 @@ export default function MeetingForm({ initial, volunteers, onSubmit, onCancel })
         placeholder="https://..."
       />
       <div className="grid grid-cols-2 gap-3">
-        <Select label="主持人" value={form.hostId} onChange={(e) => setForm({ ...form, hostId: e.target.value })}>
-          <option value="">（未指定）</option>
-          {volunteers.map((v) => (
-            <option key={v.id} value={v.id}>{v.name}</option>
-          ))}
-        </Select>
-        <Select label="記錄人" value={form.recorderId} onChange={(e) => setForm({ ...form, recorderId: e.target.value })}>
-          <option value="">（未指定）</option>
-          {volunteers.map((v) => (
-            <option key={v.id} value={v.id}>{v.name}</option>
-          ))}
-        </Select>
+        <Input
+          label="主持人"
+          value={form.hostName}
+          onChange={(e) => setForm({ ...form, hostName: e.target.value })}
+        />
+        <Input
+          label="記錄人"
+          value={form.recorderName}
+          onChange={(e) => setForm({ ...form, recorderName: e.target.value })}
+        />
       </div>
 
       {volunteers.length > 0 && (
         <>
-          <div>
-            <span className="block text-base font-bold text-slate-600 mb-2">出席人員</span>
-            <div className="flex flex-wrap gap-2">
-              {volunteers.map((v) => (
-                <button
-                  type="button"
-                  key={v.id}
-                  onClick={() => toggle("attendeeIds", v.id)}
-                  className={`px-4 py-2 rounded-lg text-base font-bold hover:scale-[1.03] transition-all duration-200 ${
-                    form.attendeeIds.includes(v.id) ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  {v.name}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <span className="block text-base font-bold text-slate-600 mb-2">請假 / 缺席人員</span>
-            <div className="flex flex-wrap gap-2">
-              {volunteers.map((v) => (
-                <button
-                  type="button"
-                  key={v.id}
-                  onClick={() => toggle("absenteeIds", v.id)}
-                  className={`px-4 py-2 rounded-lg text-base font-bold hover:scale-[1.03] transition-all duration-200 ${
-                    form.absenteeIds.includes(v.id) ? "bg-rose-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  {v.name}
-                </button>
-              ))}
-            </div>
-          </div>
+          <NameTagList
+            label="出席人員"
+            ids={form.attendeeIds}
+            volunteers={volunteers}
+            onToggle={(id) =>
+              setForm((f) => ({
+                ...f,
+                attendeeIds: f.attendeeIds.includes(id) ? f.attendeeIds.filter((a) => a !== id) : [...f.attendeeIds, id],
+              }))
+            }
+            activeColor="bg-indigo-600 text-white"
+          />
+          <NameTagList
+            label="請假 / 缺席人員"
+            ids={form.absenteeIds}
+            volunteers={volunteers}
+            onToggle={(id) =>
+              setForm((f) => ({
+                ...f,
+                absenteeIds: f.absenteeIds.includes(id) ? f.absenteeIds.filter((a) => a !== id) : [...f.absenteeIds, id],
+              }))
+            }
+            activeColor="bg-rose-600 text-white"
+          />
         </>
       )}
 
-      <Textarea
-        label="會議主旨（本次會議欲達成目標）"
+      <ExpandableTextarea
+        label="會議主旨"
         value={form.purpose}
         onChange={(e) => setForm({ ...form, purpose: e.target.value })}
       />
@@ -166,13 +237,16 @@ export default function MeetingForm({ initial, volunteers, onSubmit, onCancel })
               </button>
             </div>
             <Input placeholder="議題名稱" value={item.topic} onChange={(e) => updateAgendaItem(i, "topic", e.target.value)} />
-            <Textarea
+            <ExpandableTextarea
               placeholder="討論重點摘要"
-              rows={2}
               value={item.summary}
               onChange={(e) => updateAgendaItem(i, "summary", e.target.value)}
             />
-            <Input placeholder="會議決議" value={item.decision} onChange={(e) => updateAgendaItem(i, "decision", e.target.value)} />
+            <ExpandableTextarea
+              placeholder="會議決議"
+              value={item.decision}
+              onChange={(e) => updateAgendaItem(i, "decision", e.target.value)}
+            />
           </div>
         ))}
         <button type="button" onClick={addAgendaItem} className="text-base text-indigo-600 font-bold flex items-center gap-1">
@@ -181,30 +255,28 @@ export default function MeetingForm({ initial, volunteers, onSubmit, onCancel })
       </div>
 
       <SectionHeading>其他重要備註</SectionHeading>
-      <Textarea
+      <ExpandableTextarea
         label="待搜集資訊 / 待外部確認事項"
         value={form.otherNotes}
         onChange={(e) => setForm({ ...form, otherNotes: e.target.value })}
       />
-      <div className="grid grid-cols-3 gap-3">
-        <Input
-          label="下次會議日期"
-          type="date"
-          value={form.nextMeetingDate}
-          onChange={(e) => setForm({ ...form, nextMeetingDate: e.target.value })}
-        />
-        <Input
-          label="下次會議時間"
-          type="time"
-          value={form.nextMeetingTime}
-          onChange={(e) => setForm({ ...form, nextMeetingTime: e.target.value })}
-        />
-        <Input
-          label="初步議題"
-          value={form.nextMeetingTopic}
-          onChange={(e) => setForm({ ...form, nextMeetingTopic: e.target.value })}
-        />
-      </div>
+      <Input
+        label="下次會議日期"
+        type="date"
+        value={form.nextMeetingDate}
+        onChange={(e) => setForm({ ...form, nextMeetingDate: e.target.value })}
+      />
+      <Input
+        label="下次會議時間"
+        type="time"
+        value={form.nextMeetingTime}
+        onChange={(e) => setForm({ ...form, nextMeetingTime: e.target.value })}
+      />
+      <ExpandableTextarea
+        label="初步議題"
+        value={form.nextMeetingTopic}
+        onChange={(e) => setForm({ ...form, nextMeetingTopic: e.target.value })}
+      />
 
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="secondary" onClick={onCancel}>取消</Button>

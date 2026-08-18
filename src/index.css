@@ -4,6 +4,7 @@
 
 body {
   margin: 0;
+  font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
 }
 
 .custom-scrollbar {

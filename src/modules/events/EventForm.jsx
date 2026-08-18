@@ -7,6 +7,7 @@ import Button from "../../components/ui/Button";
 import ImageUploadField from "../../components/ui/ImageUploadField";
 import { LINK_TYPE_LABELS } from "../../constants/categoryStyles";
 import { computeDateRange } from "../../lib/eventDays";
+import { useCollection } from "../../hooks/useCollection";
 
 const EMPTY_DAY = { date: "", startTime: "", endTime: "", location: "" };
 
@@ -25,6 +26,7 @@ const EMPTY = {
 export default function EventForm({ initial, onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
   const [uploading, setUploading] = useState(false);
+  const { data: templates } = useCollection("eventTemplates");
 
   useEffect(() => {
     if (!initial) {
@@ -36,6 +38,21 @@ export default function EventForm({ initial, onSubmit, onCancel }) {
       : [{ date: initial.date || "", startTime: initial.startTime || "", endTime: initial.endTime || "", location: initial.location || "" }];
     setForm({ ...EMPTY, ...initial, days, capacity: initial.capacity ?? "", links: initial.links || [] });
   }, [initial]);
+
+  const applyTemplate = (templateId) => {
+    const t = templates.find((tpl) => tpl.id === templateId);
+    if (!t) return;
+    setForm((f) => ({
+      ...f,
+      title: t.title,
+      description: t.description || "",
+      capacity: t.capacity ?? "",
+      links: t.links || [],
+      posterUrl: t.posterUrl || "",
+      posterPath: t.posterPath || "",
+      days: [{ ...EMPTY_DAY, startTime: t.defaultStartTime || "", endTime: t.defaultEndTime || "", location: t.defaultLocation || "" }],
+    }));
+  };
 
   const addDay = () => setForm((f) => ({ ...f, days: [...f.days, { ...EMPTY_DAY }] }));
   const updateDay = (i, key, value) =>
@@ -64,6 +81,14 @@ export default function EventForm({ initial, onSubmit, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {!initial && templates.length > 0 && (
+        <Select label="使用範本（選填，套用固定活動的資料，日期需自行填寫）" defaultValue="" onChange={(e) => applyTemplate(e.target.value)}>
+          <option value="">不使用範本</option>
+          {templates.map((t) => (
+            <option key={t.id} value={t.id}>{t.title}</option>
+          ))}
+        </Select>
+      )}
       <Input label="活動名稱" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       <Textarea label="活動說明" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
 
@@ -85,10 +110,10 @@ export default function EventForm({ initial, onSubmit, onCancel }) {
                   </button>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <Input type="date" required value={d.date} onChange={(e) => updateDay(i, "date", e.target.value)} />
-                <Input type="time" placeholder="開始時間" value={d.startTime} onChange={(e) => updateDay(i, "startTime", e.target.value)} />
-                <Input type="time" placeholder="結束時間" value={d.endTime} onChange={(e) => updateDay(i, "endTime", e.target.value)} />
+              <Input type="date" label="日期" required value={d.date} onChange={(e) => updateDay(i, "date", e.target.value)} />
+              <div className="grid grid-cols-2 gap-3">
+                <Input type="time" label="開始時間" value={d.startTime} onChange={(e) => updateDay(i, "startTime", e.target.value)} />
+                <Input type="time" label="結束時間" value={d.endTime} onChange={(e) => updateDay(i, "endTime", e.target.value)} />
               </div>
               <Input placeholder="地點" value={d.location} onChange={(e) => updateDay(i, "location", e.target.value)} />
             </div>

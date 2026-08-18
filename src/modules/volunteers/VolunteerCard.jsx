@@ -1,4 +1,4 @@
-import { Pencil, Trash2, Phone, MapPin } from "lucide-react";
+import { Eye, Pencil, Trash2, Phone, MapPin } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import { VOLUNTEER_STATUS, TC_IDENTIFICATION_LABELS } from "../../constants/categoryStyles";
@@ -12,7 +12,7 @@ function positionsText(position4in1) {
   return Array.isArray(position4in1) ? position4in1.join("、") : position4in1;
 }
 
-export default function VolunteerCard({ volunteer, isAdmin, onEdit, onDelete }) {
+export default function VolunteerCard({ volunteer, isAdmin, onView, onEdit, onDelete }) {
   return (
     <Card>
       <div className="flex items-start justify-between mb-4">
@@ -32,6 +32,9 @@ export default function VolunteerCard({ volunteer, isAdmin, onEdit, onDelete }) 
           </div>
         </div>
         <div className="flex gap-1">
+          <button onClick={() => onView(volunteer)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
+            <Eye size={18} />
+          </button>
           <button onClick={() => onEdit(volunteer)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
             <Pencil size={18} />
           </button>

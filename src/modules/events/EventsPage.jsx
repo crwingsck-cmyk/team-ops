@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Plus, CalendarDays } from "lucide-react";
+import { Plus, CalendarDays, LayoutTemplate } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useMembership } from "../../hooks/useMembership";
@@ -11,10 +11,11 @@ import ListControls from "../../components/ui/ListControls";
 import EventCard from "./EventCard";
 import EventForm from "./EventForm";
 import EventDetail from "./EventDetail";
+import EventTemplateManager from "./EventTemplateManager";
 
 export default function EventsPage() {
   const [sort, setSort] = useState("desc");
-  const [view, setView] = useState("grid");
+  const [view, setView] = useState("list");
 
   const { data: events, loading } = useCollection("events", { orderByField: "date", orderByDirection: sort });
   const { data: registrations } = useCollection("registrations");
@@ -25,6 +26,7 @@ export default function EventsPage() {
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const registrationCountByEvent = useMemo(() => {
     const counts = {};
@@ -59,7 +61,10 @@ export default function EventsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-black italic text-slate-800">活動</h2>
-        <Button icon={Plus} onClick={openCreate}>新增活動</Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" icon={LayoutTemplate} onClick={() => setShowTemplates(true)}>管理範本</Button>
+          <Button icon={Plus} onClick={openCreate}>新增活動</Button>
+        </div>
       </div>
 
       {events.length > 0 && <ListControls view={view} onViewChange={setView} sort={sort} onSortChange={setSort} />}
@@ -92,6 +97,10 @@ export default function EventsPage() {
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title={editing ? "編輯活動" : "新增活動"}>
         <EventForm initial={editing} onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
+      </Modal>
+
+      <Modal open={showTemplates} onClose={() => setShowTemplates(false)} title="活動範本">
+        <EventTemplateManager onClose={() => setShowTemplates(false)} />
       </Modal>
 
       <ConfirmDialog

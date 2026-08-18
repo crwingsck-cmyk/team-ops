@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Plus, ListTodo, Calendar, MapPin, Video, User, UserCheck } from "lucide-react";
+import { ArrowLeft, Plus, ListTodo, Calendar, MapPin, Video, User, UserCheck, FileDown } from "lucide-react";
+import { exportMeetingToWord } from "../../lib/exportMeetingWord";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import Card from "../../components/ui/Card";
@@ -39,9 +40,14 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
 
   return (
     <div>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 mb-4">
-        <ArrowLeft size={14} /> 回到會議列表
-      </button>
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800">
+          <ArrowLeft size={14} /> 回到會議列表
+        </button>
+        <Button variant="secondary" icon={FileDown} onClick={() => exportMeetingToWord(meeting, actionItems)}>
+          匯出 WORD
+        </Button>
+      </div>
 
       <Card className="mb-6">
         <h2 className="text-2xl font-black italic text-slate-800 mb-3">{meeting.title}</h2>
@@ -76,7 +82,7 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
           <p className="text-lg text-slate-500 mb-4">請假 / 缺席：{meeting.absenteeNamesSnapshot.join("、")}</p>
         )}
 
-        <ZoomableText label="會議主旨" text={meeting.purpose} colorClass="text-slate-700" className="mb-4" />
+        <ZoomableText label="會議主旨" text={meeting.purpose} colorClass="text-slate-700" className="mb-4" html />
 
         {hasStructuredAgenda && (
           <div className="mb-4">
@@ -85,8 +91,14 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
               {meeting.agendaItems.map((item, i) => (
                 <div key={i} className="p-3 rounded-xl bg-slate-50">
                   <p className="font-bold text-slate-800 mb-1">{i + 1}. {item.topic}</p>
-                  {item.summary && <p className="text-base text-slate-600 mb-1">{item.summary}</p>}
-                  {item.decision && <p className="text-base text-slate-500 italic">決議：{item.decision}</p>}
+                  {item.summary && (
+                    <div className="text-base text-slate-600 mb-1" dangerouslySetInnerHTML={{ __html: item.summary }} />
+                  )}
+                  {item.decision && (
+                    <div className="text-base text-slate-500 italic">
+                      決議：<span dangerouslySetInnerHTML={{ __html: item.decision }} />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -101,14 +113,17 @@ export default function MeetingDetail({ meeting, isAdmin, onBack }) {
           </>
         )}
 
-        <ZoomableText label="待搜集資訊 / 待外部確認事項" text={meeting.otherNotes} colorClass="text-slate-700" className="mb-4" />
+        <ZoomableText label="待搜集資訊 / 待外部確認事項" text={meeting.otherNotes} colorClass="text-slate-700" className="mb-4" html />
 
         {(meeting.nextMeetingDate || meeting.nextMeetingTime || meeting.nextMeetingTopic) && (
-          <p className="text-base text-slate-500">
-            下次會議暫定：
-            {meeting.nextMeetingDate && ` ${meeting.nextMeetingDate}`}
-            {meeting.nextMeetingTime && ` ${meeting.nextMeetingTime}`}
-            {meeting.nextMeetingTopic && ` · ${meeting.nextMeetingTopic}`}
+          <p className="text-base text-slate-500 flex flex-wrap items-baseline gap-1">
+            <span>
+              下次會議暫定：
+              {meeting.nextMeetingDate && ` ${meeting.nextMeetingDate}`}
+              {meeting.nextMeetingTime && ` ${meeting.nextMeetingTime}`}
+              {meeting.nextMeetingTopic && " · "}
+            </span>
+            {meeting.nextMeetingTopic && <span dangerouslySetInnerHTML={{ __html: meeting.nextMeetingTopic }} />}
           </p>
         )}
       </Card>

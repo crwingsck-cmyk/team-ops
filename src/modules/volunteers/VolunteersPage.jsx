@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Users, Upload, LayoutGrid, List } from "lucide-react";
+import { Plus, Pencil, Users, Upload, LayoutGrid, List } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useMembership } from "../../hooks/useMembership";
@@ -10,11 +10,14 @@ import EmptyState from "../../components/ui/EmptyState";
 import VolunteerCard from "./VolunteerCard";
 import VolunteerListView from "./VolunteerListView";
 import VolunteerForm from "./VolunteerForm";
+import VolunteerDetail from "./VolunteerDetail";
 import VolunteerFilterBar from "./VolunteerFilterBar";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import VolunteerImportModal from "./VolunteerImportModal";
 import GuestDirectory from "./GuestDirectory";
 import GuestForm from "./GuestForm";
+import GuestDetail from "./GuestDetail";
+import GuestImportModal from "./GuestImportModal";
 import { VOLUNTEER_FILTER_FIELDS, DEFAULT_VOLUNTEER_FILTER_KEYS, volunteerFilterOptionLabel } from "../../constants/volunteerFilterFields";
 import { chineseIncludes } from "../../lib/chineseSearch";
 
@@ -37,8 +40,8 @@ function loadStoredFilterKeys() {
 export default function VolunteersPage() {
   const { data: volunteers, loading } = useCollection("volunteers");
   const { data: registrations } = useCollection("registrations");
-  const { data: events } = useCollection("events");
-  const { data: guests } = useCollection("guests");
+  const { data: events } = useCollection("events", { includeDeleted: true });
+  const { data: guests } = useCollection("guests", { includeDeleted: true });
   const { create, update, remove } = useFirestoreCrud("volunteers");
   const { create: createGuest, update: updateGuest, remove: removeGuest } = useFirestoreCrud("guests");
   const { isAdmin } = useMembership();
@@ -52,10 +55,13 @@ export default function VolunteersPage() {
   const [showFieldPicker, setShowFieldPicker] = useState(false);
   const [viewMode, setViewMode] = useState("list");
   const [showForm, setShowForm] = useState(false);
+  const [viewing, setViewing] = useState(null);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [showImport, setShowImport] = useState(false);
   const [showGuestForm, setShowGuestForm] = useState(false);
+  const [showGuestImport, setShowGuestImport] = useState(false);
+  const [viewingGuest, setViewingGuest] = useState(null);
   const [editingGuest, setEditingGuest] = useState(null);
   const [deletingGuest, setDeletingGuest] = useState(null);
 
@@ -129,12 +135,12 @@ export default function VolunteersPage() {
   };
 
   const openEditGuest = (guest) => {
-    setEditingGuest({ id: guest.guestId, name: guest.name, phone: guest.phone, area: guest.area, notes: guest.notes });
+    setEditingGuest({ id: guest.guestId || null, name: guest.name, phone: guest.phone, area: guest.area, notes: guest.notes });
     setShowGuestForm(true);
   };
 
   const handleGuestSubmit = async (data) => {
-    if (editingGuest) {
+    if (editingGuest?.id) {
       await updateGuest(editingGuest.id, data);
     } else {
       await createGuest(data);
@@ -142,11 +148,45 @@ export default function VolunteersPage() {
     setShowGuestForm(false);
   };
 
+  const handleDeleteGuest = async () => {
+    if (deletingGuest.guestId) {
+      await removeGuest(deletingGuest.guestId);
+    } else {
+      const ref = await createGuest({
+        name: deletingGuest.name,
+        phone: deletingGuest.phone,
+        area: deletingGuest.area,
+        notes: deletingGuest.notes || "",
+      });
+      await removeGuest(ref.id);
+    }
+    setDeletingGuest(null);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-black italic text-slate-800">{dbMode === "guest" ? "大德資料庫" : "志工資料庫"}</h2>
         <div className="flex gap-2">
+          <div className="flex rounded-xl border border-slate-200 overflow-hidden">
+            <button
+              onClick={() => setViewMode("card")}
+              className={`p-3 transition-colors ${viewMode === "card" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
+              title="卡片式"
+            >
+              <LayoutGrid size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`p-3 transition-colors ${viewMode === "list" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
+              title="排列式"
+            >
+              <List size={18} />
+            </button>
+          </div>
+          {dbMode === "volunteer" && (
+            <Button variant="secondary" icon={Upload} onClick={() => setShowImport(true)}>匯入 Excel</Button>
+          )}
           <div className="flex rounded-xl border border-slate-200 overflow-hidden">
             <button
               onClick={() => setDbMode("volunteer")}
@@ -162,26 +202,7 @@ export default function VolunteersPage() {
             </button>
           </div>
           {dbMode === "volunteer" && (
-            <>
-              <div className="flex rounded-xl border border-slate-200 overflow-hidden">
-                <button
-                  onClick={() => setViewMode("card")}
-                  className={`p-3 transition-colors ${viewMode === "card" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
-                  title="卡片式"
-                >
-                  <LayoutGrid size={18} />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-3 transition-colors ${viewMode === "list" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
-                  title="排列式"
-                >
-                  <List size={18} />
-                </button>
-              </div>
-              <Button variant="secondary" icon={Upload} onClick={() => setShowImport(true)}>匯入 Excel</Button>
-              <Button icon={Plus} onClick={openCreate}>新增志工</Button>
-            </>
+            <Button icon={Plus} onClick={openCreate}>新增志工</Button>
           )}
         </div>
       </div>
@@ -192,7 +213,10 @@ export default function VolunteersPage() {
           events={events}
           guests={guests}
           isAdmin={isAdmin}
+          viewMode={viewMode}
           onAdd={openAddGuest}
+          onImport={() => setShowGuestImport(true)}
+          onView={setViewingGuest}
           onEdit={openEditGuest}
           onDelete={setDeletingGuest}
         />
@@ -224,6 +248,7 @@ export default function VolunteersPage() {
                   key={v.id}
                   volunteer={v}
                   isAdmin={isAdmin}
+                  onView={setViewing}
                   onEdit={openEdit}
                   onDelete={setDeleting}
                 />
@@ -233,6 +258,7 @@ export default function VolunteersPage() {
             <VolunteerListView
               volunteers={filtered}
               isAdmin={isAdmin}
+              onView={setViewing}
               onEdit={openEdit}
               onDelete={setDeleting}
               registrations={registrations}
@@ -241,6 +267,25 @@ export default function VolunteersPage() {
           )}
         </>
       )}
+
+      <Modal
+        open={!!viewing}
+        onClose={() => setViewing(null)}
+        title="志工資料"
+        footer={
+          <Button
+            icon={Pencil}
+            onClick={() => {
+              openEdit(viewing);
+              setViewing(null);
+            }}
+          >
+            編輯
+          </Button>
+        }
+      >
+        {viewing && <VolunteerDetail volunteer={viewing} />}
+      </Modal>
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title={editing ? "編輯志工" : "新增志工"}>
         <VolunteerForm
@@ -273,6 +318,25 @@ export default function VolunteersPage() {
         />
       </Modal>
 
+      <Modal
+        open={!!viewingGuest}
+        onClose={() => setViewingGuest(null)}
+        title="大德資料"
+        footer={
+          <Button
+            icon={Pencil}
+            onClick={() => {
+              openEditGuest(viewingGuest);
+              setViewingGuest(null);
+            }}
+          >
+            編輯
+          </Button>
+        }
+      >
+        {viewingGuest && <GuestDetail guest={viewingGuest} />}
+      </Modal>
+
       <Modal open={showGuestForm} onClose={() => setShowGuestForm(false)} title={editingGuest ? "編輯大德資料" : "新增大德資料"}>
         <GuestForm
           initial={editingGuest}
@@ -281,10 +345,14 @@ export default function VolunteersPage() {
         />
       </Modal>
 
+      <Modal open={showGuestImport} onClose={() => setShowGuestImport(false)} title="匯入 Excel">
+        <GuestImportModal onImport={createGuest} onClose={() => setShowGuestImport(false)} />
+      </Modal>
+
       <ConfirmDialog
         open={!!deletingGuest}
         onClose={() => setDeletingGuest(null)}
-        onConfirm={() => removeGuest(deletingGuest.guestId)}
+        onConfirm={handleDeleteGuest}
         message={deletingGuest ? `確定要刪除大德「${deletingGuest.name}」的資料嗎？` : ""}
       />
     </div>

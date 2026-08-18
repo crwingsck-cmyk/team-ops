@@ -3,7 +3,7 @@ import { Minus, Plus } from "lucide-react";
 
 const SIZE_STEPS = ["text-lg", "text-xl", "text-2xl", "text-3xl", "text-4xl"];
 
-export default function ZoomableText({ text, label, italic = true, colorClass = "text-slate-600", className = "" }) {
+export default function ZoomableText({ text, label, italic = true, colorClass = "text-slate-600", className = "", html = false }) {
   const [stepIndex, setStepIndex] = useState(0);
 
   if (!text) return null;
@@ -41,9 +41,16 @@ export default function ZoomableText({ text, label, italic = true, colorClass = 
         )}
         {controls}
       </div>
-      <p className={`${SIZE_STEPS[stepIndex]} ${italic ? "italic" : ""} ${colorClass} whitespace-pre-wrap transition-all duration-200`}>
-        {text}
-      </p>
+      {html ? (
+        <div
+          className={`${SIZE_STEPS[stepIndex]} ${italic ? "italic" : ""} ${colorClass} whitespace-pre-wrap transition-all duration-200`}
+          dangerouslySetInnerHTML={{ __html: text }}
+        />
+      ) : (
+        <p className={`${SIZE_STEPS[stepIndex]} ${italic ? "italic" : ""} ${colorClass} whitespace-pre-wrap transition-all duration-200`}>
+          {text}
+        </p>
+      )}
     </div>
   );
 }

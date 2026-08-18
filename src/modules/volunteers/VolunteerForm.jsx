@@ -152,6 +152,22 @@ export default function VolunteerForm({ initial, onSubmit, onCancel }) {
           )}
         </>
       )}
+      <Select label="慈濟身份 TC Identification" value={form.tcIdentification} onChange={set("tcIdentification")}>
+        <option value="">選擇</option>
+        {Object.entries(TC_IDENTIFICATION_LABELS).map(([k, v]) => (
+          <option key={k} value={k}>{v}</option>
+        ))}
+      </Select>
+      <Select label="是否有使用傳家寶" value={form.usesFamilyTreasure} onChange={set("usesFamilyTreasure")}>
+        <option value="">選擇</option>
+        <option value="yes">是 Yes</option>
+        <option value="no">否 No</option>
+      </Select>
+      <Input
+        label="直屬/帶動人的名字"
+        value={form.mentorName}
+        onChange={set("mentorName")}
+      />
 
       <SectionHeading>和氣互愛協力</SectionHeading>
       <div className="grid grid-cols-3 gap-3">
@@ -186,14 +202,13 @@ export default function VolunteerForm({ initial, onSubmit, onCancel }) {
           <MapPin size={14} />在 {mapPlatformLabel(form.mapLink)} 開啟
         </a>
       )}
+      <SectionHeading>家庭情況</SectionHeading>
       <Select label="婚姻狀態 Marital Status" value={form.maritalStatus} onChange={set("maritalStatus")}>
         <option value="">選擇</option>
         {Object.entries(MARITAL_STATUS_LABELS).map(([k, v]) => (
           <option key={k} value={k}>{v}</option>
         ))}
       </Select>
-
-      <SectionHeading>家庭情況</SectionHeading>
       <Textarea
         label="家庭情況備註 (例：有80歲父親要照顧)"
         value={form.familyRemarks}
@@ -287,22 +302,6 @@ export default function VolunteerForm({ initial, onSubmit, onCancel }) {
         label="曾經承擔過的任何崗位（例：協力組長-5年，環保點長-2年）"
         value={form.positionHistory}
         onChange={set("positionHistory")}
-      />
-      <Select label="慈濟身份 TC Identification" value={form.tcIdentification} onChange={set("tcIdentification")}>
-        <option value="">選擇</option>
-        {Object.entries(TC_IDENTIFICATION_LABELS).map(([k, v]) => (
-          <option key={k} value={k}>{v}</option>
-        ))}
-      </Select>
-      <Select label="是否有使用傳家寶" value={form.usesFamilyTreasure} onChange={set("usesFamilyTreasure")}>
-        <option value="">選擇</option>
-        <option value="yes">是 Yes</option>
-        <option value="no">否 No</option>
-      </Select>
-      <Input
-        label="直屬/帶動人的名字"
-        value={form.mentorName}
-        onChange={set("mentorName")}
       />
 
       <SectionHeading>專長 Expertise</SectionHeading>

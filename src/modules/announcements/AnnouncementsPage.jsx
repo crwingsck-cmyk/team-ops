@@ -13,7 +13,7 @@ import AnnouncementForm from "./AnnouncementForm";
 
 export default function AnnouncementsPage() {
   const [sort, setSort] = useState("desc");
-  const [view, setView] = useState("grid");
+  const [view, setView] = useState("list");
 
   const { data: announcements, loading } = useCollection("announcements", {
     orderByField: "publishDate",

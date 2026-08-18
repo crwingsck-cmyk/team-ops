@@ -13,7 +13,7 @@ function registrationDate(r, event) {
 
 export default function AttendanceHistoryPage() {
   const { data: registrations, loading: loadingRegs } = useCollection("registrations");
-  const { data: events, loading: loadingEvents } = useCollection("events");
+  const { data: events, loading: loadingEvents } = useCollection("events", { includeDeleted: true });
   const [search, setSearch] = useState("");
 
   const eventsById = useMemo(() => new Map(events.map((e) => [e.id, e])), [events]);

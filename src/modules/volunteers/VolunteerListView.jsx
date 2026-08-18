@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Pencil, Trash2, Phone, ChevronDown, ChevronUp, CalendarDays, Check, X } from "lucide-react";
+import { Eye, Pencil, Trash2, Phone, ChevronDown, ChevronUp, CalendarDays, Check, X } from "lucide-react";
 import { VOLUNTEER_STATUS, TC_IDENTIFICATION_LABELS, REGISTRATION_STATUS } from "../../constants/categoryStyles";
 import { eventFirstDate } from "../../lib/eventDays";
 
@@ -15,7 +15,7 @@ function registrationDate(r, event) {
   return event ? eventFirstDate(event) : (r.eventDate || "");
 }
 
-export default function VolunteerListView({ volunteers, isAdmin, onEdit, onDelete, registrations = [], events = [] }) {
+export default function VolunteerListView({ volunteers, isAdmin, onView, onEdit, onDelete, registrations = [], events = [] }) {
   const [expandedIds, setExpandedIds] = useState(() => new Set());
 
   const eventsById = useMemo(() => new Map(events.map((e) => [e.id, e])), [events]);
@@ -61,6 +61,9 @@ export default function VolunteerListView({ volunteers, isAdmin, onEdit, onDelet
                 </div>
               </button>
               <div className="flex gap-1 shrink-0">
+                <button onClick={() => onView(v)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
+                  <Eye size={18} />
+                </button>
                 <button onClick={() => onEdit(v)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
                   <Pencil size={18} />
                 </button>

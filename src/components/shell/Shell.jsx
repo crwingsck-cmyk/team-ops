@@ -6,7 +6,7 @@ export const TABS = [
   { id: "dashboard", label: "首頁", icon: LayoutDashboard },
   { id: "announcements", label: "公告", icon: Megaphone },
   { id: "events", label: "活動", icon: CalendarDays },
-  { id: "volunteers", label: "志工", icon: Users },
+  { id: "volunteers", label: "志工/大德資料庫", icon: Users },
   { id: "attendance", label: "參與紀錄", icon: History },
   { id: "meetings", label: "會議", icon: ClipboardList },
 ];

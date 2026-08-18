@@ -64,6 +64,7 @@ const DEFAULT_REG_FILTER_KEYS = ["tcIdentification", "xieLi", "invitedBy"];
 export default function EventDetail({ event, isAdmin, onBack }) {
   const { data: volunteers } = useCollection("volunteers");
   const { data: allRegistrations, loading } = useCollection("registrations");
+  const { data: guests } = useCollection("guests");
   const { create, update, remove } = useFirestoreCrud("registrations");
 
   const [showForm, setShowForm] = useState(false);
@@ -139,10 +140,23 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
   const guestDirectory = useMemo(() => {
     const map = new Map();
+    guests.forEach((g) => {
+      const key = (g.name || "").trim();
+      if (!key) return;
+      map.set(key, {
+        name: g.name,
+        phone: g.phone || "",
+        tcIdentification: g.tcIdentification || "",
+        heQi: g.heQi || "",
+        huAi: g.huAi || "",
+        xieLi: g.xieLi || "",
+        area: g.area || "",
+      });
+    });
     allRegistrations.forEach((r) => {
       if (r.volunteerId) return;
       const key = (r.name || "").trim();
-      if (!key) return;
+      if (!key || map.has(key)) return;
       map.set(key, {
         name: r.name,
         phone: r.phone || r.contact || "",
@@ -154,7 +168,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       });
     });
     return [...map.values()];
-  }, [allRegistrations]);
+  }, [allRegistrations, guests]);
 
   const regSummary = useMemo(() => {
     let volunteerCount = 0;
