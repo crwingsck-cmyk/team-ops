@@ -1,8 +1,10 @@
-import { LayoutGrid } from "lucide-react";
+import { useState } from "react";
+import { LayoutGrid, Search } from "lucide-react";
 import Card from "../../components/ui/Card";
 import EmptyState from "../../components/ui/EmptyState";
 import FundraisingDetail from "../fundraising/FundraisingDetail";
 import { DONATION_TYPE_LABELS, PLEDGE_STATUS_LABELS } from "../../constants/categoryStyles";
+import { chineseIncludes } from "../../lib/chineseSearch";
 
 function Stat({ label, value }) {
   return (
@@ -91,21 +93,44 @@ function EventDetailCard({ event }) {
   );
 }
 
+function PersonCardSection({ people }) {
+  const [search, setSearch] = useState("");
+  const withDonors = people.filter((p) => p.donors?.length > 0);
+  const matches = search ? withDonors.filter((p) => chineseIncludes(p.name, search)) : [];
+
+  return (
+    <div>
+      <div className="relative max-w-sm mb-6">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="搜尋志工/大德姓名..."
+          className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-lg hover:border-indigo-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200"
+        />
+      </div>
+      {!search ? (
+        <EmptyState icon={Search} title="輸入姓名搜尋" description="搜尋志工或大德姓名，查看這個人的募款卡片。" />
+      ) : withDonors.length === 0 ? (
+        <EmptyState icon={LayoutGrid} title="還沒有任何募款記錄" description="到「個人」頁籤記錄志工或大德的捐款者資料後，這裡就會顯示卡片。" />
+      ) : matches.length === 0 ? (
+        <EmptyState icon={Search} title="找不到符合的人" description="確認姓名是否正確，或這個人還沒有記錄任何捐款者。" />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {matches.map((p) => (
+            <Card key={p.id}>
+              <FundraisingDetail person={p} />
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function FundraisingCardGrid({ groupMode, people, events }) {
   if (groupMode === "person") {
-    const withDonors = people.filter((p) => p.donors?.length > 0);
-    if (withDonors.length === 0) {
-      return <EmptyState icon={LayoutGrid} title="還沒有任何募款記錄" description="到「個人」頁籤記錄志工或大德的捐款者資料後，這裡就會顯示卡片。" />;
-    }
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {withDonors.map((p) => (
-          <Card key={p.id}>
-            <FundraisingDetail person={p} />
-          </Card>
-        ))}
-      </div>
-    );
+    return <PersonCardSection people={people} />;
   }
 
   if (groupMode === "event") {

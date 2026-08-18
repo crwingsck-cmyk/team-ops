@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 
 const EMPTY = {
@@ -7,13 +8,16 @@ const EMPTY = {
   time: "",
   location: "",
   eventType: "",
+  heQi: "",
+  huAi: "",
+  xieLi: "",
   amount: "",
   volunteerCount: "",
   guestCount: "",
   submittedBy: "",
 };
 
-export default function FundraisingEventForm({ initial, onSubmit, onCancel }) {
+export default function FundraisingEventForm({ initial, heQiOptions = [], huAiOptions = [], xieLiOptions = [], onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
 
   useEffect(() => {
@@ -44,6 +48,26 @@ export default function FundraisingEventForm({ initial, onSubmit, onCancel }) {
           value={form.eventType}
           onChange={(e) => setForm({ ...form, eventType: e.target.value })}
         />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Select label="和氣" value={form.heQi} onChange={(e) => setForm({ ...form, heQi: e.target.value })}>
+          <option value="">未選擇</option>
+          {heQiOptions.map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </Select>
+        <Select label="互愛" value={form.huAi} onChange={(e) => setForm({ ...form, huAi: e.target.value })}>
+          <option value="">未選擇</option>
+          {huAiOptions.map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </Select>
+        <Select label="協力" value={form.xieLi} onChange={(e) => setForm({ ...form, xieLi: e.target.value })}>
+          <option value="">未選擇</option>
+          {xieLiOptions.map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </Select>
       </div>
       <Input label="募款金額" type="number" min="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

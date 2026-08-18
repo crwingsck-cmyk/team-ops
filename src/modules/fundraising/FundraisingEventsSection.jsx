@@ -3,6 +3,7 @@ import { Plus, Download, Pencil, Trash2 } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useMembership } from "../../hooks/useMembership";
+import { useVolunteerOrgOptions } from "../../hooks/useVolunteerOrgOptions";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
@@ -15,6 +16,9 @@ const COLUMNS = [
   { key: "time", label: "時間" },
   { key: "location", label: "地點" },
   { key: "eventType", label: "活動形式" },
+  { key: "heQi", label: "和氣" },
+  { key: "huAi", label: "互愛" },
+  { key: "xieLi", label: "協力" },
   { key: "amount", label: "募款金額", format: (r) => (r.amount || 0).toLocaleString() },
   { key: "volunteerCount", label: "出席志工人數" },
   { key: "guestCount", label: "出席大德人數" },
@@ -25,6 +29,7 @@ export default function FundraisingEventsSection() {
   const { data: events, loading } = useCollection("fundraisingEvents", { orderByField: "date", orderByDirection: "desc" });
   const { create, update, remove } = useFirestoreCrud("fundraisingEvents");
   const { isAdmin } = useMembership();
+  const { heQiOptions, huAiOptions, xieLiOptions } = useVolunteerOrgOptions();
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -84,7 +89,14 @@ export default function FundraisingEventsSection() {
       )}
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title={editing?.id ? "編輯活動募款" : "新增活動募款"}>
-        <FundraisingEventForm initial={editing} onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
+        <FundraisingEventForm
+          initial={editing}
+          heQiOptions={heQiOptions}
+          huAiOptions={huAiOptions}
+          xieLiOptions={xieLiOptions}
+          onSubmit={handleSubmit}
+          onCancel={() => setShowForm(false)}
+        />
       </Modal>
 
       <ConfirmDialog
