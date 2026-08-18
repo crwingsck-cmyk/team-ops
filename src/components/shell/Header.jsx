@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { HeartHandshake, Trash2 } from "lucide-react";
-import { GoogleAuthProvider, getRedirectResult, signInWithRedirect, signOut } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import { useAuth } from "../../hooks/useAuth";
 import { useMembership } from "../../hooks/useMembership";
@@ -21,24 +21,12 @@ export default function Header() {
   const [showRecycleBin, setShowRecycleBin] = useState(false);
   const [signInError, setSignInError] = useState("");
 
-  useEffect(() => {
-    getRedirectResult(auth)
-      .then((result) => {
-        if (!result) {
-          setSignInError("診斷：redirect 完成但沒有取回登入結果（result 為 null），瀏覽器可能把中間狀態弄丟了。");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setSignInError(`${err.code || "登入失敗"}：${err.message || String(err)}`);
-      });
-  }, []);
-
   const handleGoogleSignIn = async () => {
     setSignInError("");
     try {
-      await signInWithRedirect(auth, new GoogleAuthProvider());
+      await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (err) {
+      if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
       console.error(err);
       setSignInError(`${err.code || "登入失敗"}：${err.message || String(err)}`);
     }
