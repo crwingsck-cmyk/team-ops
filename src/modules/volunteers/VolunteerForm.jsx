@@ -119,7 +119,7 @@ export default function VolunteerForm({ initial, onSubmit, onCancel }) {
       <SectionHeading>基本資料</SectionHeading>
       <Input label="姓名" required value={form.name} onChange={set("name")} />
       <Input label="英文名字" value={form.englishName} onChange={set("englishName")} />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Input label="年齡" type="number" min="0" value={form.age} onChange={set("age")} />
         <Select label="性別" value={form.gender} onChange={set("gender")}>
           <option value="">選擇</option>
@@ -130,7 +130,7 @@ export default function VolunteerForm({ initial, onSubmit, onCancel }) {
       </div>
       <Input label="電話" value={form.phone} onChange={set("phone")} />
       <Input label="Email" type="email" value={form.email} onChange={set("email")} />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Input label="會員編號" value={form.memberId} onChange={set("memberId")} />
         <Input label="加入日期" type="date" value={form.joinDate} onChange={set("joinDate")} />
       </div>
@@ -170,7 +170,7 @@ export default function VolunteerForm({ initial, onSubmit, onCancel }) {
       />
 
       <SectionHeading>和氣互愛協力</SectionHeading>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Input label="和氣 HeQi" value={form.heQi} onChange={set("heQi")} placeholder="例：090 西北和氣" />
         <Input label="互愛 HuAi" value={form.huAi} onChange={set("huAi")} placeholder="例：賓達阿南互愛" />
         <Input label="協力 XieLi" value={form.xieLi} onChange={set("xieLi")} placeholder="例：賓達阿南1協力" />

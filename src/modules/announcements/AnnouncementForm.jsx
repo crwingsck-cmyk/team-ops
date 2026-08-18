@@ -41,7 +41,7 @@ export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input label="標題" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       <Textarea label="內容" required rows={5} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Select label="分類" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
           {Object.keys(ANNOUNCEMENT_CATEGORIES).map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -54,7 +54,7 @@ export default function AnnouncementForm({ initial, onSubmit, onCancel }) {
           placeholder="例：全體志工、教育志業體"
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Input label="發布日期" type="date" value={form.publishDate} onChange={(e) => setForm({ ...form, publishDate: e.target.value })} />
         <Input label="到期日期（選填）" type="date" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} />
       </div>

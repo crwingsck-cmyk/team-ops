@@ -59,9 +59,9 @@ export default function EventsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h2 className="text-xl font-black italic text-slate-800">活動</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="secondary" icon={LayoutTemplate} onClick={() => setShowTemplates(true)}>管理範本</Button>
           <Button icon={Plus} onClick={openCreate}>新增活動</Button>
         </div>

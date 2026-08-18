@@ -66,9 +66,9 @@ export default function MeetingsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h2 className="text-xl font-black italic text-slate-800">會議記錄</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <div className="flex rounded-xl border border-slate-200 overflow-hidden">
             <button
               onClick={() => setViewMode("card")}

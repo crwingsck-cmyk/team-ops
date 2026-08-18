@@ -21,7 +21,7 @@ export default function ActionItemForm({ initial, volunteers, onSubmit, onCancel
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input label="待執行事項" required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Select label="負責人" value={form.assigneeId} onChange={(e) => setForm({ ...form, assigneeId: e.target.value })}>
           <option value="">（未指定）</option>
           {volunteers.map((v) => (
@@ -35,7 +35,7 @@ export default function ActionItemForm({ initial, volunteers, onSubmit, onCancel
           placeholder="可打多個名字"
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Input label="完成期限" type="date" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} />
         <Select label="追蹤狀態" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
           <option value="open">待執行</option>

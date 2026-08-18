@@ -42,7 +42,7 @@ export default function AnnouncementsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h2 className="text-xl font-black italic text-slate-800">公告</h2>
         <Button icon={Plus} onClick={openCreate}>發布公告</Button>
       </div>
