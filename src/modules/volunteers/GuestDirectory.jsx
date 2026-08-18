@@ -85,7 +85,7 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
       }
       const set = new Set();
       guests.forEach((g) => {
-        const raw = field.key === "attended" ? (g.attended ? "yes" : "no") : g[field.key];
+        const raw = g[field.key];
         const values = field.source === "dynamicArray" ? (Array.isArray(raw) ? raw : []) : (raw ? [String(raw)] : []);
         values.forEach((v) => v && set.add(v));
       });
@@ -101,7 +101,7 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
       for (const key of activeFilterKeys) {
         const wanted = filterValues[key];
         if (!wanted || wanted === "all") continue;
-        const fieldVal = key === "attended" ? (g.attended ? "yes" : "no") : g[key];
+        const fieldVal = g[key];
         const matches = Array.isArray(fieldVal) ? fieldVal.includes(wanted) : String(fieldVal ?? "") === wanted;
         if (!matches) return false;
       }

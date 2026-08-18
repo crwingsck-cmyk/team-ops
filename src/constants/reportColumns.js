@@ -77,12 +77,13 @@ export const GUEST_REPORT_COLUMNS = [
   { key: "phone", label: "電話" },
   { key: "area", label: "居住地區" },
   { key: "tcIdentification", label: "慈濟身份", format: (g) => enumLabel(TC_IDENTIFICATION_LABELS, g.tcIdentification) },
-  { key: "attended", label: "是否曾出席", format: (g) => (g.attended ? "是" : "否") },
+  { key: "inviterName", label: "邀約人姓名" },
+  { key: "inviterPhone", label: "邀約人電話" },
   { key: "attendedEvents", label: "參與過的活動", format: (g) => joinArray(g.attendedEvents) },
   { key: "notes", label: "備註" },
 ];
 
-export const DEFAULT_GUEST_REPORT_KEYS = ["name", "phone", "area", "attended", "attendedEvents"];
+export const DEFAULT_GUEST_REPORT_KEYS = ["name", "phone", "area", "inviterName", "attendedEvents"];
 
 export const ATTENDANCE_REPORT_COLUMNS = [
   { key: "name", label: "姓名" },

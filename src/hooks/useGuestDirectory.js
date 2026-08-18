@@ -12,20 +12,19 @@ export function useGuestDirectory({ registrations, events, guestDocs }) {
         deletedKeys.add(key);
         return;
       }
-      map.set(key, { key, guestId: doc.id, name: doc.name, phone: doc.phone || "", area: doc.area || "", notes: doc.notes || "", tcIdentification: "", attended: false, attendedEvents: [], attendedEventIds: [], records: [] });
+      map.set(key, { key, guestId: doc.id, name: doc.name, phone: doc.phone || "", area: doc.area || "", inviterName: doc.inviterName || "", inviterPhone: doc.inviterPhone || "", notes: doc.notes || "", tcIdentification: "", attendedEvents: [], attendedEventIds: [], records: [] });
     });
     registrations.forEach((r) => {
       if (r.volunteerId) return;
       const key = `${(r.name || "").trim()}|${(r.phone || r.contact || "").trim()}`;
       if (deletedKeys.has(key)) return;
       if (!map.has(key)) {
-        map.set(key, { key, name: r.name, phone: r.phone || r.contact || "", area: "", tcIdentification: "", attended: false, attendedEvents: [], attendedEventIds: [], records: [] });
+        map.set(key, { key, name: r.name, phone: r.phone || r.contact || "", area: "", inviterName: "", inviterPhone: "", tcIdentification: "", attendedEvents: [], attendedEventIds: [], records: [] });
       }
       const g = map.get(key);
       if (r.area && !g.area) g.area = r.area;
       if (r.tcIdentification) g.tcIdentification = r.tcIdentification;
       if (r.attended) {
-        g.attended = true;
         const title = eventsById.get(r.eventId)?.title || r.eventTitle;
         if (title && !g.attendedEvents.includes(title)) g.attendedEvents.push(title);
         if (r.eventId && !g.attendedEventIds.includes(r.eventId)) g.attendedEventIds.push(r.eventId);

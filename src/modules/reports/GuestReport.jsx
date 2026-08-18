@@ -9,19 +9,16 @@ import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
 import SearchableRecordCardGrid from "../../components/ui/SearchableRecordCardGrid";
 import FieldTallyGrid from "../../components/ui/FieldTallyGrid";
+import GuestEventParticipationGrid from "./GuestEventParticipationGrid";
 import { GUEST_REPORT_COLUMNS, DEFAULT_GUEST_REPORT_KEYS } from "../../constants/reportColumns";
 import { GUEST_FILTER_FIELDS, DEFAULT_GUEST_FILTER_KEYS, guestFilterOptionLabel } from "../../constants/guestFilterFields";
 import { TC_IDENTIFICATION_LABELS } from "../../constants/categoryStyles";
 import { exportRowsToExcel } from "../../lib/exportExcel";
 
-const YES_NO = { yes: "是", no: "否" };
-
 const TALLY_FIELDS = [
+  { key: "area", label: "居住地區", source: "dynamic" },
   { key: "tcIdentification", label: "慈濟身份", source: "enum", enumOptions: TC_IDENTIFICATION_LABELS },
-  { key: "attended", label: "是否曾出席活動", source: "enum", enumOptions: YES_NO },
 ];
-
-const tallyValueOf = (g, field) => (field.key === "attended" ? (g.attended ? "yes" : "no") : g[field.key]);
 
 const COLUMNS_STORAGE_KEY = "team-ops:report:guestColumns";
 const FILTER_KEYS_STORAGE_KEY = "team-ops:report:guestFilterKeys";
@@ -80,7 +77,7 @@ export default function GuestReport() {
       }
       const set = new Set();
       guests.forEach((g) => {
-        const raw = field.key === "attended" ? (g.attended ? "yes" : "no") : g[field.key];
+        const raw = g[field.key];
         const values = field.source === "dynamicArray" ? (Array.isArray(raw) ? raw : []) : (raw ? [String(raw)] : []);
         values.forEach((v) => v && set.add(v));
       });
@@ -99,7 +96,7 @@ export default function GuestReport() {
       for (const key of activeFilterKeys) {
         const wanted = filterValues[key];
         if (!wanted || wanted === "all") continue;
-        const fieldVal = key === "attended" ? (g.attended ? "yes" : "no") : g[key];
+        const fieldVal = g[key];
         const matches = Array.isArray(fieldVal) ? fieldVal.includes(wanted) : String(fieldVal ?? "") === wanted;
         if (!matches) return false;
       }
@@ -167,7 +164,9 @@ export default function GuestReport() {
       ) : viewMode === "card" ? (
         <>
           <p className="text-sm font-bold text-slate-500 mb-3">統籌總覽</p>
-          <FieldTallyGrid fields={TALLY_FIELDS} rows={rows} getValue={tallyValueOf} />
+          <FieldTallyGrid fields={TALLY_FIELDS} rows={rows} />
+          <p className="text-sm font-bold text-slate-500 mt-8 mb-3">各活動參與大德人數</p>
+          <GuestEventParticipationGrid guests={rows} events={events} />
           <p className="text-sm font-bold text-slate-500 mt-8 mb-3">個人卡片</p>
           <SearchableRecordCardGrid columns={columns} rows={rows} />
         </>

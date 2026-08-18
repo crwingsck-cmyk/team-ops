@@ -7,6 +7,8 @@ const EMPTY = {
   name: "",
   phone: "",
   area: "",
+  inviterName: "",
+  inviterPhone: "",
   notes: "",
 };
 
@@ -29,6 +31,10 @@ export default function GuestForm({ initial, onSubmit, onCancel }) {
       <Input label="姓名" value={form.name} onChange={set("name")} required />
       <Input label="電話" value={form.phone} onChange={set("phone")} />
       <Input label="居住地區 / 地址" value={form.area} onChange={set("area")} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Input label="邀約人姓名" value={form.inviterName} onChange={set("inviterName")} />
+        <Input label="邀約人電話" value={form.inviterPhone} onChange={set("inviterPhone")} />
+      </div>
       <Textarea label="備註" value={form.notes} onChange={set("notes")} rows={3} />
 
       <div className="flex justify-end gap-3 pt-2">

@@ -135,7 +135,15 @@ export default function VolunteersPage() {
   };
 
   const openEditGuest = (guest) => {
-    setEditingGuest({ id: guest.guestId || null, name: guest.name, phone: guest.phone, area: guest.area, notes: guest.notes });
+    setEditingGuest({
+      id: guest.guestId || null,
+      name: guest.name,
+      phone: guest.phone,
+      area: guest.area,
+      inviterName: guest.inviterName,
+      inviterPhone: guest.inviterPhone,
+      notes: guest.notes,
+    });
     setShowGuestForm(true);
   };
 
@@ -156,6 +164,8 @@ export default function VolunteersPage() {
         name: deletingGuest.name,
         phone: deletingGuest.phone,
         area: deletingGuest.area,
+        inviterName: deletingGuest.inviterName || "",
+        inviterPhone: deletingGuest.inviterPhone || "",
         notes: deletingGuest.notes || "",
       });
       await removeGuest(ref.id);

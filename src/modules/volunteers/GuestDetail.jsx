@@ -1,4 +1,3 @@
-import { Check, X } from "lucide-react";
 import { TC_IDENTIFICATION_LABELS } from "../../constants/categoryStyles";
 
 function Field({ label, children }) {
@@ -21,21 +20,9 @@ export default function GuestDetail({ guest: g }) {
       <Field label="電話">{g.phone}</Field>
       <Field label="居住地區">{g.area}</Field>
       <Field label="慈濟身份">{tcLabel}</Field>
+      <Field label="邀約人姓名">{g.inviterName}</Field>
+      <Field label="邀約人電話">{g.inviterPhone}</Field>
       <Field label="備註">{g.notes}</Field>
-
-      <div className="pt-3 border-t border-slate-100 mt-3">
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">出席狀況</p>
-        {g.attended ? (
-          <p className="flex items-center gap-1.5 text-sm font-bold text-emerald-600">
-            <Check size={16} />曾出席 {g.attendedEvents.length} 場活動
-            {g.attendedEvents.length > 0 && `：${g.attendedEvents.join("、")}`}
-          </p>
-        ) : (
-          <p className="flex items-center gap-1.5 text-sm text-slate-400">
-            <X size={16} />尚未出席過任何活動
-          </p>
-        )}
-      </div>
     </div>
   );
 }
