@@ -158,7 +158,7 @@ export default function FundraisingCardGrid({ groupMode, people, events }) {
             <EventTypeSummaryCard key={type || "未分類"} type={type} events={list} />
           ))}
         </div>
-        <p className="text-sm font-bold text-slate-500 mb-3">各場活動明細</p>
+        <p className="text-sm font-bold text-indigo-600 pt-6 border-t border-slate-200 mb-3">各場活動明細</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((e) => (
             <EventDetailCard key={e.id} event={e} />
