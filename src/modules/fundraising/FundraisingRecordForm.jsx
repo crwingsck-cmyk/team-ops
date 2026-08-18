@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
-import Input from "../../components/ui/Input";
+import { Plus, X } from "lucide-react";
 import Textarea from "../../components/ui/Textarea";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
-import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS, XIN_LIAN_FREQUENCY_LABELS } from "../../constants/categoryStyles";
+import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
 
-const EMPTY_DONOR = { name: "", donationType: "casual", xinLianFrequency: "monthly", xinLianFrequencyCustom: "", amount: "" };
+const EMPTY_DONOR = { name: "", donationType: "casual", amount: "" };
 const EMPTY = { donors: [], pledgeStatus: "not_yet", progress: "" };
 
 export default function FundraisingRecordForm({ person, initial, onSubmit, onCancel }) {
@@ -50,40 +49,43 @@ export default function FundraisingRecordForm({ person, initial, onSubmit, onCan
             <Plus size={16} /> 新增捐款者
           </button>
         </div>
-        <div className="space-y-3">
+        {form.donors.length > 0 && (
+          <div className="hidden sm:flex gap-2 px-1 mb-1 text-sm font-bold text-slate-500">
+            <span className="flex-1">姓名</span>
+            <span className="w-32">捐款形式</span>
+            <span className="w-24">金額</span>
+            <span className="w-8" />
+          </div>
+        )}
+        <div className="space-y-2.5">
           {form.donors.map((d, i) => (
-            <div key={i} className="p-3 rounded-xl border border-slate-200 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-slate-500">捐款者 {i + 1}</span>
-                <button type="button" onClick={() => removeDonor(i)} className="text-slate-400 hover:text-rose-600">
-                  <Trash2 size={16} />
-                </button>
-              </div>
-              <Input label="姓名" value={d.name} onChange={(e) => updateDonor(i, "name", e.target.value)} />
-              <div className="grid grid-cols-2 gap-3">
-                <Select label="捐款形式" value={d.donationType} onChange={(e) => updateDonor(i, "donationType", e.target.value)}>
-                  {Object.entries(DONATION_TYPE_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
-                  ))}
-                </Select>
-                <Input label="金額" type="number" min="0" value={d.amount} onChange={(e) => updateDonor(i, "amount", e.target.value)} />
-              </div>
-              {d.donationType === "xin_lian" && (
-                <div className="grid grid-cols-2 gap-3">
-                  <Select label="頻率" value={d.xinLianFrequency} onChange={(e) => updateDonor(i, "xinLianFrequency", e.target.value)}>
-                    {Object.entries(XIN_LIAN_FREQUENCY_LABELS).map(([k, v]) => (
-                      <option key={k} value={k}>{v}</option>
-                    ))}
-                  </Select>
-                  {d.xinLianFrequency === "custom" && (
-                    <Input
-                      label="自訂頻率說明"
-                      value={d.xinLianFrequencyCustom}
-                      onChange={(e) => updateDonor(i, "xinLianFrequencyCustom", e.target.value)}
-                    />
-                  )}
-                </div>
-              )}
+            <div key={i} className="flex gap-2">
+              <input
+                placeholder="姓名"
+                value={d.name}
+                onChange={(e) => updateDonor(i, "name", e.target.value)}
+                className="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+              />
+              <select
+                value={d.donationType}
+                onChange={(e) => updateDonor(i, "donationType", e.target.value)}
+                className="w-32 px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
+              >
+                {Object.entries(DONATION_TYPE_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+              <input
+                type="number"
+                min="0"
+                placeholder="金額"
+                value={d.amount}
+                onChange={(e) => updateDonor(i, "amount", e.target.value)}
+                className="w-24 px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+              />
+              <button type="button" onClick={() => removeDonor(i)} className="p-2 text-slate-400 hover:text-rose-600">
+                <X size={18} />
+              </button>
             </div>
           ))}
           {form.donors.length === 0 && (

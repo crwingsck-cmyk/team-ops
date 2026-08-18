@@ -159,9 +159,3 @@ export const DONATION_TYPE_LABELS = {
   jing_si_tang_klang: "每月繳款巴生靜思堂建設",
   casual: "樂捐",
 };
-
-export const XIN_LIAN_FREQUENCY_LABELS = {
-  monthly: "每月",
-  yearly: "每年",
-  custom: "自行輸入",
-};
