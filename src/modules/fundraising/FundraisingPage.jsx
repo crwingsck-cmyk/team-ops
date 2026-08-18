@@ -9,6 +9,7 @@ import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
 import FundraisingRecordForm from "./FundraisingRecordForm";
 import FundraisingDetail from "./FundraisingDetail";
+import FundraisingEventsSection from "./FundraisingEventsSection";
 import { FUNDRAISING_COLUMNS, DEFAULT_FUNDRAISING_COLUMN_KEYS } from "../../constants/fundraisingColumns";
 import { exportRowsToExcel } from "../../lib/exportExcel";
 import { chineseIncludes } from "../../lib/chineseSearch";
@@ -41,6 +42,7 @@ export default function FundraisingPage() {
   const [search, setSearch] = useState("");
   const [editingPerson, setEditingPerson] = useState(null);
   const [viewingPerson, setViewingPerson] = useState(null);
+  const [viewMode, setViewMode] = useState("person");
 
   useEffect(() => {
     localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(activeColumnKeys));
@@ -99,46 +101,69 @@ export default function FundraisingPage() {
           <h2 className="text-2xl font-black italic text-slate-800">募款募心</h2>
           <p className="text-sm text-slate-500 mt-1">志工與大德資料庫彙整，可依和氣、互愛、協力分別篩選，並記錄每個人的募款狀況。</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" icon={Settings2} onClick={() => setShowColumnPicker(true)}>選擇欄位</Button>
-          <Button icon={Download} onClick={() => exportRowsToExcel("募款募心名單.xlsx", FUNDRAISING_COLUMNS.filter((c) => activeColumnKeys.includes(c.key)), rows)}>匯出 Excel</Button>
-        </div>
+        {viewMode === "person" && (
+          <div className="flex gap-2">
+            <Button variant="secondary" icon={Settings2} onClick={() => setShowColumnPicker(true)}>選擇欄位</Button>
+            <Button icon={Download} onClick={() => exportRowsToExcel("募款募心名單.xlsx", FUNDRAISING_COLUMNS.filter((c) => activeColumnKeys.includes(c.key)), rows)}>匯出 Excel</Button>
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="搜尋姓名或電話..."
-            className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-lg hover:border-indigo-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200"
-          />
-        </div>
-        <Select value={heQi} onChange={(e) => setHeQi(e.target.value)} className="sm:w-44">
-          <option value="all">全部和氣</option>
-          {heQiOptions.map((v) => (
-            <option key={v} value={v}>{v}</option>
-          ))}
-        </Select>
-        <Select value={huAi} onChange={(e) => setHuAi(e.target.value)} className="sm:w-44">
-          <option value="all">全部互愛</option>
-          {huAiOptions.map((v) => (
-            <option key={v} value={v}>{v}</option>
-          ))}
-        </Select>
-        <Select value={xieLi} onChange={(e) => setXieLi(e.target.value)} className="sm:w-44">
-          <option value="all">全部協力</option>
-          {xieLiOptions.map((v) => (
-            <option key={v} value={v}>{v}</option>
-          ))}
-        </Select>
+      <div className="flex rounded-xl border border-slate-200 overflow-hidden w-fit mb-6">
+        <button
+          onClick={() => setViewMode("person")}
+          className={`px-5 py-2.5 font-bold transition-colors ${viewMode === "person" ? "bg-indigo-600 text-white" : "bg-white text-slate-500 hover:text-slate-700"}`}
+        >
+          個人
+        </button>
+        <button
+          onClick={() => setViewMode("event")}
+          className={`px-5 py-2.5 font-bold transition-colors ${viewMode === "event" ? "bg-indigo-600 text-white" : "bg-white text-slate-500 hover:text-slate-700"}`}
+        >
+          活動
+        </button>
       </div>
 
-      {loading ? (
-        <div className="text-center py-16 text-slate-400 italic">載入中...</div>
+      {viewMode === "event" ? (
+        <FundraisingEventsSection />
       ) : (
-        <ReportTable columns={columns} rows={rows} />
+        <>
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="搜尋姓名或電話..."
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-lg hover:border-indigo-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200"
+              />
+            </div>
+            <Select value={heQi} onChange={(e) => setHeQi(e.target.value)} className="sm:w-44">
+              <option value="all">全部和氣</option>
+              {heQiOptions.map((v) => (
+                <option key={v} value={v}>{v}</option>
+              ))}
+            </Select>
+            <Select value={huAi} onChange={(e) => setHuAi(e.target.value)} className="sm:w-44">
+              <option value="all">全部互愛</option>
+              {huAiOptions.map((v) => (
+                <option key={v} value={v}>{v}</option>
+              ))}
+            </Select>
+            <Select value={xieLi} onChange={(e) => setXieLi(e.target.value)} className="sm:w-44">
+              <option value="all">全部協力</option>
+              {xieLiOptions.map((v) => (
+                <option key={v} value={v}>{v}</option>
+              ))}
+            </Select>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-16 text-slate-400 italic">載入中...</div>
+          ) : (
+            <ReportTable columns={columns} rows={rows} />
+          )}
+        </>
       )}
 
       <Modal open={showColumnPicker} onClose={() => setShowColumnPicker(false)} title="選擇要顯示的欄位">
