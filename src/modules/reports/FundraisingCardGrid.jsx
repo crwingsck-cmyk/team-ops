@@ -101,6 +101,36 @@ function EventDetailCard({ event }) {
   );
 }
 
+function EventDetailSection({ events }) {
+  const [search, setSearch] = useState("");
+  const matches = search ? events.filter((e) => chineseIncludes(`${e.location || ""} ${e.eventType || ""}`, search)) : [];
+
+  return (
+    <div>
+      <div className="relative max-w-sm mb-4">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="搜尋活動地點/類型..."
+          className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-lg hover:border-indigo-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200"
+        />
+      </div>
+      {!search ? (
+        <EmptyState icon={Search} title="輸入關鍵字搜尋" description="搜尋活動地點或類型，查看該場活動的募款明細。" />
+      ) : matches.length === 0 ? (
+        <EmptyState icon={Search} title="找不到符合的活動" description="確認地點或類型是否正確。" />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {matches.map((e) => (
+            <EventDetailCard key={e.id} event={e} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PersonCardSection({ people }) {
   const [search, setSearch] = useState("");
   const withDonors = people.filter((p) => p.donors?.length > 0);
@@ -159,11 +189,7 @@ export default function FundraisingCardGrid({ groupMode, people, events }) {
           ))}
         </div>
         <p className="text-sm font-bold text-indigo-600 pt-6 border-t border-slate-200 mb-3">各場活動明細</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((e) => (
-            <EventDetailCard key={e.id} event={e} />
-          ))}
-        </div>
+        <EventDetailSection events={events} />
       </div>
     );
   }
