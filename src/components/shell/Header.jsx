@@ -59,7 +59,7 @@ export default function Header() {
           <div className="text-left">
             <h1 className="text-lg xl:text-2xl font-bold text-slate-100 italic leading-tight">TeamOps</h1>
             <p className="hidden sm:block text-xs xl:text-sm font-medium text-slate-300 tracking-wider italic">
-              慈濟團隊工作台
+              慈濟西北團隊工作台
             </p>
           </div>
         </div>
