@@ -17,12 +17,12 @@ function Stat({ label, value }) {
 
 function BreakdownRow({ label, count, value }) {
   return (
-    <div className="flex items-center justify-between text-sm text-slate-600 py-0.5">
-      <span>{label}</span>
-      <span className="font-bold text-slate-800">
-        {count !== undefined && <span className="text-slate-400 font-normal mr-2">{count}人</span>}
-        {value}
-      </span>
+    <div className="flex items-center text-sm text-slate-600 py-0.5">
+      <span className="flex-1">{label}</span>
+      {count !== undefined && (
+        <span className="w-12 shrink-0 text-right text-slate-400 tabular-nums">{count}人</span>
+      )}
+      <span className="w-16 shrink-0 text-right font-bold text-slate-800 tabular-nums">{value}</span>
     </div>
   );
 }
