@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Settings2, Download, Search, Pencil } from "lucide-react";
+import { Settings2, Download, Search, Pencil, Eye } from "lucide-react";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useFundraisingPeople } from "../../hooks/useFundraisingPeople";
 import Button from "../../components/ui/Button";
@@ -8,6 +8,7 @@ import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
 import FundraisingRecordForm from "./FundraisingRecordForm";
+import FundraisingDetail from "./FundraisingDetail";
 import { FUNDRAISING_COLUMNS, DEFAULT_FUNDRAISING_COLUMN_KEYS } from "../../constants/fundraisingColumns";
 import { exportRowsToExcel } from "../../lib/exportExcel";
 import { chineseIncludes } from "../../lib/chineseSearch";
@@ -39,6 +40,7 @@ export default function FundraisingPage() {
   const [xieLi, setXieLi] = useState("all");
   const [search, setSearch] = useState("");
   const [editingPerson, setEditingPerson] = useState(null);
+  const [viewingPerson, setViewingPerson] = useState(null);
 
   useEffect(() => {
     localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(activeColumnKeys));
@@ -52,12 +54,20 @@ export default function FundraisingPage() {
         key: "actions",
         label: "操作",
         format: (row) => (
-          <button
-            onClick={() => setEditingPerson(row)}
-            className="flex items-center gap-1 text-indigo-600 font-bold hover:text-indigo-800"
-          >
-            <Pencil size={14} /> 記錄
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setViewingPerson(row)}
+              className="flex items-center gap-1 text-slate-500 font-bold hover:text-indigo-600"
+            >
+              <Eye size={14} /> 查閱
+            </button>
+            <button
+              onClick={() => setEditingPerson(row)}
+              className="flex items-center gap-1 text-indigo-600 font-bold hover:text-indigo-800"
+            >
+              <Pencil size={14} /> 記錄
+            </button>
+          </div>
         ),
       },
     ];
@@ -140,6 +150,25 @@ export default function FundraisingPage() {
           onSave={(keys) => { setActiveColumnKeys(keys); setShowColumnPicker(false); }}
           onCancel={() => setShowColumnPicker(false)}
         />
+      </Modal>
+
+      <Modal
+        open={!!viewingPerson}
+        onClose={() => setViewingPerson(null)}
+        title="募款詳情"
+        footer={
+          <Button
+            icon={Pencil}
+            onClick={() => {
+              setEditingPerson(viewingPerson);
+              setViewingPerson(null);
+            }}
+          >
+            編輯
+          </Button>
+        }
+      >
+        {viewingPerson && <FundraisingDetail person={viewingPerson} />}
       </Modal>
 
       <Modal open={!!editingPerson} onClose={() => setEditingPerson(null)} title="記錄募款狀況">
