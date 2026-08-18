@@ -19,7 +19,10 @@ export default function EventsPage() {
 
   const { data: events, loading } = useCollection("events", { orderByField: "date", orderByDirection: sort });
   const { data: registrations } = useCollection("registrations");
-  const { create, update, remove } = useFirestoreCrud("events");
+  const { data: allEventsIncDeleted } = useCollection("events", { includeDeleted: true });
+  const { data: allRegistrationsIncDeleted } = useCollection("registrations", { includeDeleted: true });
+  const { create, update, remove, permanentlyDelete: purgeEvent } = useFirestoreCrud("events");
+  const { permanentlyDelete: purgeRegistration } = useFirestoreCrud("registrations");
   const { isAdmin } = useMembership();
 
   const [showForm, setShowForm] = useState(false);
@@ -27,6 +30,18 @@ export default function EventsPage() {
   const [deleting, setDeleting] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showWipeConfirm, setShowWipeConfirm] = useState(false);
+  const [wiping, setWiping] = useState(false);
+
+  const handleWipeAll = async () => {
+    setWiping(true);
+    try {
+      await Promise.all(allRegistrationsIncDeleted.map((r) => purgeRegistration(r.id)));
+      await Promise.all(allEventsIncDeleted.map((e) => purgeEvent(e.id)));
+    } finally {
+      setWiping(false);
+    }
+  };
 
   const registrationCountByEvent = useMemo(() => {
     const counts = {};
@@ -66,6 +81,17 @@ export default function EventsPage() {
           <Button icon={Plus} onClick={openCreate}>新增活動</Button>
         </div>
       </div>
+
+      {isAdmin && (allEventsIncDeleted.length > 0 || allRegistrationsIncDeleted.length > 0) && (
+        <div className="mb-4 p-4 rounded-2xl border border-rose-200 bg-rose-50 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-rose-700 font-bold">
+            危險操作（一次性工具）：目前共有 {allEventsIncDeleted.length} 筆活動（含回收桶）、{allRegistrationsIncDeleted.length} 筆報名資料
+          </p>
+          <Button variant="danger" onClick={() => setShowWipeConfirm(true)} disabled={wiping}>
+            {wiping ? "清空中…" : "永久清空所有活動與報名資料"}
+          </Button>
+        </div>
+      )}
 
       {events.length > 0 && <ListControls view={view} onViewChange={setView} sort={sort} onSortChange={setSort} />}
 
@@ -108,6 +134,14 @@ export default function EventsPage() {
         onClose={() => setDeleting(null)}
         onConfirm={() => remove(deleting.id)}
         message={deleting ? `確定要刪除活動「${deleting.title}」嗎？` : ""}
+      />
+
+      <ConfirmDialog
+        open={showWipeConfirm}
+        onClose={() => setShowWipeConfirm(false)}
+        onConfirm={handleWipeAll}
+        title="永久清空所有活動"
+        message={`確定要永久刪除全部 ${allEventsIncDeleted.length} 筆活動與 ${allRegistrationsIncDeleted.length} 筆報名資料嗎？包含回收桶裡已經刪除的活動也會一併清除，此操作無法復原。`}
       />
     </div>
   );
