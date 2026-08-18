@@ -6,7 +6,7 @@ import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
-import { FUNDRAISING_COLUMNS, DEFAULT_FUNDRAISING_COLUMN_KEYS } from "../../constants/fundraisingColumns";
+import { FUNDRAISING_COLUMNS, DEFAULT_FUNDRAISING_COLUMN_KEYS, flattenDonorRows } from "../../constants/fundraisingColumns";
 import { exportRowsToExcel } from "../../lib/exportExcel";
 
 const STORAGE_KEY = "team-ops:report:fundraisingColumns";
@@ -43,12 +43,13 @@ export default function FundraisingReport() {
   );
 
   const rows = useMemo(() => {
-    return people.filter((p) => {
+    const filtered = people.filter((p) => {
       if (heQi !== "all" && p.heQi !== heQi) return false;
       if (huAi !== "all" && p.huAi !== huAi) return false;
       if (xieLi !== "all" && p.xieLi !== xieLi) return false;
       return true;
     });
+    return flattenDonorRows(filtered);
   }, [people, heQi, huAi, xieLi]);
 
   return (

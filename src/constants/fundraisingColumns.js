@@ -16,33 +16,32 @@ export const FUNDRAISING_COLUMNS = [
   { key: "huAi", label: "互愛" },
   { key: "xieLi", label: "協力" },
   { key: "area", label: "地區/住址" },
-  { key: "donors", label: "捐款者", format: (r) => (Array.isArray(r.donors) && r.donors.length > 0 ? r.donors.map((d) => d.name).filter(Boolean).join("、") : "-") },
-  {
-    key: "donationType",
-    label: "捐款形式",
-    format: (r) =>
-      Array.isArray(r.donors) && r.donors.length > 0
-        ? r.donors.map((d) => `${d.name || "-"}：${DONATION_TYPE_LABELS[d.donationType] || "-"}`).join("、")
-        : "-",
-  },
-  { key: "amount", label: "募款金額", format: (r) => (r.amount ? r.amount.toLocaleString() : "-") },
-  {
-    key: "pledgeStatus",
-    label: "認捐狀態",
-    format: (r) =>
-      Array.isArray(r.donors) && r.donors.length > 0
-        ? r.donors.map((d) => `${d.name || "-"}：${enumLabel(PLEDGE_STATUS_LABELS, d.pledgeStatus || "not_yet")}`).join("、")
-        : "-",
-  },
-  {
-    key: "progress",
-    label: "追蹤進度",
-    format: (r) =>
-      Array.isArray(r.donors) && r.donors.length > 0
-        ? r.donors.map((d) => d.progress).filter(Boolean).join("；") || "-"
-        : "-",
-  },
+  { key: "donorName", label: "捐款者", format: (r) => r.donorName || "-" },
+  { key: "donationType", label: "捐款形式", format: (r) => (r.donationType ? DONATION_TYPE_LABELS[r.donationType] || "-" : "-") },
+  { key: "donorAmount", label: "募款金額", format: (r) => (r.donorAmount ? r.donorAmount.toLocaleString() : "-") },
+  { key: "donorPledgeStatus", label: "認捐狀態", format: (r) => (r.donorName ? enumLabel(PLEDGE_STATUS_LABELS, r.donorPledgeStatus || "not_yet") : "-") },
+  { key: "donorProgress", label: "追蹤進度", format: (r) => r.donorProgress || "-" },
   { key: "notes", label: "備註" },
 ];
 
-export const DEFAULT_FUNDRAISING_COLUMN_KEYS = ["name", "category", "phone", "donors", "donationType", "amount", "pledgeStatus"];
+export const DEFAULT_FUNDRAISING_COLUMN_KEYS = ["name", "category", "phone", "donorName", "donationType", "donorAmount", "donorPledgeStatus"];
+
+// Fundraising records are per-person (one record with many donors). Reports/exports
+// show one row per donor instead of mashing every donor into a single joined cell,
+// so a person with N donors becomes N rows (or 1 placeholder row if they have none yet).
+export function flattenDonorRows(people) {
+  return people.flatMap((p) => {
+    if (!p.donors || p.donors.length === 0) {
+      return [{ ...p, key: p.id }];
+    }
+    return p.donors.map((d, i) => ({
+      ...p,
+      key: `${p.id}-${i}`,
+      donorName: d.name,
+      donationType: d.donationType,
+      donorAmount: Number(d.amount) || 0,
+      donorPledgeStatus: d.pledgeStatus,
+      donorProgress: d.progress,
+    }));
+  });
+}

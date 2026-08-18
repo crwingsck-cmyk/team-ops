@@ -91,7 +91,7 @@ export default function ReportTable({ columns, rows }) {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {sortedRows.map((row, i) => (
-              <tr key={row.id || row.key || i} className="group hover:bg-slate-50 transition-colors">
+              <tr key={row.key ?? row.id ?? i} className="group hover:bg-slate-50 transition-colors">
                 {columns.map((col, j) => (
                   <td
                     key={col.key}

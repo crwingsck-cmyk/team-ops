@@ -10,7 +10,7 @@ import ReportTable from "../../components/ui/ReportTable";
 import FundraisingRecordForm from "./FundraisingRecordForm";
 import FundraisingDetail from "./FundraisingDetail";
 import FundraisingEventsSection from "./FundraisingEventsSection";
-import { FUNDRAISING_COLUMNS, DEFAULT_FUNDRAISING_COLUMN_KEYS } from "../../constants/fundraisingColumns";
+import { FUNDRAISING_COLUMNS, DEFAULT_FUNDRAISING_COLUMN_KEYS, flattenDonorRows } from "../../constants/fundraisingColumns";
 import { exportRowsToExcel } from "../../lib/exportExcel";
 import { chineseIncludes } from "../../lib/chineseSearch";
 
@@ -76,13 +76,14 @@ export default function FundraisingPage() {
   }, [activeColumnKeys]);
 
   const rows = useMemo(() => {
-    return people.filter((p) => {
+    const filtered = people.filter((p) => {
       if (heQi !== "all" && p.heQi !== heQi) return false;
       if (huAi !== "all" && p.huAi !== huAi) return false;
       if (xieLi !== "all" && p.xieLi !== xieLi) return false;
       if (!search) return true;
       return chineseIncludes(`${p.name} ${p.phone}`, search);
     });
+    return flattenDonorRows(filtered);
   }, [people, heQi, huAi, xieLi, search]);
 
   const handleRecordSubmit = async (data) => {
