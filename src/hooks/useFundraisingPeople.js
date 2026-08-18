@@ -43,11 +43,12 @@ export function useFundraisingPeople() {
     }));
     return [...volunteerRows, ...guestRows].map((p) => {
       const record = recordsByPersonKey.get(p.id);
+      const donors = record?.donors || [];
       return {
         ...p,
         recordId: record?.id || null,
-        donors: record?.donors || [],
-        amount: record?.amount || 0,
+        donors,
+        amount: donors.reduce((sum, d) => sum + (Number(d.amount) || 0), 0),
         pledgeStatus: record?.pledgeStatus || "not_yet",
         progress: record?.progress || "",
       };

@@ -16,7 +16,7 @@ export const FUNDRAISING_COLUMNS = [
   { key: "huAi", label: "互愛" },
   { key: "xieLi", label: "協力" },
   { key: "area", label: "地區/住址" },
-  { key: "donors", label: "捐款者", format: (r) => (Array.isArray(r.donors) && r.donors.length > 0 ? r.donors.join("、") : "-") },
+  { key: "donors", label: "捐款者", format: (r) => (Array.isArray(r.donors) && r.donors.length > 0 ? r.donors.map((d) => d.name).filter(Boolean).join("、") : "-") },
   { key: "amount", label: "募款金額", format: (r) => (r.amount ? r.amount.toLocaleString() : "-") },
   { key: "pledgeStatus", label: "認捐狀態", format: (r) => enumLabel(PLEDGE_STATUS_LABELS, r.pledgeStatus || "not_yet") },
   { key: "progress", label: "追蹤進度" },

@@ -152,3 +152,16 @@ export const PLEDGE_STATUS_LABELS = {
   pledged: { label: "已認捐", bg: "bg-emerald-100", text: "text-emerald-700" },
   declined: { label: "婉拒", bg: "bg-rose-100", text: "text-rose-700" },
 };
+
+export const DONATION_TYPE_LABELS = {
+  chuyi_shiwu: "初一十五",
+  xin_lian: "心蓮",
+  jing_si_tang_klang: "每月繳款巴生靜思堂建設",
+  casual: "樂捐",
+};
+
+export const XIN_LIAN_FREQUENCY_LABELS = {
+  monthly: "每月",
+  yearly: "每年",
+  custom: "自行輸入",
+};
