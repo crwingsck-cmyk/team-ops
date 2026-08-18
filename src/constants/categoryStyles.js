@@ -144,3 +144,11 @@ export const COLLECTION_LABELS = {
   meetings: "會議",
   actionItems: "待辦事項",
 };
+
+export const PLEDGE_STATUS_LABELS = {
+  not_yet: { label: "尚未接洽", bg: "bg-slate-100", text: "text-slate-600" },
+  contacted: { label: "已接洽", bg: "bg-sky-100", text: "text-sky-700" },
+  considering: { label: "考慮中", bg: "bg-amber-100", text: "text-amber-700" },
+  pledged: { label: "已認捐", bg: "bg-emerald-100", text: "text-emerald-700" },
+  declined: { label: "婉拒", bg: "bg-rose-100", text: "text-rose-700" },
+};

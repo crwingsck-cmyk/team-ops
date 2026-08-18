@@ -1,4 +1,4 @@
-import { TC_IDENTIFICATION_LABELS } from "./categoryStyles";
+import { TC_IDENTIFICATION_LABELS, PLEDGE_STATUS_LABELS } from "./categoryStyles";
 
 function enumLabel(map, value) {
   const raw = map[value];
@@ -16,7 +16,11 @@ export const FUNDRAISING_COLUMNS = [
   { key: "huAi", label: "互愛" },
   { key: "xieLi", label: "協力" },
   { key: "area", label: "地區/住址" },
+  { key: "solicitor", label: "募款人" },
+  { key: "amount", label: "募款金額", format: (r) => (r.amount ? r.amount.toLocaleString() : "-") },
+  { key: "pledgeStatus", label: "認捐狀態", format: (r) => enumLabel(PLEDGE_STATUS_LABELS, r.pledgeStatus || "not_yet") },
+  { key: "progress", label: "追蹤進度" },
   { key: "notes", label: "備註" },
 ];
 
-export const DEFAULT_FUNDRAISING_COLUMN_KEYS = ["name", "category", "phone", "heQi", "huAi", "xieLi"];
+export const DEFAULT_FUNDRAISING_COLUMN_KEYS = ["name", "category", "phone", "solicitor", "amount", "pledgeStatus"];
