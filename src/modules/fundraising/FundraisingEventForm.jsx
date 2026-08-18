@@ -6,6 +6,7 @@ const EMPTY = {
   date: "",
   time: "",
   location: "",
+  eventType: "",
   amount: "",
   volunteerCount: "",
   guestCount: "",
@@ -35,7 +36,15 @@ export default function FundraisingEventForm({ initial, onSubmit, onCancel }) {
         <Input label="日期" type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
         <Input label="時間" type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} />
       </div>
-      <Input label="地點" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Input label="地點" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+        <Input
+          label="活動形式"
+          placeholder="例：園遊會、感恩會"
+          value={form.eventType}
+          onChange={(e) => setForm({ ...form, eventType: e.target.value })}
+        />
+      </div>
       <Input label="募款金額" type="number" min="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Input

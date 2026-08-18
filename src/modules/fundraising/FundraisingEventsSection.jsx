@@ -14,6 +14,7 @@ const COLUMNS = [
   { key: "date", label: "日期" },
   { key: "time", label: "時間" },
   { key: "location", label: "地點" },
+  { key: "eventType", label: "活動形式" },
   { key: "amount", label: "募款金額", format: (r) => (r.amount || 0).toLocaleString() },
   { key: "volunteerCount", label: "出席志工人數" },
   { key: "guestCount", label: "出席大德人數" },
