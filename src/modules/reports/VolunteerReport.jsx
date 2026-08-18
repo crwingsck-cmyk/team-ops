@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Settings2, Download, Table2, LayoutGrid } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import Button from "../../components/ui/Button";
-import Select from "../../components/ui/Select";
+import MultiSelectFilter from "../../components/ui/MultiSelectFilter";
 import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
@@ -65,7 +65,7 @@ export default function VolunteerReport() {
     loadStoredKeys(FILTER_KEYS_STORAGE_KEY, new Set(VOLUNTEER_FILTER_FIELDS.map((f) => f.key)), DEFAULT_VOLUNTEER_FILTER_KEYS)
   );
   const [filterValues, setFilterValues] = useState(() =>
-    Object.fromEntries(VOLUNTEER_FILTER_FIELDS.map((f) => [f.key, "all"]))
+    Object.fromEntries(VOLUNTEER_FILTER_FIELDS.map((f) => [f.key, []]))
   );
   const [showFilterPicker, setShowFilterPicker] = useState(false);
   const [viewMode, setViewMode] = useState("card");
@@ -111,10 +111,12 @@ export default function VolunteerReport() {
   const rows = useMemo(() => {
     return volunteers.filter((v) => {
       for (const key of activeFilterKeys) {
-        const wanted = filterValues[key];
-        if (!wanted || wanted === "all") continue;
+        const wanted = filterValues[key] || [];
+        if (wanted.length === 0) continue;
         const fieldVal = v[key];
-        const matches = Array.isArray(fieldVal) ? fieldVal.includes(wanted) : String(fieldVal ?? "") === wanted;
+        const matches = Array.isArray(fieldVal)
+          ? fieldVal.some((fv) => wanted.includes(fv))
+          : wanted.includes(String(fieldVal ?? ""));
         if (!matches) return false;
       }
       return true;
@@ -152,17 +154,14 @@ export default function VolunteerReport() {
           const field = VOLUNTEER_FILTER_FIELDS.find((f) => f.key === key);
           if (!field) return null;
           return (
-            <Select
+            <MultiSelectFilter
               key={key}
-              value={filterValues[key] || "all"}
-              onChange={(e) => setFilterValue(key, e.target.value)}
+              label={field.label}
+              options={fieldOptionsMap[key] || []}
+              selected={filterValues[key] || []}
+              onChange={(vals) => setFilterValue(key, vals)}
               className="sm:w-44"
-            >
-              <option value="all">全部{field.label}</option>
-              {(fieldOptionsMap[key] || []).map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </Select>
+            />
           );
         })}
         <button
