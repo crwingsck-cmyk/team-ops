@@ -8,14 +8,15 @@ import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import ReportTable from "../../components/ui/ReportTable";
 import { GUEST_REPORT_COLUMNS, DEFAULT_GUEST_REPORT_KEYS } from "../../constants/reportColumns";
+import { GUEST_FILTER_FIELDS, DEFAULT_GUEST_FILTER_KEYS, guestFilterOptionLabel } from "../../constants/guestFilterFields";
 import { exportRowsToExcel } from "../../lib/exportExcel";
 
-const STORAGE_KEY = "team-ops:report:guestColumns";
+const COLUMNS_STORAGE_KEY = "team-ops:report:guestColumns";
+const FILTER_KEYS_STORAGE_KEY = "team-ops:report:guestFilterKeys";
 
-function loadStoredKeys() {
-  const validKeys = new Set(GUEST_REPORT_COLUMNS.map((c) => c.key));
+function loadStoredKeys(storageKey, validKeys, fallback) {
   try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const stored = JSON.parse(localStorage.getItem(storageKey));
     if (Array.isArray(stored)) {
       const filtered = stored.filter((k) => validKeys.has(k));
       if (filtered.length > 0) return filtered;
@@ -23,35 +24,75 @@ function loadStoredKeys() {
   } catch {
     // ignore malformed storage
   }
-  return DEFAULT_GUEST_REPORT_KEYS;
+  return fallback;
 }
 
 export default function GuestReport() {
   const { data: guestDocs, loading: loadingGuests } = useCollection("guests");
   const { data: registrations, loading: loadingRegs } = useCollection("registrations");
   const { data: events, loading: loadingEvents } = useCollection("events", { includeDeleted: true });
-  const [activeKeys, setActiveKeys] = useState(loadStoredKeys);
-  const [showPicker, setShowPicker] = useState(false);
-  const [attended, setAttended] = useState("all");
+  const [activeColumnKeys, setActiveColumnKeys] = useState(() =>
+    loadStoredKeys(COLUMNS_STORAGE_KEY, new Set(GUEST_REPORT_COLUMNS.map((c) => c.key)), DEFAULT_GUEST_REPORT_KEYS)
+  );
+  const [showColumnPicker, setShowColumnPicker] = useState(false);
+  const [activeFilterKeys, setActiveFilterKeys] = useState(() =>
+    loadStoredKeys(FILTER_KEYS_STORAGE_KEY, new Set(GUEST_FILTER_FIELDS.map((f) => f.key)), DEFAULT_GUEST_FILTER_KEYS)
+  );
+  const [filterValues, setFilterValues] = useState(() =>
+    Object.fromEntries(GUEST_FILTER_FIELDS.map((f) => [f.key, "all"]))
+  );
+  const [showFilterPicker, setShowFilterPicker] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(activeKeys));
-  }, [activeKeys]);
+    localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(activeColumnKeys));
+  }, [activeColumnKeys]);
+
+  useEffect(() => {
+    localStorage.setItem(FILTER_KEYS_STORAGE_KEY, JSON.stringify(activeFilterKeys));
+  }, [activeFilterKeys]);
+
+  const setFilterValue = (key, value) => setFilterValues((prev) => ({ ...prev, [key]: value }));
 
   const guests = useGuestDirectory({ registrations, events, guestDocs });
 
+  const fieldOptionsMap = useMemo(() => {
+    const map = {};
+    GUEST_FILTER_FIELDS.forEach((field) => {
+      if (field.source === "enum") {
+        map[field.key] = Object.keys(field.enumOptions).map((k) => ({
+          value: k,
+          label: guestFilterOptionLabel(field, k),
+        }));
+        return;
+      }
+      const set = new Set();
+      guests.forEach((g) => {
+        const raw = field.key === "attended" ? (g.attended ? "yes" : "no") : g[field.key];
+        const values = field.source === "dynamicArray" ? (Array.isArray(raw) ? raw : []) : (raw ? [String(raw)] : []);
+        values.forEach((v) => v && set.add(v));
+      });
+      map[field.key] = [...set].sort().map((v) => ({ value: v, label: v }));
+    });
+    return map;
+  }, [guests]);
+
   const columns = useMemo(
-    () => GUEST_REPORT_COLUMNS.filter((c) => activeKeys.includes(c.key)),
-    [activeKeys]
+    () => GUEST_REPORT_COLUMNS.filter((c) => activeColumnKeys.includes(c.key)),
+    [activeColumnKeys]
   );
 
   const rows = useMemo(() => {
     return guests.filter((g) => {
-      if (attended === "yes" && !g.attended) return false;
-      if (attended === "no" && g.attended) return false;
+      for (const key of activeFilterKeys) {
+        const wanted = filterValues[key];
+        if (!wanted || wanted === "all") continue;
+        const fieldVal = key === "attended" ? (g.attended ? "yes" : "no") : g[key];
+        const matches = Array.isArray(fieldVal) ? fieldVal.includes(wanted) : String(fieldVal ?? "") === wanted;
+        if (!matches) return false;
+      }
       return true;
     });
-  }, [guests, attended]);
+  }, [guests, activeFilterKeys, filterValues]);
 
   const loading = loadingGuests || loadingRegs || loadingEvents;
 
@@ -60,17 +101,36 @@ export default function GuestReport() {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h3 className="text-xl font-black italic text-slate-800">大德資料庫報表</h3>
         <div className="flex gap-2">
-          <Button variant="secondary" icon={Settings2} onClick={() => setShowPicker(true)}>選擇欄位</Button>
+          <Button variant="secondary" icon={Settings2} onClick={() => setShowColumnPicker(true)}>選擇欄位</Button>
           <Button icon={Download} onClick={() => exportRowsToExcel("大德資料庫報表.xlsx", columns, rows)}>匯出 Excel</Button>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 mb-6">
-        <Select value={attended} onChange={(e) => setAttended(e.target.value)} className="sm:w-48">
-          <option value="all">全部（曾出席/未出席）</option>
-          <option value="yes">曾出席</option>
-          <option value="no">未曾出席</option>
-        </Select>
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        {activeFilterKeys.map((key) => {
+          const field = GUEST_FILTER_FIELDS.find((f) => f.key === key);
+          if (!field) return null;
+          return (
+            <Select
+              key={key}
+              value={filterValues[key] || "all"}
+              onChange={(e) => setFilterValue(key, e.target.value)}
+              className="sm:w-44"
+            >
+              <option value="all">全部{field.label}</option>
+              {(fieldOptionsMap[key] || []).map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </Select>
+          );
+        })}
+        <button
+          onClick={() => setShowFilterPicker(true)}
+          className="p-3 rounded-xl border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 transition-all"
+          title="自訂篩選欄位"
+        >
+          <Settings2 size={18} />
+        </button>
       </div>
 
       {loading ? (
@@ -79,14 +139,25 @@ export default function GuestReport() {
         <ReportTable columns={columns} rows={rows} />
       )}
 
-      <Modal open={showPicker} onClose={() => setShowPicker(false)} title="選擇要顯示的欄位">
+      <Modal open={showColumnPicker} onClose={() => setShowColumnPicker(false)} title="選擇要顯示的欄位">
         <FilterFieldPicker
           fields={GUEST_REPORT_COLUMNS}
-          selected={activeKeys}
+          selected={activeColumnKeys}
           max={GUEST_REPORT_COLUMNS.length}
           description="選擇要顯示在報表裡的欄位。"
-          onSave={(keys) => { setActiveKeys(keys); setShowPicker(false); }}
-          onCancel={() => setShowPicker(false)}
+          onSave={(keys) => { setActiveColumnKeys(keys); setShowColumnPicker(false); }}
+          onCancel={() => setShowColumnPicker(false)}
+        />
+      </Modal>
+
+      <Modal open={showFilterPicker} onClose={() => setShowFilterPicker(false)} title="自訂篩選欄位">
+        <FilterFieldPicker
+          fields={GUEST_FILTER_FIELDS}
+          selected={activeFilterKeys}
+          max={GUEST_FILTER_FIELDS.length}
+          description="選擇要用來篩選資料的欄位。"
+          onSave={(keys) => { setActiveFilterKeys(keys); setShowFilterPicker(false); }}
+          onCancel={() => setShowFilterPicker(false)}
         />
       </Modal>
     </div>
