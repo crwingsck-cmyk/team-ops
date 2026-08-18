@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Plus, Users2, Trash2, MapPin, Calendar, Users, Search, Settings2, Check } from "lucide-react";
+import { ArrowLeft, Plus, Users2, Trash2, MapPin, Calendar, Users, Search, Settings2, Check, Upload } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import Card from "../../components/ui/Card";
@@ -14,6 +14,7 @@ import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import MultiSelectFilter from "../../components/ui/MultiSelectFilter";
 import RegistrationForm from "./RegistrationForm";
 import BulkRegistrationForm from "./BulkRegistrationForm";
+import RegistrationImportModal from "./RegistrationImportModal";
 import { TC_IDENTIFICATION_LABELS, GENDER_LABELS, REGISTRATION_STATUS, registrationStatusSelectClass } from "../../constants/categoryStyles";
 import { heqiHuaiXieliText } from "../../lib/volunteer";
 import { getDays, eventFirstDate } from "../../lib/eventDays";
@@ -69,6 +70,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
   const [showForm, setShowForm] = useState(false);
   const [showBulkForm, setShowBulkForm] = useState(false);
+  const [showImportForm, setShowImportForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [deletingOne, setDeletingOne] = useState(null);
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
@@ -193,6 +195,9 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     [registrations]
   );
 
+  const handleImportRow = (data) =>
+    create({ ...data, eventId: event.id, eventTitle: event.title, eventDate: eventFirstDate(event) });
+
   const handleSubmit = async (data) => {
     await create({ ...data, eventId: event.id, eventTitle: event.title, eventDate: eventFirstDate(event) });
     setShowForm(false);
@@ -269,6 +274,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
               <Button variant="danger" icon={Trash2} onClick={() => setConfirmDeleteAll(true)}>刪除全部報名</Button>
             )}
             <Button variant="secondary" icon={Users2} onClick={() => setShowBulkForm(true)}>志工報名</Button>
+            <Button variant="secondary" icon={Upload} onClick={() => setShowImportForm(true)}>Excel 匯入報名名單</Button>
             <Button icon={Plus} onClick={() => setShowForm(true)}>新增大德報名</Button>
           </div>
         </div>
@@ -450,6 +456,10 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title="新增大德報名">
         <RegistrationForm onSubmit={handleSubmit} onCancel={() => setShowForm(false)} guestDirectory={guestDirectory} />
+      </Modal>
+
+      <Modal open={showImportForm} onClose={() => setShowImportForm(false)} title="Excel 匯入報名名單">
+        <RegistrationImportModal onImport={handleImportRow} onClose={() => setShowImportForm(false)} />
       </Modal>
 
       <Modal open={showBulkForm} onClose={() => setShowBulkForm(false)} title="志工報名">
