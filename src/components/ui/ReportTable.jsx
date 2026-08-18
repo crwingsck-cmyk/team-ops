@@ -22,7 +22,7 @@ function isNumericColumn(rows, col) {
   for (const row of rows) {
     const raw = row[col.key];
     if (raw === undefined || raw === null || raw === "") continue;
-    if (Array.isArray(raw) || isNaN(Number(raw))) return false;
+    if (typeof raw !== "number" || isNaN(raw)) return false;
     sawNumber = true;
   }
   return sawNumber;
