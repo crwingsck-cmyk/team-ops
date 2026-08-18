@@ -1,4 +1,4 @@
-import { LayoutDashboard, Megaphone, CalendarDays, Users, ClipboardList, History } from "lucide-react";
+import { LayoutDashboard, Megaphone, CalendarDays, Users, ClipboardList, History, FileBarChart } from "lucide-react";
 import Header from "./Header";
 import TabNav from "./TabNav";
 
@@ -8,6 +8,7 @@ export const TABS = [
   { id: "events", label: "活動", icon: CalendarDays },
   { id: "volunteers", label: "資料庫", icon: Users },
   { id: "attendance", label: "參與紀錄", icon: History },
+  { id: "reports", label: "報表", icon: FileBarChart },
   { id: "meetings", label: "會議", icon: ClipboardList },
 ];
 

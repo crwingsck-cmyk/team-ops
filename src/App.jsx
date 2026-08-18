@@ -10,6 +10,7 @@ import EventsPage from "./modules/events/EventsPage";
 import VolunteersPage from "./modules/volunteers/VolunteersPage";
 import MeetingsPage from "./modules/meetings/MeetingsPage";
 import AttendanceHistoryPage from "./modules/attendance/AttendanceHistoryPage";
+import ReportsPage from "./modules/reports/ReportsPage";
 
 const PAGES = {
   dashboard: DashboardPage,
@@ -17,6 +18,7 @@ const PAGES = {
   events: EventsPage,
   volunteers: VolunteersPage,
   attendance: AttendanceHistoryPage,
+  reports: ReportsPage,
   meetings: MeetingsPage,
 };
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "./Button";
 
-export default function FilterFieldPicker({ fields, selected, max = 3, onSave, onCancel }) {
+export default function FilterFieldPicker({ fields, selected, max = 3, description, onSave, onCancel }) {
   const [picked, setPicked] = useState(selected);
 
   const toggle = (key) => {
@@ -14,7 +14,7 @@ export default function FilterFieldPicker({ fields, selected, max = 3, onSave, o
 
   return (
     <div className="space-y-4">
-      <p className="text-slate-500">選擇最多 {max} 個要顯示在篩選列上的欄位。</p>
+      <p className="text-slate-500">{description || `選擇最多 ${max} 個要顯示在篩選列上的欄位。`}</p>
       <div className="grid grid-cols-2 gap-2 max-h-[50vh] overflow-y-auto pr-1">
         {fields.map((f) => {
           const checked = picked.includes(f.key);
