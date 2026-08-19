@@ -70,6 +70,7 @@ const REGISTRATION_FILTER_FIELDS = [
   { key: "heQi", label: "和氣" },
   { key: "huAi", label: "互愛" },
   { key: "xieLi", label: "協力" },
+  { key: "childrenCount", label: "與您同行參與人數（含自己本人）", source: "raw" },
 ];
 const DEFAULT_REG_FILTER_KEYS = ["tcIdentification", "xieLi", "invitedBy"];
 
