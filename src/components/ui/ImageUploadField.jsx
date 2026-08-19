@@ -7,15 +7,15 @@ export default function ImageUploadField({ label = "照片 / Poster（選填）"
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [zoomed, setZoomed] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   const setUploadingState = (value) => {
     setUploading(value);
     onUploadingChange?.(value);
   };
 
-  const handleSelect = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFile = async (file) => {
+    if (!file || !file.type?.startsWith("image/")) return;
     setError("");
     setUploadingState(true);
     try {
@@ -30,6 +30,23 @@ export default function ImageUploadField({ label = "照片 / Poster（選填）"
     }
   };
 
+  const handleSelect = (e) => handleFile(e.target.files?.[0]);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    if (!uploading) setDragging(true);
+  };
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setDragging(false);
+  };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragging(false);
+    if (uploading) return;
+    handleFile(e.dataTransfer.files?.[0]);
+  };
+
   const handleRemove = async () => {
     const oldPath = path;
     onChange({ url: "", path: "" });
@@ -40,7 +57,12 @@ export default function ImageUploadField({ label = "照片 / Poster（選填）"
     <div>
       <span className="block text-base font-bold text-slate-600 mb-2">{label}</span>
       {url ? (
-        <div className="relative inline-block">
+        <div
+          className="relative inline-block"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); setZoomed(true); }}
@@ -50,7 +72,7 @@ export default function ImageUploadField({ label = "照片 / Poster（選填）"
               src={url}
               alt="預覽"
               draggable={false}
-              className="max-h-48 rounded-xl border border-slate-200 hover:opacity-90 transition-opacity pointer-events-none"
+              className={`max-h-48 rounded-xl border transition-opacity pointer-events-none ${dragging ? "border-indigo-400 opacity-60" : "border-slate-200 hover:opacity-90"}`}
             />
           </button>
           <button
@@ -62,13 +84,18 @@ export default function ImageUploadField({ label = "照片 / Poster（選填）"
           </button>
         </div>
       ) : (
-        <label className="flex flex-col items-center justify-center gap-2 px-4 py-8 rounded-xl border-2 border-dashed border-slate-200 hover:border-indigo-300 hover:bg-slate-50 cursor-pointer transition-all">
+        <label
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`flex flex-col items-center justify-center gap-2 px-4 py-8 rounded-xl border-2 border-dashed cursor-pointer transition-all ${dragging ? "border-indigo-400 bg-indigo-50" : "border-slate-200 hover:border-indigo-300 hover:bg-slate-50"}`}
+        >
           {uploading ? (
             <Loader2 size={28} className="text-indigo-500 animate-spin" />
           ) : (
             <ImageIcon size={28} className="text-slate-300" />
           )}
-          <span className="text-sm text-slate-400">{uploading ? "上傳中…" : "點選上傳照片或 Poster"}</span>
+          <span className="text-sm text-slate-400">{uploading ? "上傳中…" : "點選或拖曳照片到這裡上傳"}</span>
           <input type="file" accept="image/*" onChange={handleSelect} disabled={uploading} className="hidden" />
         </label>
       )}
