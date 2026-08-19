@@ -25,7 +25,7 @@ export const FUNDRAISING_COLUMNS = [
   { key: "notes", label: "備註" },
 ];
 
-export const DEFAULT_FUNDRAISING_COLUMN_KEYS = ["name", "category", "phone", "donorName", "donationType", "donorAmount", "donorPledgeStatus"];
+export const DEFAULT_FUNDRAISING_COLUMN_KEYS = ["name", "category", "phone", "pledgeTarget", "donorName", "donationType", "donorAmount", "donorPledgeStatus"];
 
 // Fundraising records are per-person (one record with many donors). Reports/exports
 // show one row per donor instead of mashing every donor into a single joined cell,
