@@ -28,13 +28,16 @@ export default function EventsPage() {
   const [selectedId, setSelectedId] = useState(null);
   const [showTemplates, setShowTemplates] = useState(false);
 
-  const registrationCountByEvent = useMemo(() => {
-    const counts = {};
+  const registrationStatsByEvent = useMemo(() => {
+    const stats = {};
     for (const r of registrations) {
       if (r.status === "cancelled") continue;
-      counts[r.eventId] = (counts[r.eventId] || 0) + 1;
+      const s = stats[r.eventId] || (stats[r.eventId] = { registered: 0, attended: 0 });
+      const headcount = Number(r.childrenCount) || 1;
+      s.registered += headcount;
+      if (r.attended) s.attended += Number(r.attendedChildrenCount ?? r.childrenCount) || 1;
     }
-    return counts;
+    return stats;
   }, [registrations]);
 
   const selected = events.find((e) => e.id === selectedId);
@@ -86,7 +89,8 @@ export default function EventsPage() {
               event={e}
               layout={view}
               isAdmin={isAdmin}
-              registrationCount={registrationCountByEvent[e.id] || 0}
+              registeredCount={registrationStatsByEvent[e.id]?.registered || 0}
+              attendedCount={registrationStatsByEvent[e.id]?.attended || 0}
               onOpen={(item) => setSelectedId(item.id)}
               onEdit={(item) => { setEditing(item); setShowForm(true); }}
               onDelete={setDeleting}

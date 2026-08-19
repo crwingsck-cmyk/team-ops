@@ -1,11 +1,11 @@
-import { Pencil, Trash2, MapPin, Calendar, Users } from "lucide-react";
+import { Pencil, Trash2, MapPin, Calendar, Users, UserCheck } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import LinkPill from "../../components/ui/LinkPill";
 import { EVENT_STATUS } from "../../constants/categoryStyles";
 import { getDays, dateRangeText, sameLocationForAllDays } from "../../lib/eventDays";
 
-export default function EventCard({ event, registrationCount, layout = "grid", isAdmin, onOpen, onEdit, onDelete }) {
+export default function EventCard({ event, registeredCount, attendedCount, layout = "grid", isAdmin, onOpen, onEdit, onDelete }) {
   const days = getDays(event);
   const dateText = dateRangeText(event);
   const commonLocation = sameLocationForAllDays(days);
@@ -28,7 +28,8 @@ export default function EventCard({ event, registrationCount, layout = "grid", i
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-slate-600 mt-1">
               <span className="flex items-center gap-1 whitespace-nowrap"><Calendar size={16} />{dateText}{days.length === 1 && firstDay.startTime && ` ${firstDay.startTime}`}</span>
               {locationText && <span className="flex items-center gap-1 truncate"><MapPin size={16} />{locationText}</span>}
-              <span className="flex items-center gap-1 whitespace-nowrap"><Users size={16} />{registrationCount}{event.capacity ? `/${event.capacity}` : ""}</span>
+              <span className="flex items-center gap-1 whitespace-nowrap"><Users size={16} />{registeredCount}{event.capacity ? `/${event.capacity}` : ""}</span>
+              <span className="flex items-center gap-1 whitespace-nowrap"><UserCheck size={16} />{attendedCount}</span>
             </div>
           </div>
         </div>
@@ -70,7 +71,11 @@ export default function EventCard({ event, registrationCount, layout = "grid", i
         {locationText && <div className="flex items-center gap-1.5"><MapPin size={17} />{locationText}</div>}
         <div className="flex items-center gap-1.5">
           <Users size={17} />
-          {registrationCount} 人已報名{event.capacity ? ` / 上限 ${event.capacity} 人` : ""}
+          {registeredCount} 人已報名{event.capacity ? ` / 上限 ${event.capacity} 人` : ""}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <UserCheck size={17} />
+          {attendedCount} 人已出席
         </div>
       </div>
       {event.links?.length > 0 && (
