@@ -16,32 +16,32 @@ export default function EventCard({ event, registeredCount, attendedCount, layou
     return (
       <div
         onClick={() => onOpen(event)}
-        className="flex items-center justify-between gap-4 bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+        className="bg-white/80 backdrop-blur-md px-4 sm:px-5 py-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
       >
-        <div className="flex items-center gap-4 min-w-0">
+        <div className="flex items-start gap-3">
           {event.posterUrl && (
             <img src={event.posterUrl} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
           )}
-          <Badge tone={EVENT_STATUS[event.status]} className="shrink-0">{EVENT_STATUS[event.status]?.label}</Badge>
-          <div className="min-w-0">
-            <h3 className="font-black italic text-slate-800 text-xl truncate">{event.title}</h3>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-slate-600 mt-1">
-              <span className="flex items-center gap-1 whitespace-nowrap"><Calendar size={16} />{dateText}{days.length === 1 && firstDay.startTime && ` ${firstDay.startTime}`}</span>
-              {locationText && <span className="flex items-center gap-1 truncate"><MapPin size={16} />{locationText}</span>}
-              <span className="flex items-center gap-1 whitespace-nowrap"><Users size={16} />{registeredCount}{event.capacity ? `/${event.capacity}` : ""}</span>
-              <span className="flex items-center gap-1 whitespace-nowrap"><UserCheck size={16} />{attendedCount}</span>
-            </div>
+          <div className="flex-1 min-w-0">
+            <Badge tone={EVENT_STATUS[event.status]} className="mb-1">{EVENT_STATUS[event.status]?.label}</Badge>
+            <h3 className="font-black italic text-slate-800 text-lg sm:text-xl line-clamp-2">{event.title}</h3>
+          </div>
+          <div className="flex gap-1 shrink-0">
+            <button onClick={(e) => { e.stopPropagation(); onEdit(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
+              <Pencil size={18} />
+            </button>
+            {isAdmin && (
+              <button onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
+                <Trash2 size={18} />
+              </button>
+            )}
           </div>
         </div>
-        <div className="flex gap-1 shrink-0">
-          <button onClick={(e) => { e.stopPropagation(); onEdit(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600">
-            <Pencil size={18} />
-          </button>
-          {isAdmin && (
-            <button onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-rose-600">
-              <Trash2 size={18} />
-            </button>
-          )}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-base text-slate-600 mt-3 pt-3 border-t border-slate-100">
+          <span className="flex items-center gap-1 min-w-0"><Calendar size={16} className="shrink-0" />{dateText}{days.length === 1 && firstDay.startTime && ` ${firstDay.startTime}`}</span>
+          {locationText && <span className="flex items-center gap-1 min-w-0 max-w-full"><MapPin size={16} className="shrink-0" /><span className="truncate">{locationText}</span></span>}
+          <span className="flex items-center gap-1 whitespace-nowrap"><Users size={16} />{registeredCount}{event.capacity ? `/${event.capacity}` : ""}</span>
+          <span className="flex items-center gap-1 whitespace-nowrap"><UserCheck size={16} />{attendedCount}</span>
         </div>
       </div>
     );
