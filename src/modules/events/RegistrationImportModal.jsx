@@ -51,7 +51,7 @@ function matchOption(rawValue, matchers) {
   return "";
 }
 
-export default function RegistrationImportModal({ onImport, onClose, volunteers = [] }) {
+export default function RegistrationImportModal({ onImport, onClose, volunteers = [], guestDirectory = [] }) {
   const [step, setStep] = useState("upload"); // upload | map | preview | importing | done
   const [sheet, setSheet] = useState(null);
   const [headerRow, setHeaderRow] = useState(1);
@@ -96,6 +96,18 @@ export default function RegistrationImportModal({ onImport, onClose, volunteers 
     return map;
   }, [volunteers]);
 
+  const guestsByName = useMemo(() => {
+    const map = new Map();
+    guestDirectory.forEach((g) => { if (g.name) map.set(normalizeForSearch(g.name.trim()), g); });
+    return map;
+  }, [guestDirectory]);
+
+  const guestsByPhone = useMemo(() => {
+    const map = new Map();
+    guestDirectory.forEach((g) => { if (g.phone) map.set(g.phone.trim(), g); });
+    return map;
+  }, [guestDirectory]);
+
   const buildRegistration = (row) => {
     const data = { volunteerId: null, status: "registered", tcIdentification: "da_de" };
     TEXT_FIELDS.forEach((f) => {
@@ -124,6 +136,19 @@ export default function RegistrationImportModal({ onImport, onClose, volunteers 
         childrenCount: data.childrenCount,
         notes: data.notes,
         status: data.status,
+      };
+    }
+
+    const matchedGuest = (data.name && guestsByName.get(normalizeForSearch(data.name)))
+      || (data.phone && guestsByPhone.get(data.phone.trim()));
+    if (matchedGuest) {
+      return {
+        ...data,
+        volunteerId: null,
+        name: matchedGuest.name,
+        phone: matchedGuest.phone || data.phone,
+        tcIdentification: matchedGuest.tcIdentification || data.tcIdentification,
+        area: matchedGuest.area || data.area,
       };
     }
     return data;
@@ -232,7 +257,7 @@ export default function RegistrationImportModal({ onImport, onClose, volunteers 
           <p className="text-slate-500 mb-4">
             共 {preview.length} 筆，其中 {validPreview.length} 筆有姓名可匯入
             {skippedCount > 0 && `，${skippedCount} 筆因缺少姓名將被跳過`}。
-            姓名有對應到志工資料庫的會自動算志工報名，其餘算大德報名。
+            姓名有對應到志工資料庫的會自動算志工報名；沒對應到志工、但對應到大德名單裡既有資料的會自動帶入電話/地區等資料；都沒對應到的視為新的大德資料。
           </p>
           <div className="max-h-[45vh] overflow-y-auto border border-slate-100 rounded-xl divide-y divide-slate-100">
             {validPreview.slice(0, 50).map((r, i) => (
