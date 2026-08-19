@@ -195,13 +195,15 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     registrations.forEach((r) => {
       if (r.status === "waitlisted") return;
       registeredCount += 1;
-      if (r.volunteerId) volunteerCount += 1;
-      else daDeCount += 1;
-      childrenCount += Number(r.childrenCount) || 0;
+      const companions = Number(r.childrenCount) || 0;
+      if (r.volunteerId) volunteerCount += 1 + companions;
+      else daDeCount += 1 + companions;
+      childrenCount += companions;
       if (r.attended) {
-        if (r.volunteerId) attendedVolunteerCount += 1;
-        else attendedDaDeCount += 1;
-        attendedChildrenCount += Number(r.attendedChildrenCount ?? r.childrenCount) || 0;
+        const attendedCompanions = Number(r.attendedChildrenCount ?? r.childrenCount) || 0;
+        if (r.volunteerId) attendedVolunteerCount += 1 + attendedCompanions;
+        else attendedDaDeCount += 1 + attendedCompanions;
+        attendedChildrenCount += attendedCompanions;
       }
     });
     return { volunteerCount, daDeCount, childrenCount, attendedVolunteerCount, attendedDaDeCount, attendedChildrenCount, registeredCount };
