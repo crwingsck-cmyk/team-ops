@@ -137,7 +137,7 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
                 placeholder="1"
                 value={childrenCounts[v.id] || ""}
                 onChange={(e) => setChildrenCounts((prev) => ({ ...prev, [v.id]: e.target.value }))}
-                title="與您同行參與人數（含自己本人）"
+                title="參與人數（含自己本人）"
                 className="w-16 px-2 py-1 rounded-lg border border-slate-200 text-sm text-center shrink-0"
               />
             </label>
@@ -145,7 +145,7 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
         )}
       </div>
       {selectedIds.size > 0 && (
-        <p className="text-xs text-slate-400">在志工右側輸入與該志工同行參與人數（含自己本人，可留空，預設 1）</p>
+        <p className="text-xs text-slate-400">在志工右側輸入該志工的參與人數（含自己本人，可留空，預設 1）</p>
       )}
 
       <div className="flex justify-end gap-2 pt-2">

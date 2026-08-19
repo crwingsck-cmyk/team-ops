@@ -70,7 +70,7 @@ const REGISTRATION_FILTER_FIELDS = [
   { key: "heQi", label: "和氣" },
   { key: "huAi", label: "互愛" },
   { key: "xieLi", label: "協力" },
-  { key: "childrenCount", label: "與您同行參與人數（含自己本人）", source: "raw" },
+  { key: "childrenCount", label: "參與人數（含自己本人）", source: "raw" },
 ];
 const DEFAULT_REG_FILTER_KEYS = ["tcIdentification", "xieLi", "inviterName"];
 
@@ -78,7 +78,7 @@ const REGISTRATION_DISPLAY_FIELDS = [
   { key: "phone", label: "電話" },
   { key: "tcIdentification", label: "慈濟身份" },
   { key: "heqiHuaiXieli", label: "和氣互愛協力" },
-  { key: "childrenCount", label: "與您同行參與人數（含自己本人）" },
+  { key: "childrenCount", label: "參與人數（含自己本人）" },
   { key: "gender", label: "性別" },
   { key: "inviterName", label: "邀約人姓名" },
   { key: "area", label: "地區" },
@@ -320,8 +320,8 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
         {registrations.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-            <RegStatCard label="志工報名及與您同行參與人數（含自己本人）" value={regSummary.volunteerCount} />
-            <RegStatCard label="大德報名及與您同行參與人數（含自己本人）" value={regSummary.daDeCount} />
+            <RegStatCard label="志工報名及參與人數（含自己本人）" value={regSummary.volunteerCount} />
+            <RegStatCard label="大德報名及參與人數（含自己本人）" value={regSummary.daDeCount} />
             <RegStatCard label="報名總人數" value={regSummary.volunteerCount + regSummary.daDeCount} />
             <RegStatCard label="出席志工人數" value={regSummary.attendedVolunteerCount} accent />
             <RegStatCard label="出席大德人數" value={regSummary.attendedDaDeCount} accent />
@@ -437,20 +437,21 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                       <span className="text-base text-slate-500 truncate">{registrant.heqiHuaiXieli || "-"}</span>
                     )}
                     {activeRegDisplayKeys.includes("childrenCount") && (
-                      <span className="text-base text-slate-500">與您同行：{r.childrenCount || 1} 人</span>
+                      <span className="text-base text-slate-500">參與人數：{r.childrenCount || 1} 人</span>
+                    )}
+                    {activeRegDisplayKeys.includes("gender") && r.gender && (
+                      <span className="text-base text-slate-500">{GENDER_LABELS[r.gender] || r.gender}</span>
+                    )}
+                    {activeRegDisplayKeys.includes("inviterName") && r.inviterName && (
+                      <span className="text-base text-slate-500">邀約人：{r.inviterName}</span>
+                    )}
+                    {activeRegDisplayKeys.includes("area") && r.area && (
+                      <span className="text-base text-slate-500">地區：{r.area}</span>
+                    )}
+                    {activeRegDisplayKeys.includes("attendingDates") && r.attendingDates?.length > 0 && (
+                      <span className="text-base text-slate-500">參與日期：{r.attendingDates.join("、")}</span>
                     )}
                   </div>
-                  {((activeRegDisplayKeys.includes("gender") && r.gender)
-                    || (activeRegDisplayKeys.includes("inviterName") && r.inviterName)
-                    || (activeRegDisplayKeys.includes("area") && r.area)
-                    || (activeRegDisplayKeys.includes("attendingDates") && r.attendingDates?.length > 0)) && (
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-slate-500">
-                      {activeRegDisplayKeys.includes("gender") && r.gender && <span>{GENDER_LABELS[r.gender] || r.gender}</span>}
-                      {activeRegDisplayKeys.includes("inviterName") && r.inviterName && <span>邀約人：{r.inviterName}</span>}
-                      {activeRegDisplayKeys.includes("area") && r.area && <span>地區：{r.area}</span>}
-                      {activeRegDisplayKeys.includes("attendingDates") && r.attendingDates?.length > 0 && <span>參與日期：{r.attendingDates.join("、")}</span>}
-                    </div>
-                  )}
                   {activeRegDisplayKeys.includes("notes") && r.notes && <p className="text-base italic text-slate-500 mt-1">{r.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -477,7 +478,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                           update(r.id, { attendedChildrenCount: val });
                         }
                       }}
-                      title="實際與您同行出席人數（含自己本人）"
+                      title="實際出席人數（含自己本人）"
                       className="w-14 px-2 py-1.5 rounded-lg border border-slate-200 text-sm text-center"
                     />
                   )}
