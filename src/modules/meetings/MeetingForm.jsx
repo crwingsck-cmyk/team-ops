@@ -107,7 +107,7 @@ function NameTagList({ label, ids, volunteers, onToggle, activeColor }) {
                   type="button"
                   key={v.id}
                   onClick={() => onToggle(v.id)}
-                  className={`px-4 py-2 rounded-lg text-base font-bold hover:scale-[1.03] transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-lg text-base font-bold transition-all duration-200 ${
                     ids.includes(v.id) ? activeColor : "bg-white text-slate-600 border border-slate-200 hover:border-indigo-300"
                   }`}
                 >

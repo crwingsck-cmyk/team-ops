@@ -16,7 +16,7 @@ export default function EventCard({ event, registrationCount, layout = "grid", i
     return (
       <div
         onClick={() => onOpen(event)}
-        className="flex items-center justify-between gap-4 bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 cursor-pointer"
+        className="flex items-center justify-between gap-4 bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
       >
         <div className="flex items-center gap-4 min-w-0">
           {event.posterUrl && (

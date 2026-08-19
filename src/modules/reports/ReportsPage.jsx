@@ -35,7 +35,7 @@ export default function ReportsPage() {
             <button
               key={type.id}
               onClick={() => setActiveType(type.id)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-base transition-all duration-200 hover:scale-[1.02] ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-base transition-all duration-200 ${
                 isActive
                   ? "bg-indigo-600 text-white shadow-lg"
                   : "bg-white/80 backdrop-blur-md text-slate-600 border border-slate-100 hover:border-indigo-300"

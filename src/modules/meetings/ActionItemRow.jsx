@@ -4,7 +4,7 @@ import { ACTION_ITEM_STATUS } from "../../constants/categoryStyles";
 
 export default function ActionItemRow({ item, isAdmin, onEdit, onDelete }) {
   return (
-    <li className="flex items-start justify-between gap-3 p-4 rounded-xl bg-slate-50 hover:scale-[1.02] transition-all duration-200">
+    <li className="flex items-start justify-between gap-3 p-4 rounded-xl bg-slate-50">
       <div>
         <p className="font-bold text-xl text-slate-800">{item.description}</p>
         <div className="flex flex-wrap items-center gap-3 mt-2">
