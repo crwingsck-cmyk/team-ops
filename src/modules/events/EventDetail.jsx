@@ -24,6 +24,17 @@ function tcIdentificationLabel(key) {
   return TC_IDENTIFICATION_LABELS[key]?.split(" ")[0] || "";
 }
 
+function RegStatCard({ label, value, accent }) {
+  return (
+    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+      <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">{label}</p>
+      <p className={`text-2xl font-black ${accent ? "text-emerald-600" : "text-indigo-600"}`}>
+        {value} <span className="text-sm font-bold text-slate-400">人</span>
+      </p>
+    </div>
+  );
+}
+
 function registrantSearchText(r) {
   return [
     r.name,
@@ -177,7 +188,8 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     let volunteerCount = 0;
     let daDeCount = 0;
     let childrenCount = 0;
-    let attendedCount = 0;
+    let attendedVolunteerCount = 0;
+    let attendedDaDeCount = 0;
     let attendedChildrenCount = 0;
     let registeredCount = 0;
     registrations.forEach((r) => {
@@ -187,11 +199,12 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       else daDeCount += 1;
       childrenCount += Number(r.childrenCount) || 0;
       if (r.attended) {
-        attendedCount += 1;
+        if (r.volunteerId) attendedVolunteerCount += 1;
+        else attendedDaDeCount += 1;
         attendedChildrenCount += Number(r.attendedChildrenCount ?? r.childrenCount) || 0;
       }
     });
-    return { volunteerCount, daDeCount, childrenCount, attendedCount, attendedChildrenCount, registeredCount };
+    return { volunteerCount, daDeCount, childrenCount, attendedVolunteerCount, attendedDaDeCount, attendedChildrenCount, registeredCount };
   }, [registrations]);
 
   const registeredVolunteerIds = useMemo(
@@ -289,16 +302,13 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         </div>
 
         {registrations.length > 0 && (
-          <div className="mb-4 text-sm font-bold text-slate-500">
-            <div className="flex flex-wrap gap-x-6 gap-y-1">
-              <span>志工報名：<span className="text-indigo-600">{regSummary.volunteerCount}</span> 人</span>
-              <span>大德報名：<span className="text-indigo-600">{regSummary.daDeCount}</span> 人</span>
-              <span>帶小孩或家人：<span className="text-indigo-600">{regSummary.childrenCount}</span> 人</span>
-            </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-1 mt-1">
-              <span>出席人數：<span className="text-emerald-600">{regSummary.attendedCount}</span> 人</span>
-              <span>出席小孩或家人：<span className="text-emerald-600">{regSummary.attendedChildrenCount}</span> 人</span>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+            <RegStatCard label="志工報名" value={regSummary.volunteerCount} />
+            <RegStatCard label="大德報名" value={regSummary.daDeCount} />
+            <RegStatCard label="帶小孩或家人" value={regSummary.childrenCount} />
+            <RegStatCard label="出席志工人數" value={regSummary.attendedVolunteerCount} accent />
+            <RegStatCard label="出席大德人數" value={regSummary.attendedDaDeCount} accent />
+            <RegStatCard label="出席小孩或家人" value={regSummary.attendedChildrenCount} accent />
           </div>
         )}
 
