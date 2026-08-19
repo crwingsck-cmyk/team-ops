@@ -500,7 +500,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       </Modal>
 
       <Modal open={showImportForm} onClose={() => setShowImportForm(false)} title="Excel 匯入報名名單">
-        <RegistrationImportModal onImport={handleImportRow} onClose={() => setShowImportForm(false)} />
+        <RegistrationImportModal onImport={handleImportRow} onClose={() => setShowImportForm(false)} volunteers={volunteers} />
       </Modal>
 
       <Modal open={showBulkForm} onClose={() => setShowBulkForm(false)} title="志工報名">

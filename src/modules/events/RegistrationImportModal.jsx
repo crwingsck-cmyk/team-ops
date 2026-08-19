@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { Upload, ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import Button from "../../components/ui/Button";
@@ -51,7 +51,7 @@ function matchOption(rawValue, matchers) {
   return "";
 }
 
-export default function RegistrationImportModal({ onImport, onClose }) {
+export default function RegistrationImportModal({ onImport, onClose, volunteers = [] }) {
   const [step, setStep] = useState("upload"); // upload | map | preview | importing | done
   const [sheet, setSheet] = useState(null);
   const [headerRow, setHeaderRow] = useState(1);
@@ -90,6 +90,12 @@ export default function RegistrationImportModal({ onImport, onClose }) {
     setMapping(initialMapping);
   }, [sheet, headerRow]);
 
+  const volunteersByName = useMemo(() => {
+    const map = new Map();
+    volunteers.forEach((v) => { if (v.name) map.set(normalizeForSearch(v.name.trim()), v); });
+    return map;
+  }, [volunteers]);
+
   const buildRegistration = (row) => {
     const data = { volunteerId: null, status: "registered", tcIdentification: "da_de" };
     TEXT_FIELDS.forEach((f) => {
@@ -104,6 +110,22 @@ export default function RegistrationImportModal({ onImport, onClose }) {
       const matched = matchOption(raw, f.matchers);
       if (matched) data[f.key] = matched;
     });
+
+    const matchedVolunteer = data.name ? volunteersByName.get(normalizeForSearch(data.name)) : null;
+    if (matchedVolunteer) {
+      return {
+        volunteerId: matchedVolunteer.id,
+        name: matchedVolunteer.name,
+        phone: matchedVolunteer.phone || "",
+        tcIdentification: matchedVolunteer.tcIdentification || "",
+        heQi: matchedVolunteer.heQi || "",
+        huAi: matchedVolunteer.huAi || "",
+        xieLi: matchedVolunteer.xieLi || "",
+        childrenCount: data.childrenCount,
+        notes: data.notes,
+        status: data.status,
+      };
+    }
     return data;
   };
 
@@ -210,11 +232,17 @@ export default function RegistrationImportModal({ onImport, onClose }) {
           <p className="text-slate-500 mb-4">
             共 {preview.length} 筆，其中 {validPreview.length} 筆有姓名可匯入
             {skippedCount > 0 && `，${skippedCount} 筆因缺少姓名將被跳過`}。
+            姓名有對應到志工資料庫的會自動算志工報名，其餘算大德報名。
           </p>
           <div className="max-h-[45vh] overflow-y-auto border border-slate-100 rounded-xl divide-y divide-slate-100">
             {validPreview.slice(0, 50).map((r, i) => (
               <div key={i} className="px-4 py-2 text-sm">
                 <span className="font-bold text-slate-800">{r.name}</span>
+                {r.volunteerId ? (
+                  <span className="ml-2 px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 text-xs font-bold">志工</span>
+                ) : (
+                  <span className="ml-2 px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-xs font-bold">大德</span>
+                )}
                 <span className="text-slate-400 ml-2">{r.phone} {r.area}</span>
               </div>
             ))}
