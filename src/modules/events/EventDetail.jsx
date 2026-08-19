@@ -430,7 +430,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                 if (key === "phone") return <span key={key} className="text-base text-slate-500 truncate">{registrant.phone || "-"}</span>;
                 if (key === "tcIdentification") return <span key={key} className="text-base text-slate-500 truncate">{tcIdentificationLabel(registrant.tcIdentification) || "-"}</span>;
                 if (key === "heqiHuaiXieli") return <span key={key} className="text-base text-slate-500 truncate">{registrant.heqiHuaiXieli || "-"}</span>;
-                if (key === "childrenCount") return <span key={key} className="text-base text-slate-500">參與人數：{r.childrenCount || 1} 人</span>;
+                if (key === "childrenCount") return <span key={key} className="text-base text-slate-500">參與人數：<span className="font-bold text-slate-800">{r.childrenCount || 1}</span></span>;
                 if (key === "gender") return <span key={key} className="text-base text-slate-500 truncate">{GENDER_LABELS[registrant.gender] || "-"}</span>;
                 if (key === "inviterName") return <span key={key} className="text-base text-slate-500 truncate">邀約人：{r.inviterName || "-"}</span>;
                 if (key === "attendingDates") return <span key={key} className="text-base text-slate-500 truncate">參與日期：{r.attendingDates?.length > 0 ? r.attendingDates.join("、") : "-"}</span>;
