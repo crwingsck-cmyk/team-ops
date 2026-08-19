@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { Upload, ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import Button from "../../components/ui/Button";
@@ -102,7 +102,7 @@ function containsAny(value, subs) {
   return subs.some((s) => v.includes(normalizeForSearch(s)));
 }
 
-export default function VolunteerImportModal({ onImport, onClose }) {
+export default function VolunteerImportModal({ onImport, onUpdate, existingVolunteers = [], onClose }) {
   const [step, setStep] = useState("upload"); // upload | map | preview | importing | done
   const [sheet, setSheet] = useState(null);
   const [headerRow, setHeaderRow] = useState(1);
@@ -148,6 +148,34 @@ export default function VolunteerImportModal({ onImport, onClose }) {
     setDayMapping(initialDayMapping);
   }, [sheet, headerRow]);
 
+  const volunteersByMemberId = useMemo(() => {
+    const map = new Map();
+    existingVolunteers.forEach((v) => {
+      if (v.memberId && String(v.memberId).trim()) map.set(normalizeForSearch(String(v.memberId).trim()), v);
+    });
+    return map;
+  }, [existingVolunteers]);
+
+  const volunteersByNamePhone = useMemo(() => {
+    const map = new Map();
+    existingVolunteers.forEach((v) => {
+      if (v.name && v.phone) map.set(`${normalizeForSearch(v.name.trim())}|${v.phone.trim()}`, v);
+    });
+    return map;
+  }, [existingVolunteers]);
+
+  const findMatch = (data) => {
+    if (data.memberId) {
+      const m = volunteersByMemberId.get(normalizeForSearch(data.memberId.trim()));
+      if (m) return m;
+    }
+    if (data.name && data.phone) {
+      const m = volunteersByNamePhone.get(`${normalizeForSearch(data.name.trim())}|${data.phone.trim()}`);
+      if (m) return m;
+    }
+    return null;
+  };
+
   const buildVolunteer = (row) => {
     const data = { status: "active" };
     TEXT_FIELDS.forEach((f) => {
@@ -184,19 +212,41 @@ export default function VolunteerImportModal({ onImport, onClose }) {
       };
     });
     data.availability = availability;
+
+    const matched = findMatch(data);
+    data._matchedId = matched ? matched.id : null;
     return data;
   };
 
   const preview = step === "preview" ? rows.map(buildVolunteer) : [];
   const validPreview = preview.filter((v) => v.name);
   const skippedCount = preview.length - validPreview.length;
+  const updateCount = validPreview.filter((v) => v._matchedId).length;
+
+  // For updates, only overwrite fields that actually have a value in this row —
+  // an updated row with blank/unmapped columns should never erase previously-entered profile data.
+  const nonEmptyOnly = (data) => {
+    const result = {};
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === "_matchedId" || value === "" || value === null || value === undefined) return;
+      if (Array.isArray(value) && value.length === 0) return;
+      if (key === "availability" && !Object.values(value).some((d) => d.morning || d.afternoon || d.night)) return;
+      result[key] = value;
+    });
+    return result;
+  };
 
   const runImport = async () => {
     setStep("importing");
     const toImport = rows.map(buildVolunteer).filter((v) => v.name);
     setProgress({ done: 0, total: toImport.length });
-    for (const data of toImport) {
-      await onImport(data);
+    for (const item of toImport) {
+      if (item._matchedId) {
+        await onUpdate(item._matchedId, nonEmptyOnly(item));
+      } else {
+        const { _matchedId, ...data } = item;
+        await onImport(data);
+      }
       setProgress((p) => ({ ...p, done: p.done + 1 }));
     }
     setStep("done");
@@ -302,11 +352,17 @@ export default function VolunteerImportModal({ onImport, onClose }) {
           <p className="text-slate-500 mb-4">
             共 {preview.length} 筆，其中 {validPreview.length} 筆有姓名可匯入
             {skippedCount > 0 && `，${skippedCount} 筆因缺少姓名將被跳過`}。
+            會員編號或姓名+電話對應到現有志工的會更新既有資料（{updateCount} 筆），其餘新增（{validPreview.length - updateCount} 筆）。
           </p>
           <div className="max-h-[45vh] overflow-y-auto border border-slate-100 rounded-xl divide-y divide-slate-100">
             {validPreview.slice(0, 50).map((v, i) => (
               <div key={i} className="px-4 py-2 text-sm">
                 <span className="font-bold text-slate-800">{v.name}</span>
+                {v._matchedId ? (
+                  <span className="ml-2 px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-xs font-bold">更新既有資料</span>
+                ) : (
+                  <span className="ml-2 px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 text-xs font-bold">新增</span>
+                )}
                 <span className="text-slate-400 ml-2">{v.phone} {v.address}</span>
               </div>
             ))}

@@ -313,7 +313,7 @@ export default function VolunteersPage() {
       />
 
       <Modal open={showImport} onClose={() => setShowImport(false)} title="匯入 Excel">
-        <VolunteerImportModal onImport={create} onClose={() => setShowImport(false)} />
+        <VolunteerImportModal onImport={create} onUpdate={update} existingVolunteers={volunteers} onClose={() => setShowImport(false)} />
       </Modal>
 
       <Modal open={showFieldPicker} onClose={() => setShowFieldPicker(false)} title="自訂篩選欄位">
