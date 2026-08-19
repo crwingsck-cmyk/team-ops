@@ -30,6 +30,7 @@ function BreakdownRow({ label, count, value }) {
 function OrgUnitCard({ label, people }) {
   const withDonors = people.filter((p) => p.donors?.length > 0);
   const allDonors = withDonors.flatMap((p) => p.donors);
+  const pledgeTargetTotal = people.reduce((sum, p) => sum + (Number(p.pledgeTarget) || 0), 0);
 
   const amountByType = {};
   const countByType = {};
@@ -50,7 +51,8 @@ function OrgUnitCard({ label, people }) {
   return (
     <Card>
       <h3 className="font-black italic text-slate-800 text-xl mb-3">{label}</h3>
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <Stat label="發願人數" value={pledgeTargetTotal} />
         <Stat label="募款者人數" value={withDonors.length} />
         <Stat label="捐款者人數" value={allDonors.length} />
       </div>
