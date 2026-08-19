@@ -74,6 +74,19 @@ const REGISTRATION_FILTER_FIELDS = [
 ];
 const DEFAULT_REG_FILTER_KEYS = ["tcIdentification", "xieLi", "invitedBy"];
 
+const REGISTRATION_DISPLAY_FIELDS = [
+  { key: "phone", label: "電話" },
+  { key: "tcIdentification", label: "慈濟身份" },
+  { key: "heqiHuaiXieli", label: "和氣互愛協力" },
+  { key: "childrenCount", label: "與您同行參與人數（含自己本人）" },
+  { key: "gender", label: "性別" },
+  { key: "invitedBy", label: "邀約人姓名" },
+  { key: "area", label: "地區" },
+  { key: "attendingDates", label: "參與日期" },
+  { key: "notes", label: "備註" },
+];
+const DEFAULT_REG_DISPLAY_KEYS = REGISTRATION_DISPLAY_FIELDS.map((f) => f.key);
+
 export default function EventDetail({ event, isAdmin, onBack }) {
   const { data: volunteers } = useCollection("volunteers");
   const { data: allRegistrations, loading } = useCollection("registrations");
@@ -91,6 +104,8 @@ export default function EventDetail({ event, isAdmin, onBack }) {
   const [activeRegFilterKeys, setActiveRegFilterKeys] = useState(DEFAULT_REG_FILTER_KEYS);
   const [regFilterValues, setRegFilterValues] = useState({});
   const [showRegFieldPicker, setShowRegFieldPicker] = useState(false);
+  const [activeRegDisplayKeys, setActiveRegDisplayKeys] = useState(DEFAULT_REG_DISPLAY_KEYS);
+  const [showRegDisplayPicker, setShowRegDisplayPicker] = useState(false);
 
   const registrations = useMemo(
     () => allRegistrations.filter((r) => r.eventId === event.id),
@@ -393,6 +408,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
             >
               <Settings2 size={18} />
             </button>
+            <Button variant="secondary" icon={Settings2} onClick={() => setShowRegDisplayPicker(true)}>選擇顯示欄位</Button>
           </div>
         )}
 
@@ -409,22 +425,33 @@ export default function EventDetail({ event, isAdmin, onBack }) {
               return (
               <li key={r.id} className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-50">
                 <div className="flex-1 min-w-0">
-                  <div className="grid grid-cols-4 gap-3 items-center min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 min-w-0">
                     <span className="font-bold text-xl text-slate-800 truncate">{registrant.name}</span>
-                    <span className="text-base text-slate-500 truncate">{registrant.phone || "-"}</span>
-                    <span className="text-base text-slate-500 truncate">{tcIdentificationLabel(registrant.tcIdentification) || "-"}</span>
-                    <span className="text-base text-slate-500 truncate">{registrant.heqiHuaiXieli || "-"}</span>
+                    {activeRegDisplayKeys.includes("phone") && (
+                      <span className="text-base text-slate-500 truncate">{registrant.phone || "-"}</span>
+                    )}
+                    {activeRegDisplayKeys.includes("tcIdentification") && (
+                      <span className="text-base text-slate-500 truncate">{tcIdentificationLabel(registrant.tcIdentification) || "-"}</span>
+                    )}
+                    {activeRegDisplayKeys.includes("heqiHuaiXieli") && (
+                      <span className="text-base text-slate-500 truncate">{registrant.heqiHuaiXieli || "-"}</span>
+                    )}
+                    {activeRegDisplayKeys.includes("childrenCount") && (
+                      <span className="text-base text-slate-500">與您同行：{r.childrenCount || 1} 人</span>
+                    )}
                   </div>
-                  {(r.gender || r.participantCount > 1 || r.invitedBy || r.area || r.attendingDates?.length > 0) && (
+                  {((activeRegDisplayKeys.includes("gender") && r.gender)
+                    || (activeRegDisplayKeys.includes("invitedBy") && r.invitedBy)
+                    || (activeRegDisplayKeys.includes("area") && r.area)
+                    || (activeRegDisplayKeys.includes("attendingDates") && r.attendingDates?.length > 0)) && (
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-slate-500">
-                      {r.gender && <span>{GENDER_LABELS[r.gender] || r.gender}</span>}
-                      {r.participantCount > 1 && <span>共 {r.participantCount} 人</span>}
-                      {r.invitedBy && <span>邀約人：{r.invitedBy}</span>}
-                      {r.area && <span>地區：{r.area}</span>}
-                      {r.attendingDates?.length > 0 && <span>參與日期：{r.attendingDates.join("、")}</span>}
+                      {activeRegDisplayKeys.includes("gender") && r.gender && <span>{GENDER_LABELS[r.gender] || r.gender}</span>}
+                      {activeRegDisplayKeys.includes("invitedBy") && r.invitedBy && <span>邀約人：{r.invitedBy}</span>}
+                      {activeRegDisplayKeys.includes("area") && r.area && <span>地區：{r.area}</span>}
+                      {activeRegDisplayKeys.includes("attendingDates") && r.attendingDates?.length > 0 && <span>參與日期：{r.attendingDates.join("、")}</span>}
                     </div>
                   )}
-                  {r.notes && <p className="text-base italic text-slate-500 mt-1">{r.notes}</p>}
+                  {activeRegDisplayKeys.includes("notes") && r.notes && <p className="text-base italic text-slate-500 mt-1">{r.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
@@ -536,6 +563,20 @@ export default function EventDetail({ event, isAdmin, onBack }) {
             setShowRegFieldPicker(false);
           }}
           onCancel={() => setShowRegFieldPicker(false)}
+        />
+      </Modal>
+
+      <Modal open={showRegDisplayPicker} onClose={() => setShowRegDisplayPicker(false)} title="選擇顯示欄位">
+        <FilterFieldPicker
+          fields={REGISTRATION_DISPLAY_FIELDS}
+          selected={activeRegDisplayKeys}
+          max={REGISTRATION_DISPLAY_FIELDS.length}
+          description="選擇報名名單中每一筆要顯示的欄位（姓名一定會顯示）。"
+          onSave={(keys) => {
+            setActiveRegDisplayKeys(keys);
+            setShowRegDisplayPicker(false);
+          }}
+          onCancel={() => setShowRegDisplayPicker(false)}
         />
       </Modal>
     </div>
