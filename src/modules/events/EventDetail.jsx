@@ -405,7 +405,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
             {visibleRegistrations.map((registrant) => {
               const r = registrant.raw;
               return (
-              <li key={r.id} className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-50 hover:scale-[1.02] transition-all duration-200">
+              <li key={r.id} className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-50">
                 <div className="flex-1 min-w-0">
                   <div className="grid grid-cols-4 gap-3 items-center min-w-0">
                     <span className="font-bold text-xl text-slate-800 truncate">{registrant.name}</span>
