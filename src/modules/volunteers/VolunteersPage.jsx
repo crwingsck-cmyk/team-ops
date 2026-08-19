@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Pencil, Users, Upload, LayoutGrid, List, AlertTriangle, Trash2 } from "lucide-react";
+import { Plus, Pencil, Users, Upload, LayoutGrid, List } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useMembership } from "../../hooks/useMembership";
@@ -39,12 +39,11 @@ function loadStoredFilterKeys() {
 
 export default function VolunteersPage() {
   const { data: volunteers, loading } = useCollection("volunteers");
-  const { data: allVolunteers } = useCollection("volunteers", { includeDeleted: true });
   const { data: registrations } = useCollection("registrations");
   const { data: events } = useCollection("events", { includeDeleted: true });
   const { data: guests } = useCollection("guests", { includeDeleted: true });
-  const { create, update, remove, permanentlyDelete } = useFirestoreCrud("volunteers");
-  const { create: createGuest, update: updateGuest, remove: removeGuest, permanentlyDelete: permanentlyDeleteGuest } = useFirestoreCrud("guests");
+  const { create, update, remove } = useFirestoreCrud("volunteers");
+  const { create: createGuest, update: updateGuest, remove: removeGuest } = useFirestoreCrud("guests");
   const { isAdmin } = useMembership();
 
   const [dbMode, setDbMode] = useState("volunteer");
@@ -65,9 +64,6 @@ export default function VolunteersPage() {
   const [viewingGuest, setViewingGuest] = useState(null);
   const [editingGuest, setEditingGuest] = useState(null);
   const [deletingGuest, setDeletingGuest] = useState(null);
-  const [confirmDeleteAllVolunteers, setConfirmDeleteAllVolunteers] = useState(false);
-  const [confirmDeleteAllGuests, setConfirmDeleteAllGuests] = useState(false);
-  const [deletingAll, setDeletingAll] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(FILTER_KEYS_STORAGE_KEY, JSON.stringify(activeFilterKeys));
@@ -177,26 +173,6 @@ export default function VolunteersPage() {
     setDeletingGuest(null);
   };
 
-  const handleDeleteAllVolunteers = async () => {
-    setDeletingAll(true);
-    try {
-      await Promise.all(allVolunteers.map((v) => permanentlyDelete(v.id)));
-    } finally {
-      setDeletingAll(false);
-      setConfirmDeleteAllVolunteers(false);
-    }
-  };
-
-  const handleDeleteAllGuests = async () => {
-    setDeletingAll(true);
-    try {
-      await Promise.all(guests.map((g) => permanentlyDeleteGuest(g.id)));
-    } finally {
-      setDeletingAll(false);
-      setConfirmDeleteAllGuests(false);
-    }
-  };
-
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
@@ -240,23 +216,6 @@ export default function VolunteersPage() {
           )}
         </div>
       </div>
-
-      {isAdmin && (
-        <div className="flex items-center justify-between gap-3 mb-6 px-4 py-3 rounded-2xl border border-rose-200 bg-rose-50">
-          <div className="flex items-center gap-2 text-rose-700 text-sm font-bold">
-            <AlertTriangle size={18} className="shrink-0" />
-            <span>危險區：此操作將永久刪除{dbMode === "guest" ? "大德" : "志工"}資料庫中的全部資料，無法復原。</span>
-          </div>
-          <button
-            onClick={() => (dbMode === "guest" ? setConfirmDeleteAllGuests(true) : setConfirmDeleteAllVolunteers(true))}
-            disabled={deletingAll}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-600 text-white text-sm font-bold hover:bg-rose-700 disabled:opacity-50 transition-colors shrink-0"
-          >
-            <Trash2 size={16} />
-            {deletingAll ? "刪除中…" : "全部刪除"}
-          </button>
-        </div>
-      )}
 
       {dbMode === "guest" ? (
         <GuestDirectory
@@ -405,20 +364,6 @@ export default function VolunteersPage() {
         onClose={() => setDeletingGuest(null)}
         onConfirm={handleDeleteGuest}
         message={deletingGuest ? `確定要刪除大德「${deletingGuest.name}」的資料嗎？` : ""}
-      />
-
-      <ConfirmDialog
-        open={confirmDeleteAllVolunteers}
-        onClose={() => setConfirmDeleteAllVolunteers(false)}
-        onConfirm={handleDeleteAllVolunteers}
-        message={`確定要永久刪除志工資料庫中全部 ${allVolunteers.length} 筆資料嗎？此操作無法復原。`}
-      />
-
-      <ConfirmDialog
-        open={confirmDeleteAllGuests}
-        onClose={() => setConfirmDeleteAllGuests(false)}
-        onConfirm={handleDeleteAllGuests}
-        message={`確定要永久刪除大德資料庫中全部 ${guests.length} 筆資料嗎？此操作無法復原。`}
       />
     </div>
   );
