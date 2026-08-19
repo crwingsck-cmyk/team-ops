@@ -85,7 +85,9 @@ const REGISTRATION_DISPLAY_FIELDS = [
   { key: "attendingDates", label: "參與日期" },
   { key: "notes", label: "備註" },
 ];
-const DEFAULT_REG_DISPLAY_KEYS = REGISTRATION_DISPLAY_FIELDS.map((f) => f.key);
+const DEFAULT_REG_DISPLAY_KEYS = ["phone", "tcIdentification", "heqiHuaiXieli", "childrenCount"];
+const MAX_REG_DISPLAY_KEYS = 4;
+const GRID_COLS_CLASS = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4", 5: "grid-cols-5" };
 
 export default function EventDetail({ event, isAdmin, onBack }) {
   const { data: volunteers } = useCollection("volunteers");
@@ -422,36 +424,26 @@ export default function EventDetail({ event, isAdmin, onBack }) {
           <ul className="space-y-2">
             {visibleRegistrations.map((registrant) => {
               const r = registrant.raw;
+              const inlineKeys = activeRegDisplayKeys.filter((k) => k !== "area" && k !== "notes");
+              const inlineNodes = inlineKeys.map((key) => {
+                if (key === "phone") return <span key={key} className="text-base text-slate-500 truncate">{registrant.phone || "-"}</span>;
+                if (key === "tcIdentification") return <span key={key} className="text-base text-slate-500 truncate">{tcIdentificationLabel(registrant.tcIdentification) || "-"}</span>;
+                if (key === "heqiHuaiXieli") return <span key={key} className="text-base text-slate-500 truncate">{registrant.heqiHuaiXieli || "-"}</span>;
+                if (key === "childrenCount") return <span key={key} className="text-base text-slate-500">參與人數：{r.childrenCount || 1} 人</span>;
+                if (key === "gender" && r.gender) return <span key={key} className="text-base text-slate-500">{GENDER_LABELS[r.gender] || r.gender}</span>;
+                if (key === "inviterName" && r.inviterName) return <span key={key} className="text-base text-slate-500">邀約人：{r.inviterName}</span>;
+                if (key === "attendingDates" && r.attendingDates?.length > 0) return <span key={key} className="text-base text-slate-500">參與日期：{r.attendingDates.join("、")}</span>;
+                return null;
+              }).filter(Boolean);
+              const gridColsClass = GRID_COLS_CLASS[Math.min(1 + inlineNodes.length, 5)] || "grid-cols-5";
               return (
               <li key={r.id} className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-50">
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 min-w-0">
+                  <div className={`grid ${gridColsClass} gap-3 items-center min-w-0`}>
                     <span className="font-bold text-xl text-slate-800 truncate">{registrant.name}</span>
-                    {activeRegDisplayKeys.includes("phone") && (
-                      <span className="text-base text-slate-500 truncate">{registrant.phone || "-"}</span>
-                    )}
-                    {activeRegDisplayKeys.includes("tcIdentification") && (
-                      <span className="text-base text-slate-500 truncate">{tcIdentificationLabel(registrant.tcIdentification) || "-"}</span>
-                    )}
-                    {activeRegDisplayKeys.includes("heqiHuaiXieli") && (
-                      <span className="text-base text-slate-500 truncate">{registrant.heqiHuaiXieli || "-"}</span>
-                    )}
-                    {activeRegDisplayKeys.includes("childrenCount") && (
-                      <span className="text-base text-slate-500">參與人數：{r.childrenCount || 1} 人</span>
-                    )}
-                    {activeRegDisplayKeys.includes("gender") && r.gender && (
-                      <span className="text-base text-slate-500">{GENDER_LABELS[r.gender] || r.gender}</span>
-                    )}
-                    {activeRegDisplayKeys.includes("inviterName") && r.inviterName && (
-                      <span className="text-base text-slate-500">邀約人：{r.inviterName}</span>
-                    )}
-                    {activeRegDisplayKeys.includes("area") && r.area && (
-                      <span className="text-base text-slate-500">地區：{r.area}</span>
-                    )}
-                    {activeRegDisplayKeys.includes("attendingDates") && r.attendingDates?.length > 0 && (
-                      <span className="text-base text-slate-500">參與日期：{r.attendingDates.join("、")}</span>
-                    )}
+                    {inlineNodes}
                   </div>
+                  {activeRegDisplayKeys.includes("area") && r.area && <p className="text-base text-slate-500 mt-1">地區：{r.area}</p>}
                   {activeRegDisplayKeys.includes("notes") && r.notes && <p className="text-base italic text-slate-500 mt-1">{r.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -571,8 +563,8 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         <FilterFieldPicker
           fields={REGISTRATION_DISPLAY_FIELDS}
           selected={activeRegDisplayKeys}
-          max={REGISTRATION_DISPLAY_FIELDS.length}
-          description="選擇報名名單中每一筆要顯示的欄位（姓名一定會顯示）。"
+          max={MAX_REG_DISPLAY_KEYS}
+          description={`選擇最多 ${MAX_REG_DISPLAY_KEYS} 個要顯示的欄位（姓名一定會顯示；選了地區會另外顯示在名字下面一行）。`}
           onSave={(keys) => {
             setActiveRegDisplayKeys(keys);
             setShowRegDisplayPicker(false);
