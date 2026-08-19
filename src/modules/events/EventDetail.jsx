@@ -307,11 +307,11 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       </Card>
 
       <Card>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <h3 className="font-black italic text-slate-700 text-xl flex items-center gap-2">
             <Users size={20} /> 報名名單（{regSummary.registeredCount + regSummary.childrenCount}{event.capacity ? ` / ${event.capacity}` : ""}）
           </h3>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {isAdmin && registrations.length > 0 && (
               <Button variant="danger" icon={Trash2} onClick={() => setConfirmDeleteAll(true)}>刪除全部報名</Button>
             )}
