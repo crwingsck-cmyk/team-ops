@@ -153,14 +153,6 @@ export const PLEDGE_STATUS_LABELS = {
   declined: { label: "婉拒", bg: "bg-rose-100", text: "text-rose-700" },
 };
 
-export const PLEDGE_DEADLINE_LABELS = {
-  "1m": "1個月",
-  "3m": "3個月",
-  "6m": "6個月",
-  "1y": "1年",
-  "2y": "2年",
-};
-
 export const DONATION_TYPE_LABELS = {
   chuyi_shiwu: "初一十五",
   xin_lian: "心蓮",

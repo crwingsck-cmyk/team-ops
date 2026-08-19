@@ -1,4 +1,4 @@
-import { DONATION_TYPE_LABELS, PLEDGE_STATUS_LABELS, PLEDGE_DEADLINE_LABELS } from "../../constants/categoryStyles";
+import { DONATION_TYPE_LABELS, PLEDGE_STATUS_LABELS } from "../../constants/categoryStyles";
 
 function Field({ label, children }) {
   if (children === undefined || children === null || children === "") return null;
@@ -28,8 +28,6 @@ export default function FundraisingDetail({ person: p }) {
       </div>
 
       <div className="grid grid-cols-3 gap-x-4 pt-3 border-t border-slate-100 mt-3">
-        <Field label="發願日期">{p.pledgeDate}</Field>
-        <Field label="期限">{PLEDGE_DEADLINE_LABELS[p.pledgeDeadline] || p.pledgeDeadline}</Field>
         <Field label="目標人數">{p.pledgeTarget !== "" && p.pledgeTarget != null ? `${p.pledgeTarget} 人` : ""}</Field>
       </div>
 
