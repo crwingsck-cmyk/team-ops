@@ -3,7 +3,7 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Textarea from "../../components/ui/Textarea";
 import Button from "../../components/ui/Button";
-import AttachmentUploadField from "../../components/ui/AttachmentUploadField";
+import ImageUploadField from "../../components/ui/ImageUploadField";
 
 const EMPTY = {
   date: "",
@@ -19,7 +19,6 @@ const EMPTY = {
   submittedBy: "",
   attachmentUrl: "",
   attachmentPath: "",
-  attachmentName: "",
   story: "",
 };
 
@@ -95,12 +94,12 @@ export default function FundraisingEventForm({ initial, heQiOptions = [], huAiOp
       </div>
       <Input label="填表者" value={form.submittedBy} onChange={(e) => setForm({ ...form, submittedBy: e.target.value })} />
 
-      <AttachmentUploadField
+      <ImageUploadField
+        label="照片（選填）"
         folder="fundraisingEvents"
         url={form.attachmentUrl}
         path={form.attachmentPath}
-        name={form.attachmentName}
-        onChange={({ url, path, name }) => setForm((f) => ({ ...f, attachmentUrl: url, attachmentPath: path, attachmentName: name }))}
+        onChange={({ url, path }) => setForm((f) => ({ ...f, attachmentUrl: url, attachmentPath: path }))}
         onUploadingChange={setUploading}
       />
 

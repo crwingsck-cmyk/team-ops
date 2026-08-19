@@ -23,7 +23,7 @@ const COLUMNS = [
   { key: "volunteerCount", label: "出席志工人數" },
   { key: "guestCount", label: "出席大德人數" },
   { key: "submittedBy", label: "填表者" },
-  { key: "attachmentUrl", label: "附件", format: (r) => (r.attachmentUrl ? "有附件" : "-") },
+  { key: "attachmentUrl", label: "照片", format: (r) => (r.attachmentUrl ? "有照片" : "-") },
   { key: "story", label: "溫馨故事", format: (r) => r.story || "-" },
 ];
 
