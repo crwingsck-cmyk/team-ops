@@ -6,6 +6,7 @@ import Button from "../../components/ui/Button";
 import { TC_IDENTIFICATION_LABELS, REGISTRATION_STATUS, registrationStatusSelectClass } from "../../constants/categoryStyles";
 
 export default function RegistrationForm({ initial, onSubmit, onCancel, guestDirectory = [] }) {
+  const isVolunteer = !!initial?.volunteerId;
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [tcIdentification, setTcIdentification] = useState("da_de");
@@ -76,6 +77,14 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (isVolunteer) {
+      onSubmit({
+        childrenCount: childrenCount === "" ? 0 : Number(childrenCount),
+        notes,
+        status,
+      });
+      return;
+    }
     onSubmit({
       volunteerId: null,
       name,
@@ -92,56 +101,65 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        label="名字"
-        required
-        value={name}
-        onChange={(e) => handleNameChange(e.target.value)}
-        list="guest-name-suggestions"
-      />
-      <datalist id="guest-name-suggestions">
-        {guestDirectory.map((g) => (
-          <option key={g.name} value={g.name} />
-        ))}
-      </datalist>
-      <div className="relative">
-        <Input
-          label="電話號碼"
-          value={phone}
-          onChange={(e) => handlePhoneChange(e.target.value)}
-          onFocus={() => setPhoneSuggestOpen(true)}
-          onBlur={() => setTimeout(() => setPhoneSuggestOpen(false), 150)}
-          autoComplete="off"
-        />
-        {phoneSuggestOpen && phoneMatches.length > 0 && (
-          <div className="absolute z-20 mt-1 w-full max-h-56 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg p-1.5">
-            {phoneMatches.map((g) => (
-              <button
-                type="button"
-                key={g.phone}
-                onMouseDown={() => selectPhoneMatch(g)}
-                className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 text-left transition-colors"
-              >
-                <span className="font-bold text-slate-800">{g.name}</span>
-                <span className="text-sm text-slate-500">{g.phone}</span>
-              </button>
+      {isVolunteer ? (
+        <div className="p-3 rounded-xl bg-slate-50">
+          <p className="font-bold text-lg text-slate-800">{initial.name}</p>
+          <p className="text-sm text-slate-500">志工報名資料由志工資料庫同步，姓名/電話/慈濟身份等請到「資料庫」志工頁籤編輯。</p>
+        </div>
+      ) : (
+        <>
+          <Input
+            label="名字"
+            required
+            value={name}
+            onChange={(e) => handleNameChange(e.target.value)}
+            list="guest-name-suggestions"
+          />
+          <datalist id="guest-name-suggestions">
+            {guestDirectory.map((g) => (
+              <option key={g.name} value={g.name} />
             ))}
+          </datalist>
+          <div className="relative">
+            <Input
+              label="電話號碼"
+              value={phone}
+              onChange={(e) => handlePhoneChange(e.target.value)}
+              onFocus={() => setPhoneSuggestOpen(true)}
+              onBlur={() => setTimeout(() => setPhoneSuggestOpen(false), 150)}
+              autoComplete="off"
+            />
+            {phoneSuggestOpen && phoneMatches.length > 0 && (
+              <div className="absolute z-20 mt-1 w-full max-h-56 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg p-1.5">
+                {phoneMatches.map((g) => (
+                  <button
+                    type="button"
+                    key={g.phone}
+                    onMouseDown={() => selectPhoneMatch(g)}
+                    className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 text-left transition-colors"
+                  >
+                    <span className="font-bold text-slate-800">{g.name}</span>
+                    <span className="text-sm text-slate-500">{g.phone}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      {(guestByName.has(name.trim()) || guestByPhone.has(phone.trim())) && (
-        <p className="text-sm text-indigo-600">已自動帶入之前報名的資料</p>
+          {(guestByName.has(name.trim()) || guestByPhone.has(phone.trim())) && (
+            <p className="text-sm text-indigo-600">已自動帶入之前報名的資料</p>
+          )}
+          <Select label="實際身份" value={tcIdentification} onChange={(e) => setTcIdentification(e.target.value)}>
+            {Object.entries(TC_IDENTIFICATION_LABELS).map(([k, v]) => (
+              <option key={k} value={k}>{v.split(" ")[0]}</option>
+            ))}
+          </Select>
+          <Input label="住的地區" value={area} onChange={(e) => setArea(e.target.value)} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input label="邀約人姓名" value={inviterName} onChange={(e) => setInviterName(e.target.value)} />
+            <Input label="邀約人電話" value={inviterPhone} onChange={(e) => setInviterPhone(e.target.value)} />
+          </div>
+        </>
       )}
-      <Select label="實際身份" value={tcIdentification} onChange={(e) => setTcIdentification(e.target.value)}>
-        {Object.entries(TC_IDENTIFICATION_LABELS).map(([k, v]) => (
-          <option key={k} value={k}>{v.split(" ")[0]}</option>
-        ))}
-      </Select>
-      <Input label="住的地區" value={area} onChange={(e) => setArea(e.target.value)} />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Input label="邀約人姓名" value={inviterName} onChange={(e) => setInviterName(e.target.value)} />
-        <Input label="邀約人電話" value={inviterPhone} onChange={(e) => setInviterPhone(e.target.value)} />
-      </div>
       <Input
         label="帶小孩或家人人數"
         type="number"

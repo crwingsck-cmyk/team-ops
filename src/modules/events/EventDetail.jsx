@@ -451,15 +451,13 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                       <option key={k} value={k}>{v.label}</option>
                     ))}
                   </Select>
-                  {!r.volunteerId && (
-                    <button
-                      onClick={() => setEditingRegistration(r)}
-                      className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-indigo-600"
-                      title="編輯"
-                    >
-                      <Pencil size={18} />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => setEditingRegistration(r)}
+                    className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-indigo-600"
+                    title="編輯"
+                  >
+                    <Pencil size={18} />
+                  </button>
                   {isAdmin && (
                     <button
                       onClick={() => setDeletingOne({ id: r.id, name: registrant.name })}
