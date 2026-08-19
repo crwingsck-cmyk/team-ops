@@ -27,10 +27,13 @@ export default function EventAttendanceSummaryGrid({ events, registrations }) {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {events.map((event) => {
         const regs = regsByEvent.get(event.id) || [];
-        const attendedCount = regs.filter((r) => r.attended).length;
-        const registeredCount = regs.filter((r) => r.status === "registered").length;
-        const waitlistedCount = regs.filter((r) => r.status === "waitlisted").length;
-        const cancelledCount = regs.filter((r) => r.status === "cancelled").length;
+        const headcount = (r) => Number(r.childrenCount) || 1;
+        const attendedHeadcount = (r) => Number(r.attendedChildrenCount ?? r.childrenCount) || 1;
+        const sumHeadcount = (list) => list.reduce((sum, r) => sum + headcount(r), 0);
+        const attendedCount = regs.filter((r) => r.attended).reduce((sum, r) => sum + attendedHeadcount(r), 0);
+        const registeredCount = sumHeadcount(regs.filter((r) => r.status === "registered"));
+        const waitlistedCount = sumHeadcount(regs.filter((r) => r.status === "waitlisted"));
+        const cancelledCount = sumHeadcount(regs.filter((r) => r.status === "cancelled"));
         return (
           <Card key={event.id}>
             <h3 className="font-black italic text-slate-800 text-lg mb-1">{event.title}{event.deletedAt ? "（已刪除）" : ""}</h3>
