@@ -41,7 +41,7 @@ function registrantSearchText(r) {
     r.phone,
     tcIdentificationLabel(r.tcIdentification),
     r.heqiHuaiXieli,
-    r.raw.gender && GENDER_LABELS[r.raw.gender],
+    r.gender && GENDER_LABELS[r.gender],
     r.raw.inviterName,
     r.raw.area,
     r.raw.notes,
@@ -61,6 +61,7 @@ function resolveRegistrant(r, volunteersById) {
     huAi: source.huAi,
     xieLi: source.xieLi,
     heqiHuaiXieli: heqiHuaiXieliText(source),
+    gender: source.gender,
   };
 }
 
@@ -430,12 +431,12 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                 if (key === "tcIdentification") return <span key={key} className="text-base text-slate-500 truncate">{tcIdentificationLabel(registrant.tcIdentification) || "-"}</span>;
                 if (key === "heqiHuaiXieli") return <span key={key} className="text-base text-slate-500 truncate">{registrant.heqiHuaiXieli || "-"}</span>;
                 if (key === "childrenCount") return <span key={key} className="text-base text-slate-500">參與人數：{r.childrenCount || 1} 人</span>;
-                if (key === "gender" && r.gender) return <span key={key} className="text-base text-slate-500">{GENDER_LABELS[r.gender] || r.gender}</span>;
-                if (key === "inviterName" && r.inviterName) return <span key={key} className="text-base text-slate-500">邀約人：{r.inviterName}</span>;
-                if (key === "attendingDates" && r.attendingDates?.length > 0) return <span key={key} className="text-base text-slate-500">參與日期：{r.attendingDates.join("、")}</span>;
+                if (key === "gender") return <span key={key} className="text-base text-slate-500 truncate">{GENDER_LABELS[registrant.gender] || "-"}</span>;
+                if (key === "inviterName") return <span key={key} className="text-base text-slate-500 truncate">邀約人：{r.inviterName || "-"}</span>;
+                if (key === "attendingDates") return <span key={key} className="text-base text-slate-500 truncate">參與日期：{r.attendingDates?.length > 0 ? r.attendingDates.join("、") : "-"}</span>;
                 return null;
-              }).filter(Boolean);
-              const gridColsClass = GRID_COLS_CLASS[Math.min(1 + inlineNodes.length, 5)] || "grid-cols-5";
+              });
+              const gridColsClass = GRID_COLS_CLASS[Math.min(1 + inlineKeys.length, 5)] || "grid-cols-5";
               return (
               <li key={r.id} className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-50">
                 <div className="flex-1 min-w-0">
