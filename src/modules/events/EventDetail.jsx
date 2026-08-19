@@ -195,14 +195,16 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     registrations.forEach((r) => {
       if (r.status === "waitlisted") return;
       registeredCount += 1;
-      const companions = Number(r.childrenCount) || 0;
-      if (r.volunteerId) volunteerCount += 1 + companions;
-      else daDeCount += 1 + companions;
+      const headcount = Number(r.childrenCount) || 1;
+      const companions = Math.max(0, headcount - 1);
+      if (r.volunteerId) volunteerCount += headcount;
+      else daDeCount += headcount;
       childrenCount += companions;
       if (r.attended) {
-        const attendedCompanions = Number(r.attendedChildrenCount ?? r.childrenCount) || 0;
-        if (r.volunteerId) attendedVolunteerCount += 1 + attendedCompanions;
-        else attendedDaDeCount += 1 + attendedCompanions;
+        const attendedHeadcount = Number(r.attendedChildrenCount ?? r.childrenCount) || 1;
+        const attendedCompanions = Math.max(0, attendedHeadcount - 1);
+        if (r.volunteerId) attendedVolunteerCount += attendedHeadcount;
+        else attendedDaDeCount += attendedHeadcount;
         attendedChildrenCount += attendedCompanions;
       }
     });
@@ -240,7 +242,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         heQi: v.heQi || "",
         huAi: v.huAi || "",
         xieLi: v.xieLi || "",
-        childrenCount: v.childrenCount || 0,
+        childrenCount: v.childrenCount || 1,
         notes: "",
         status,
       });
@@ -441,16 +443,16 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                   {r.attended && (
                     <input
                       type="number"
-                      min="0"
+                      min="1"
                       key={`${r.id}-children-${r.attendedChildrenCount ?? "default"}`}
-                      defaultValue={r.attendedChildrenCount ?? r.childrenCount ?? 0}
+                      defaultValue={r.attendedChildrenCount ?? r.childrenCount ?? 1}
                       onBlur={(e) => {
-                        const val = e.target.value === "" ? 0 : Number(e.target.value);
-                        if (val !== (r.attendedChildrenCount ?? r.childrenCount ?? 0)) {
+                        const val = e.target.value === "" ? 1 : Math.max(1, Number(e.target.value));
+                        if (val !== (r.attendedChildrenCount ?? r.childrenCount ?? 1)) {
                           update(r.id, { attendedChildrenCount: val });
                         }
                       }}
-                      title="實際出席小孩或家人人數"
+                      title="實際與您同行出席人數（含自己本人）"
                       className="w-14 px-2 py-1.5 rounded-lg border border-slate-200 text-sm text-center"
                     />
                   )}

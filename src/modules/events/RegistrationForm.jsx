@@ -13,7 +13,7 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
   const [area, setArea] = useState("");
   const [inviterName, setInviterName] = useState("");
   const [inviterPhone, setInviterPhone] = useState("");
-  const [childrenCount, setChildrenCount] = useState("");
+  const [childrenCount, setChildrenCount] = useState("1");
   const [status, setStatus] = useState("registered");
   const [notes, setNotes] = useState("");
   const [phoneSuggestOpen, setPhoneSuggestOpen] = useState(false);
@@ -25,7 +25,7 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
     setArea(initial?.area || "");
     setInviterName(initial?.inviterName || "");
     setInviterPhone(initial?.inviterPhone || "");
-    setChildrenCount(initial?.childrenCount ?? "");
+    setChildrenCount(initial?.childrenCount ?? "1");
     setStatus(initial?.status || "registered");
     setNotes(initial?.notes || "");
   }, [initial]);
@@ -79,7 +79,7 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
     e.preventDefault();
     if (isVolunteer) {
       onSubmit({
-        childrenCount: childrenCount === "" ? 0 : Number(childrenCount),
+        childrenCount: childrenCount === "" ? 1 : Math.max(1, Number(childrenCount)),
         notes,
         status,
       });
@@ -93,7 +93,7 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
       area,
       inviterName,
       inviterPhone,
-      childrenCount: childrenCount === "" ? 0 : Number(childrenCount),
+      childrenCount: childrenCount === "" ? 1 : Math.max(1, Number(childrenCount)),
       notes,
       status,
     });
@@ -161,9 +161,9 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
         </>
       )}
       <Input
-        label="帶小孩或家人人數"
+        label="與您同行參與人數（含自己本人）"
         type="number"
-        min="0"
+        min="1"
         value={childrenCount}
         onChange={(e) => setChildrenCount(e.target.value)}
       />

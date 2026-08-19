@@ -63,7 +63,7 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
     e.preventDefault();
     const selected = volunteers
       .filter((v) => selectedIds.has(v.id))
-      .map((v) => ({ ...v, childrenCount: childrenCounts[v.id] ? Number(childrenCounts[v.id]) : 0 }));
+      .map((v) => ({ ...v, childrenCount: childrenCounts[v.id] ? Math.max(1, Number(childrenCounts[v.id])) : 1 }));
     onSubmit(selected, status);
   };
 
@@ -133,11 +133,11 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
               </div>
               <input
                 type="number"
-                min="0"
-                placeholder="0"
+                min="1"
+                placeholder="1"
                 value={childrenCounts[v.id] || ""}
                 onChange={(e) => setChildrenCounts((prev) => ({ ...prev, [v.id]: e.target.value }))}
-                title="帶小孩或家人人數"
+                title="與您同行參與人數（含自己本人）"
                 className="w-16 px-2 py-1 rounded-lg border border-slate-200 text-sm text-center shrink-0"
               />
             </label>
@@ -145,7 +145,7 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
         )}
       </div>
       {selectedIds.size > 0 && (
-        <p className="text-xs text-slate-400">在志工右側輸入該志工帶來的小孩或家人人數（可留空，預設 0）</p>
+        <p className="text-xs text-slate-400">在志工右側輸入與該志工同行參與人數（含自己本人，可留空，預設 1）</p>
       )}
 
       <div className="flex justify-end gap-2 pt-2">

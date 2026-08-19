@@ -13,7 +13,7 @@ const TEXT_FIELDS = [
   { key: "area", label: "住的地區", keywords: ["地區", "地址", "Address", "Area"] },
   { key: "inviterName", label: "邀約人姓名", keywords: ["邀約人姓名", "邀約人", "Inviter"] },
   { key: "inviterPhone", label: "邀約人電話", keywords: ["邀約人電話", "Inviter Phone"] },
-  { key: "childrenCount", label: "帶小孩或家人人數", keywords: ["小孩", "家人人數", "Children"] },
+  { key: "childrenCount", label: "與您同行參與人數（含自己本人）", keywords: ["小孩", "家人人數", "同行", "Children"] },
   { key: "notes", label: "備註", keywords: ["備註", "Notes"] },
 ];
 
@@ -102,7 +102,7 @@ export default function RegistrationImportModal({ onImport, onClose, volunteers 
       const col = mapping[f.key];
       data[f.key] = col ? String(row[col] || "").trim() : "";
     });
-    data.childrenCount = data.childrenCount === "" ? 0 : Number(data.childrenCount) || 0;
+    data.childrenCount = data.childrenCount === "" ? 1 : Math.max(1, Number(data.childrenCount) || 1);
 
     SELECT_FIELDS.forEach((f) => {
       const col = mapping[f.key];
