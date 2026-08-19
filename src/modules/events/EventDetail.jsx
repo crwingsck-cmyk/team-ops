@@ -191,7 +191,6 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     let childrenCount = 0;
     let attendedVolunteerCount = 0;
     let attendedDaDeCount = 0;
-    let attendedChildrenCount = 0;
     let registeredCount = 0;
     registrations.forEach((r) => {
       if (r.status === "waitlisted") return;
@@ -203,13 +202,11 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       childrenCount += companions;
       if (r.attended) {
         const attendedHeadcount = Number(r.attendedChildrenCount ?? r.childrenCount) || 1;
-        const attendedCompanions = Math.max(0, attendedHeadcount - 1);
         if (r.volunteerId) attendedVolunteerCount += attendedHeadcount;
         else attendedDaDeCount += attendedHeadcount;
-        attendedChildrenCount += attendedCompanions;
       }
     });
-    return { volunteerCount, daDeCount, childrenCount, attendedVolunteerCount, attendedDaDeCount, attendedChildrenCount, registeredCount };
+    return { volunteerCount, daDeCount, childrenCount, attendedVolunteerCount, attendedDaDeCount, registeredCount };
   }, [registrations]);
 
   const registeredVolunteerIds = useMemo(
@@ -308,12 +305,12 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
         {registrations.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-            <RegStatCard label="志工報名" value={regSummary.volunteerCount} />
-            <RegStatCard label="大德報名" value={regSummary.daDeCount} />
-            <RegStatCard label="帶小孩或家人" value={regSummary.childrenCount} />
+            <RegStatCard label="志工報名及與您同行參與人數（含自己本人）" value={regSummary.volunteerCount} />
+            <RegStatCard label="大德報名及與您同行參與人數（含自己本人）" value={regSummary.daDeCount} />
+            <RegStatCard label="報名總人數" value={regSummary.volunteerCount + regSummary.daDeCount} />
             <RegStatCard label="出席志工人數" value={regSummary.attendedVolunteerCount} accent />
             <RegStatCard label="出席大德人數" value={regSummary.attendedDaDeCount} accent />
-            <RegStatCard label="出席小孩或家人" value={regSummary.attendedChildrenCount} accent />
+            <RegStatCard label="出席總人數" value={regSummary.attendedVolunteerCount + regSummary.attendedDaDeCount} accent />
           </div>
         )}
 
