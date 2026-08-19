@@ -23,6 +23,8 @@ const COLUMNS = [
   { key: "volunteerCount", label: "出席志工人數" },
   { key: "guestCount", label: "出席大德人數" },
   { key: "submittedBy", label: "填表者" },
+  { key: "attachmentUrl", label: "附件", format: (r) => (r.attachmentUrl ? "有附件" : "-") },
+  { key: "story", label: "溫馨故事", format: (r) => r.story || "-" },
 ];
 
 export default function FundraisingEventsSection() {
@@ -50,7 +52,17 @@ export default function FundraisingEventsSection() {
   };
 
   const columns = [
-    ...COLUMNS,
+    ...COLUMNS.map((c) => c.key === "attachmentUrl"
+      ? {
+          ...c,
+          format: (r) => r.attachmentUrl ? (
+            <a href={r.attachmentUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 font-bold hover:underline">
+              查看
+            </a>
+          ) : "-",
+        }
+      : c
+    ),
     {
       key: "actions",
       label: "操作",
