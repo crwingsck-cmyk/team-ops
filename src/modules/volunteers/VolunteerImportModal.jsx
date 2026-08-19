@@ -188,6 +188,7 @@ export default function VolunteerImportModal({ onImport, onUpdate, existingVolun
       data.skills = [];
     }
     data.position4in1 = data.position4in1 ? data.position4in1.split(/[,、]/).map((s) => s.trim()).filter(Boolean) : [];
+    if (!data.name && data.englishName) data.name = data.englishName;
 
     SELECT_FIELDS.forEach((f) => {
       const col = mapping[f.key];
