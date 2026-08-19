@@ -42,7 +42,7 @@ function registrantSearchText(r) {
     tcIdentificationLabel(r.tcIdentification),
     r.heqiHuaiXieli,
     r.raw.gender && GENDER_LABELS[r.raw.gender],
-    r.raw.invitedBy,
+    r.raw.inviterName,
     r.raw.area,
     r.raw.notes,
     r.raw.attendingDates?.join(" "),
@@ -66,13 +66,13 @@ function resolveRegistrant(r, volunteersById) {
 
 const REGISTRATION_FILTER_FIELDS = [
   { key: "tcIdentification", label: "慈濟身份" },
-  { key: "invitedBy", label: "邀約人姓名", source: "raw" },
+  { key: "inviterName", label: "邀約人姓名", source: "raw" },
   { key: "heQi", label: "和氣" },
   { key: "huAi", label: "互愛" },
   { key: "xieLi", label: "協力" },
   { key: "childrenCount", label: "與您同行參與人數（含自己本人）", source: "raw" },
 ];
-const DEFAULT_REG_FILTER_KEYS = ["tcIdentification", "xieLi", "invitedBy"];
+const DEFAULT_REG_FILTER_KEYS = ["tcIdentification", "xieLi", "inviterName"];
 
 const REGISTRATION_DISPLAY_FIELDS = [
   { key: "phone", label: "電話" },
@@ -80,7 +80,7 @@ const REGISTRATION_DISPLAY_FIELDS = [
   { key: "heqiHuaiXieli", label: "和氣互愛協力" },
   { key: "childrenCount", label: "與您同行參與人數（含自己本人）" },
   { key: "gender", label: "性別" },
-  { key: "invitedBy", label: "邀約人姓名" },
+  { key: "inviterName", label: "邀約人姓名" },
   { key: "area", label: "地區" },
   { key: "attendingDates", label: "參與日期" },
   { key: "notes", label: "備註" },
@@ -441,12 +441,12 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                     )}
                   </div>
                   {((activeRegDisplayKeys.includes("gender") && r.gender)
-                    || (activeRegDisplayKeys.includes("invitedBy") && r.invitedBy)
+                    || (activeRegDisplayKeys.includes("inviterName") && r.inviterName)
                     || (activeRegDisplayKeys.includes("area") && r.area)
                     || (activeRegDisplayKeys.includes("attendingDates") && r.attendingDates?.length > 0)) && (
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-slate-500">
                       {activeRegDisplayKeys.includes("gender") && r.gender && <span>{GENDER_LABELS[r.gender] || r.gender}</span>}
-                      {activeRegDisplayKeys.includes("invitedBy") && r.invitedBy && <span>邀約人：{r.invitedBy}</span>}
+                      {activeRegDisplayKeys.includes("inviterName") && r.inviterName && <span>邀約人：{r.inviterName}</span>}
                       {activeRegDisplayKeys.includes("area") && r.area && <span>地區：{r.area}</span>}
                       {activeRegDisplayKeys.includes("attendingDates") && r.attendingDates?.length > 0 && <span>參與日期：{r.attendingDates.join("、")}</span>}
                     </div>
