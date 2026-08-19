@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Plus, Users2, Trash2, MapPin, Calendar, Users, Search, Settings2, Check, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Users2, Trash2, MapPin, Calendar, Users, Search, Settings2, Check, Upload, Pencil } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import Card from "../../components/ui/Card";
@@ -71,6 +71,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
   const [showForm, setShowForm] = useState(false);
   const [showBulkForm, setShowBulkForm] = useState(false);
   const [showImportForm, setShowImportForm] = useState(false);
+  const [editingRegistration, setEditingRegistration] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [deletingOne, setDeletingOne] = useState(null);
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
@@ -204,6 +205,11 @@ export default function EventDetail({ event, isAdmin, onBack }) {
   const handleSubmit = async (data) => {
     await create({ ...data, eventId: event.id, eventTitle: event.title, eventDate: eventFirstDate(event) });
     setShowForm(false);
+  };
+
+  const handleEditSubmit = async (data) => {
+    await update(editingRegistration.id, data);
+    setEditingRegistration(null);
   };
 
   const handleBulkSubmit = async (selectedVolunteers, status) => {
@@ -445,6 +451,15 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                       <option key={k} value={k}>{v.label}</option>
                     ))}
                   </Select>
+                  {!r.volunteerId && (
+                    <button
+                      onClick={() => setEditingRegistration(r)}
+                      className="p-1.5 rounded-lg hover:bg-white text-slate-400 hover:text-indigo-600"
+                      title="編輯"
+                    >
+                      <Pencil size={18} />
+                    </button>
+                  )}
                   {isAdmin && (
                     <button
                       onClick={() => setDeletingOne({ id: r.id, name: registrant.name })}
@@ -463,6 +478,15 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title="新增大德報名">
         <RegistrationForm onSubmit={handleSubmit} onCancel={() => setShowForm(false)} guestDirectory={guestDirectory} />
+      </Modal>
+
+      <Modal open={!!editingRegistration} onClose={() => setEditingRegistration(null)} title="編輯報名">
+        <RegistrationForm
+          initial={editingRegistration}
+          onSubmit={handleEditSubmit}
+          onCancel={() => setEditingRegistration(null)}
+          guestDirectory={guestDirectory}
+        />
       </Modal>
 
       <Modal open={showImportForm} onClose={() => setShowImportForm(false)} title="Excel 匯入報名名單">

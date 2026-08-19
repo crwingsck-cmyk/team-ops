@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Textarea from "../../components/ui/Textarea";
 import Button from "../../components/ui/Button";
 import { TC_IDENTIFICATION_LABELS, REGISTRATION_STATUS, registrationStatusSelectClass } from "../../constants/categoryStyles";
 
-export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = [] }) {
+export default function RegistrationForm({ initial, onSubmit, onCancel, guestDirectory = [] }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [tcIdentification, setTcIdentification] = useState("da_de");
@@ -16,6 +16,18 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
   const [status, setStatus] = useState("registered");
   const [notes, setNotes] = useState("");
   const [phoneSuggestOpen, setPhoneSuggestOpen] = useState(false);
+
+  useEffect(() => {
+    setName(initial?.name || "");
+    setPhone(initial?.phone || "");
+    setTcIdentification(initial?.tcIdentification || "da_de");
+    setArea(initial?.area || "");
+    setInviterName(initial?.inviterName || "");
+    setInviterPhone(initial?.inviterPhone || "");
+    setChildrenCount(initial?.childrenCount ?? "");
+    setStatus(initial?.status || "registered");
+    setNotes(initial?.notes || "");
+  }, [initial]);
 
   const guestByName = useMemo(() => {
     const map = new Map();
@@ -150,7 +162,7 @@ export default function RegistrationForm({ onSubmit, onCancel, guestDirectory = 
       <Textarea label="備註" value={notes} onChange={(e) => setNotes(e.target.value)} />
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="secondary" onClick={onCancel}>取消</Button>
-        <Button type="submit">確認報名</Button>
+        <Button type="submit">{initial ? "儲存" : "確認報名"}</Button>
       </div>
     </form>
   );
