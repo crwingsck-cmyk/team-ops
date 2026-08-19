@@ -88,7 +88,7 @@ const REGISTRATION_DISPLAY_FIELDS = [
 ];
 const DEFAULT_REG_DISPLAY_KEYS = ["phone", "tcIdentification", "heqiHuaiXieli", "childrenCount"];
 const MAX_REG_DISPLAY_KEYS = 4;
-const GRID_COLS_CLASS = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4", 5: "grid-cols-5" };
+const GRID_COLS_CLASS = { 1: "sm:grid-cols-1", 2: "sm:grid-cols-2", 3: "sm:grid-cols-3", 4: "sm:grid-cols-4", 5: "sm:grid-cols-5" };
 
 export default function EventDetail({ event, isAdmin, onBack }) {
   const { data: volunteers } = useCollection("volunteers");
@@ -436,18 +436,18 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                 if (key === "attendingDates") return <span key={key} className="text-base text-slate-500 truncate">參與日期：{r.attendingDates?.length > 0 ? r.attendingDates.join("、") : "-"}</span>;
                 return null;
               });
-              const gridColsClass = GRID_COLS_CLASS[Math.min(1 + inlineKeys.length, 5)] || "grid-cols-5";
+              const gridColsClass = GRID_COLS_CLASS[Math.min(1 + inlineKeys.length, 5)] || "sm:grid-cols-5";
               return (
-              <li key={r.id} className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-50">
+              <li key={r.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-slate-50">
                 <div className="flex-1 min-w-0">
-                  <div className={`grid ${gridColsClass} gap-3 items-center min-w-0`}>
+                  <div className={`grid grid-cols-1 ${gridColsClass} gap-1.5 sm:gap-3 sm:items-center min-w-0`}>
                     <span className="font-bold text-xl text-slate-800 truncate">{registrant.name}</span>
                     {inlineNodes}
                   </div>
                   {activeRegDisplayKeys.includes("area") && r.area && <p className="text-base text-slate-500 mt-1">地區：{r.area}</p>}
                   {activeRegDisplayKeys.includes("notes") && r.notes && <p className="text-base italic text-slate-500 mt-1">{r.notes}</p>}
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 flex-wrap sm:shrink-0">
                   <button
                     onClick={() => update(r.id, { attended: !r.attended })}
                     className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-bold border transition-all ${
