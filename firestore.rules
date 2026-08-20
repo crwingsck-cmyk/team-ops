@@ -28,10 +28,12 @@ service cloud.firestore {
       allow delete: if isAdmin() && request.auth.uid != uid;
     }
 
-    // Append-only audit trail — any member can read/write new entries,
-    // nobody can edit or delete existing ones (integrity of the log).
+    // Append-only audit trail. Any member's actions get logged here (so
+    // create must stay open to every member), but only an admin can read
+    // the log back — nobody can edit or delete existing entries.
     match /team-ops/v1/activityLog/{document=**} {
-      allow read, create: if isMember();
+      allow read: if isAdmin();
+      allow create: if isMember();
       allow update, delete: if false;
     }
 

@@ -14,13 +14,18 @@ export function docRef(collectionName, id) {
 
 export function useCollection(
   collectionName,
-  { orderByField, orderByDirection = "asc", includeDeleted = false, onlyDeleted = false } = {}
+  { orderByField, orderByDirection = "asc", includeDeleted = false, onlyDeleted = false, enabled = true } = {}
 ) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!enabled) {
+      setData([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const q = orderByField
       ? query(colRef(collectionName), orderBy(orderByField, orderByDirection))
@@ -45,7 +50,7 @@ export function useCollection(
     );
 
     return unsubscribe;
-  }, [collectionName, orderByField, orderByDirection, includeDeleted, onlyDeleted]);
+  }, [collectionName, orderByField, orderByDirection, includeDeleted, onlyDeleted, enabled]);
 
   return { data, loading, error };
 }
