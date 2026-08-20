@@ -1,13 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, X } from "lucide-react";
 import Button from "../../components/ui/Button";
 import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
 
-const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", progress: "", assignVolunteerId: "" };
+const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", assignVolunteerId: "", assignVolunteerText: "" };
 const EMPTY = { pledgeTarget: "", donors: [] };
+const ASSIGN_VOLUNTEER_DATALIST_ID = "fundraising-assign-volunteer-suggestions";
 
 export default function FundraisingRecordForm({ person, initial, allowVolunteerAssignment = false, volunteerOptions = [], onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
+
+  const volunteerByName = useMemo(() => {
+    const map = new Map();
+    volunteerOptions.forEach((v) => { if (v.name) map.set(v.name.trim(), v); });
+    return map;
+  }, [volunteerOptions]);
+
+  const volunteerByPhone = useMemo(() => {
+    const map = new Map();
+    volunteerOptions.forEach((v) => { if (v.phone) map.set(v.phone.trim(), v); });
+    return map;
+  }, [volunteerOptions]);
 
   useEffect(() => {
     if (initial) {
@@ -24,6 +37,14 @@ export default function FundraisingRecordForm({ person, initial, allowVolunteerA
   const addDonor = () => setForm((f) => ({ ...f, donors: [...f.donors, { ...EMPTY_DONOR }] }));
   const updateDonor = (i, key, value) =>
     setForm((f) => ({ ...f, donors: f.donors.map((d, idx) => (idx === i ? { ...d, [key]: value } : d)) }));
+  const updateAssignVolunteer = (i, value) => {
+    const trimmed = value.trim();
+    const match = volunteerByName.get(trimmed) || volunteerByPhone.get(trimmed);
+    setForm((f) => ({
+      ...f,
+      donors: f.donors.map((d, idx) => (idx === i ? { ...d, assignVolunteerText: value, assignVolunteerId: match?.id || "" } : d)),
+    }));
+  };
   const removeDonor = (i) => setForm((f) => ({ ...f, donors: f.donors.filter((_, idx) => idx !== i) }));
 
   const handleSubmit = (e) => {
@@ -33,10 +54,15 @@ export default function FundraisingRecordForm({ person, initial, allowVolunteerA
     form.donors
       .filter((d) => d.name || d.amount)
       .forEach((d) => {
-        const { assignVolunteerId, ...rest } = d;
-        const donor = { ...rest, amount: d.amount === "" ? 0 : Number(d.amount) };
-        if (assignVolunteerId) {
-          movedDonors.push({ volunteerId: assignVolunteerId, donor });
+        const donor = {
+          name: d.name,
+          date: d.date,
+          donationType: d.donationType,
+          amount: d.amount === "" ? 0 : Number(d.amount),
+          pledgeStatus: d.pledgeStatus,
+        };
+        if (d.assignVolunteerId) {
+          movedDonors.push({ volunteerId: d.assignVolunteerId, donor });
         } else {
           donors.push(donor);
         }
@@ -79,8 +105,16 @@ export default function FundraisingRecordForm({ person, initial, allowVolunteerA
           </button>
         </div>
         {allowVolunteerAssignment && (
-          <p className="text-sm text-slate-500 mb-2">若後來知道是哪位志工募的，選擇該志工後儲存，這筆捐款者會自動移到該志工的募款資料中。</p>
+          <p className="text-sm text-slate-500 mb-2">若後來知道是哪位志工募的，輸入該志工的姓名或電話並選取後儲存，這筆捐款者會自動移到該志工的募款資料中。</p>
         )}
+        <datalist id={ASSIGN_VOLUNTEER_DATALIST_ID}>
+          {volunteerOptions.map((v) => (
+            <option key={`n-${v.id}`} value={v.name} />
+          ))}
+          {volunteerOptions.filter((v) => v.phone).map((v) => (
+            <option key={`p-${v.id}`} value={v.phone} />
+          ))}
+        </datalist>
         <div className="overflow-x-auto -mx-1 px-1">
           <table className="w-full min-w-[860px] border-separate border-spacing-y-2">
             <thead>
@@ -90,8 +124,7 @@ export default function FundraisingRecordForm({ person, initial, allowVolunteerA
                 <th className="text-left font-bold px-1 w-32">捐款形式</th>
                 <th className="text-left font-bold px-1 w-24">金額</th>
                 <th className="text-left font-bold px-1 w-32">認捐狀態</th>
-                <th className="text-left font-bold px-1">追蹤進度</th>
-                {allowVolunteerAssignment && <th className="text-left font-bold px-1 w-44">已知志工（移入其名下）</th>}
+                {allowVolunteerAssignment && <th className="text-left font-bold px-1 w-48">已知志工（輸入姓名/電話）</th>}
                 <th className="w-8" />
               </tr>
             </thead>
@@ -146,26 +179,20 @@ export default function FundraisingRecordForm({ person, initial, allowVolunteerA
                       ))}
                     </select>
                   </td>
-                  <td className="px-1">
-                    <input
-                      placeholder="追蹤進度"
-                      value={d.progress}
-                      onChange={(e) => updateDonor(i, "progress", e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
-                    />
-                  </td>
                   {allowVolunteerAssignment && (
                     <td className="px-1">
-                      <select
-                        value={d.assignVolunteerId}
-                        onChange={(e) => updateDonor(i, "assignVolunteerId", e.target.value)}
-                        className="w-full px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
-                      >
-                        <option value="">尚未確定</option>
-                        {volunteerOptions.map((v) => (
-                          <option key={v.id} value={v.id}>{v.name}</option>
-                        ))}
-                      </select>
+                      <input
+                        placeholder="姓名或電話"
+                        value={d.assignVolunteerText}
+                        onChange={(e) => updateAssignVolunteer(i, e.target.value)}
+                        list={ASSIGN_VOLUNTEER_DATALIST_ID}
+                        className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+                      />
+                      {d.assignVolunteerText && (
+                        <p className={`mt-1 text-xs font-bold ${d.assignVolunteerId ? "text-emerald-600" : "text-slate-400"}`}>
+                          {d.assignVolunteerId ? "已對應志工，儲存後會移過去" : "尚未對應到志工"}
+                        </p>
+                      )}
                     </td>
                   )}
                   <td className="px-1">

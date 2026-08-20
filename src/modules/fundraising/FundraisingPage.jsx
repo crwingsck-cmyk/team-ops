@@ -88,7 +88,7 @@ export default function FundraisingPage() {
   }, [people, heQi, huAi, xieLi, search]);
 
   const volunteerOptions = useMemo(
-    () => people.filter((p) => p.id !== UNASSIGNED_VOLUNTEER_ID).map((p) => ({ id: p.id.replace(/^v:/, ""), name: p.name })),
+    () => people.filter((p) => p.id !== UNASSIGNED_VOLUNTEER_ID).map((p) => ({ id: p.id.replace(/^v:/, ""), name: p.name, phone: p.phone })),
     [people]
   );
 
