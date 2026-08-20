@@ -32,7 +32,7 @@ function loadStoredKeys() {
 }
 
 export default function FundraisingPage() {
-  const { people, guestDirectory, heQiOptions, huAiOptions, xieLiOptions, loading } = useFundraisingPeople();
+  const { people, heQiOptions, huAiOptions, xieLiOptions, loading } = useFundraisingPeople();
   const { create: createRecord, update: updateRecord } = useFirestoreCrud("fundraisingRecords");
 
   const [activeColumnKeys, setActiveColumnKeys] = useState(loadStoredKeys);
@@ -211,7 +211,6 @@ export default function FundraisingPage() {
           <FundraisingRecordForm
             person={editingPerson}
             initial={editingPerson.recordId ? editingPerson : null}
-            guestDirectory={guestDirectory}
             onSubmit={handleRecordSubmit}
             onCancel={() => setEditingPerson(null)}
           />

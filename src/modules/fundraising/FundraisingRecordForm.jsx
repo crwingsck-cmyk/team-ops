@@ -1,20 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import Button from "../../components/ui/Button";
 import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
 
-const EMPTY_DONOR = { name: "", guestKey: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", progress: "" };
+const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", progress: "" };
 const EMPTY = { pledgeTarget: "", donors: [] };
-const DONOR_DATALIST_ID = "fundraising-donor-guest-suggestions";
 
-export default function FundraisingRecordForm({ person, initial, guestDirectory = [], onSubmit, onCancel }) {
+export default function FundraisingRecordForm({ person, initial, onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
-
-  const guestByName = useMemo(() => {
-    const map = new Map();
-    guestDirectory.forEach((g) => { if (g.name) map.set(g.name.trim(), g); });
-    return map;
-  }, [guestDirectory]);
 
   useEffect(() => {
     if (initial) {
@@ -31,13 +24,6 @@ export default function FundraisingRecordForm({ person, initial, guestDirectory 
   const addDonor = () => setForm((f) => ({ ...f, donors: [...f.donors, { ...EMPTY_DONOR }] }));
   const updateDonor = (i, key, value) =>
     setForm((f) => ({ ...f, donors: f.donors.map((d, idx) => (idx === i ? { ...d, [key]: value } : d)) }));
-  const updateDonorName = (i, value) => {
-    const match = guestByName.get(value.trim());
-    setForm((f) => ({
-      ...f,
-      donors: f.donors.map((d, idx) => (idx === i ? { ...d, name: value, guestKey: match?.key || "" } : d)),
-    }));
-  };
   const removeDonor = (i) => setForm((f) => ({ ...f, donors: f.donors.filter((_, idx) => idx !== i) }));
 
   const handleSubmit = (e) => {
@@ -76,16 +62,11 @@ export default function FundraisingRecordForm({ person, initial, guestDirectory 
 
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span className="block text-base font-bold text-slate-600">捐款者（每人獨立輸入，可從大德名冊選取）</span>
+          <span className="block text-base font-bold text-slate-600">捐款者（每人獨立輸入）</span>
           <button type="button" onClick={addDonor} className="text-base text-indigo-600 font-bold flex items-center gap-1">
             <Plus size={16} /> 新增捐款者
           </button>
         </div>
-        <datalist id={DONOR_DATALIST_ID}>
-          {guestDirectory.map((g) => (
-            <option key={g.key} value={g.name} />
-          ))}
-        </datalist>
         <div className="overflow-x-auto -mx-1 px-1">
           <table className="w-full min-w-[860px] border-separate border-spacing-y-2">
             <thead>
@@ -104,13 +85,11 @@ export default function FundraisingRecordForm({ person, initial, guestDirectory 
                 <tr key={i}>
                   <td className="px-1">
                     <input
-                      placeholder="姓名（可從大德名冊選取）"
+                      placeholder="姓名"
                       value={d.name}
-                      onChange={(e) => updateDonorName(i, e.target.value)}
-                      list={DONOR_DATALIST_ID}
+                      onChange={(e) => updateDonor(i, "name", e.target.value)}
                       className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
                     />
-                    {d.guestKey && <p className="mt-1 text-xs text-emerald-600 font-bold">已連結大德名冊</p>}
                   </td>
                   <td className="px-1">
                     <input

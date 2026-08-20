@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useCollection } from "./useCollection";
-import { useGuestDirectory } from "./useGuestDirectory";
 
 // Not a real volunteer — a fixed row so donations with no known solicitor
 // still have somewhere to be recorded (personKey "unassigned" in fundraisingRecords).
@@ -8,12 +7,7 @@ export const UNASSIGNED_VOLUNTEER_ID = "unassigned";
 
 export function useFundraisingPeople() {
   const { data: volunteers, loading: loadingVolunteers } = useCollection("volunteers");
-  const { data: guestDocs, loading: loadingGuests } = useCollection("guests");
-  const { data: registrations, loading: loadingRegs } = useCollection("registrations");
-  const { data: events, loading: loadingEvents } = useCollection("events", { includeDeleted: true });
   const { data: fundraisingRecords, loading: loadingRecords } = useCollection("fundraisingRecords");
-
-  const guests = useGuestDirectory({ registrations, events, guestDocs });
 
   const recordsByPersonKey = useMemo(
     () => new Map(fundraisingRecords.map((r) => [r.personKey, r])),
@@ -62,7 +56,7 @@ export function useFundraisingPeople() {
   const huAiOptions = useMemo(() => [...new Set(volunteers.map((v) => v.huAi).filter(Boolean))].sort(), [volunteers]);
   const xieLiOptions = useMemo(() => [...new Set(volunteers.map((v) => v.xieLi).filter(Boolean))].sort(), [volunteers]);
 
-  const loading = loadingVolunteers || loadingGuests || loadingRegs || loadingEvents || loadingRecords;
+  const loading = loadingVolunteers || loadingRecords;
 
-  return { people, guestDirectory: guests, heQiOptions, huAiOptions, xieLiOptions, loading };
+  return { people, heQiOptions, huAiOptions, xieLiOptions, loading };
 }
