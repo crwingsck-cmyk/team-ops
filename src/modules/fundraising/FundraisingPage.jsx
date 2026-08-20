@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Settings2, Download, Search, Pencil, Eye } from "lucide-react";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
-import { useFundraisingPeople } from "../../hooks/useFundraisingPeople";
+import { useFundraisingPeople, UNASSIGNED_VOLUNTEER_ID } from "../../hooks/useFundraisingPeople";
 import Button from "../../components/ui/Button";
 import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
@@ -87,12 +87,38 @@ export default function FundraisingPage() {
     return flattenDonorRows(filtered);
   }, [people, heQi, huAi, xieLi, search]);
 
+  const volunteerOptions = useMemo(
+    () => people.filter((p) => p.id !== UNASSIGNED_VOLUNTEER_ID).map((p) => ({ id: p.id.replace(/^v:/, ""), name: p.name })),
+    [people]
+  );
+
   const handleRecordSubmit = async (data) => {
-    if (editingPerson.recordId) {
-      await updateRecord(editingPerson.recordId, data);
-    } else {
-      await createRecord({ ...data, personKey: editingPerson.id, personName: editingPerson.name, personPhone: editingPerson.phone });
+    const { movedDonors = [], ...recordData } = data;
+
+    if (editingPerson.recordId || recordData.donors.length > 0 || recordData.pledgeTarget !== "") {
+      if (editingPerson.recordId) {
+        await updateRecord(editingPerson.recordId, recordData);
+      } else {
+        await createRecord({ ...recordData, personKey: editingPerson.id, personName: editingPerson.name, personPhone: editingPerson.phone });
+      }
     }
+
+    const movedByVolunteer = new Map();
+    for (const { volunteerId, donor } of movedDonors) {
+      if (!movedByVolunteer.has(volunteerId)) movedByVolunteer.set(volunteerId, []);
+      movedByVolunteer.get(volunteerId).push(donor);
+    }
+    for (const [volunteerId, newDonors] of movedByVolunteer) {
+      const target = people.find((p) => p.id === `v:${volunteerId}`);
+      if (!target) continue;
+      const donors = [...(target.donors || []), ...newDonors];
+      if (target.recordId) {
+        await updateRecord(target.recordId, { pledgeTarget: target.pledgeTarget, donors });
+      } else {
+        await createRecord({ pledgeTarget: target.pledgeTarget, donors, personKey: target.id, personName: target.name, personPhone: target.phone });
+      }
+    }
+
     setEditingPerson(null);
   };
 
@@ -211,6 +237,8 @@ export default function FundraisingPage() {
           <FundraisingRecordForm
             person={editingPerson}
             initial={editingPerson.recordId ? editingPerson : null}
+            allowVolunteerAssignment={editingPerson.id === UNASSIGNED_VOLUNTEER_ID}
+            volunteerOptions={volunteerOptions}
             onSubmit={handleRecordSubmit}
             onCancel={() => setEditingPerson(null)}
           />

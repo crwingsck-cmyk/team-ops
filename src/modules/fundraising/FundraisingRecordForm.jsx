@@ -3,10 +3,10 @@ import { Plus, X } from "lucide-react";
 import Button from "../../components/ui/Button";
 import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
 
-const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", progress: "" };
+const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", progress: "", assignVolunteerId: "" };
 const EMPTY = { pledgeTarget: "", donors: [] };
 
-export default function FundraisingRecordForm({ person, initial, onSubmit, onCancel }) {
+export default function FundraisingRecordForm({ person, initial, allowVolunteerAssignment = false, volunteerOptions = [], onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
 
   useEffect(() => {
@@ -28,12 +28,23 @@ export default function FundraisingRecordForm({ person, initial, onSubmit, onCan
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const donors = form.donors
+    const donors = [];
+    const movedDonors = [];
+    form.donors
       .filter((d) => d.name || d.amount)
-      .map((d) => ({ ...d, amount: d.amount === "" ? 0 : Number(d.amount) }));
+      .forEach((d) => {
+        const { assignVolunteerId, ...rest } = d;
+        const donor = { ...rest, amount: d.amount === "" ? 0 : Number(d.amount) };
+        if (assignVolunteerId) {
+          movedDonors.push({ volunteerId: assignVolunteerId, donor });
+        } else {
+          donors.push(donor);
+        }
+      });
     onSubmit({
       pledgeTarget: form.pledgeTarget === "" ? "" : Number(form.pledgeTarget),
       donors,
+      movedDonors,
     });
   };
 
@@ -67,6 +78,9 @@ export default function FundraisingRecordForm({ person, initial, onSubmit, onCan
             <Plus size={16} /> 新增捐款者
           </button>
         </div>
+        {allowVolunteerAssignment && (
+          <p className="text-sm text-slate-500 mb-2">若後來知道是哪位志工募的，選擇該志工後儲存，這筆捐款者會自動移到該志工的募款資料中。</p>
+        )}
         <div className="overflow-x-auto -mx-1 px-1">
           <table className="w-full min-w-[860px] border-separate border-spacing-y-2">
             <thead>
@@ -77,6 +91,7 @@ export default function FundraisingRecordForm({ person, initial, onSubmit, onCan
                 <th className="text-left font-bold px-1 w-24">金額</th>
                 <th className="text-left font-bold px-1 w-32">認捐狀態</th>
                 <th className="text-left font-bold px-1">追蹤進度</th>
+                {allowVolunteerAssignment && <th className="text-left font-bold px-1 w-44">已知志工（移入其名下）</th>}
                 <th className="w-8" />
               </tr>
             </thead>
@@ -139,6 +154,20 @@ export default function FundraisingRecordForm({ person, initial, onSubmit, onCan
                       className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
                     />
                   </td>
+                  {allowVolunteerAssignment && (
+                    <td className="px-1">
+                      <select
+                        value={d.assignVolunteerId}
+                        onChange={(e) => updateDonor(i, "assignVolunteerId", e.target.value)}
+                        className="w-full px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
+                      >
+                        <option value="">尚未確定</option>
+                        {volunteerOptions.map((v) => (
+                          <option key={v.id} value={v.id}>{v.name}</option>
+                        ))}
+                      </select>
+                    </td>
+                  )}
                   <td className="px-1">
                     <button type="button" onClick={() => removeDonor(i)} className="p-2 text-slate-400 hover:text-rose-600">
                       <X size={18} />
