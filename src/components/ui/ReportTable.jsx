@@ -164,7 +164,7 @@ export default function ReportTable({ columns, rows }) {
         </button>
       </div>
       <div className="rounded-2xl border border-slate-100 custom-scrollbar overflow-auto max-h-[70vh]">
-        <table className="text-left border-collapse">
+        <table className="w-full text-left border-collapse">
           <thead>
             <tr>
               {columns.map((col, i) => {
