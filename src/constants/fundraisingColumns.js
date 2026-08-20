@@ -41,6 +41,12 @@ export function flattenDonorRows(people) {
       // pledgeTarget is a per-person value, not per-donor — only keep it on the
       // first donor row so summing the column doesn't multiply it by donor count.
       pledgeTarget: i === 0 ? p.pledgeTarget : "",
+      // A donor can carry its own 和氣/互愛/協力 tag (used for the "未指定志工"
+      // placeholder, whose donors don't share one group) — falls back to the
+      // person's own value for everyone else.
+      heQi: d.heQi || p.heQi,
+      huAi: d.huAi || p.huAi,
+      xieLi: d.xieLi || p.xieLi,
       key: `${p.id}-${i}`,
       donorName: d.name,
       donorDate: d.date,

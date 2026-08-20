@@ -3,11 +3,21 @@ import { Plus, X } from "lucide-react";
 import Button from "../../components/ui/Button";
 import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
 
-const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", assignVolunteerId: "", assignVolunteerText: "" };
+const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", assignVolunteerId: "", assignVolunteerText: "", heQi: "", huAi: "", xieLi: "" };
 const EMPTY = { pledgeTarget: "", donors: [] };
 const ASSIGN_VOLUNTEER_DATALIST_ID = "fundraising-assign-volunteer-suggestions";
 
-export default function FundraisingRecordForm({ person, initial, allowVolunteerAssignment = false, volunteerOptions = [], onSubmit, onCancel }) {
+export default function FundraisingRecordForm({
+  person,
+  initial,
+  allowVolunteerAssignment = false,
+  volunteerOptions = [],
+  heQiOptions = [],
+  huAiOptions = [],
+  xieLiOptions = [],
+  onSubmit,
+  onCancel,
+}) {
   const [form, setForm] = useState(EMPTY);
 
   const volunteerByName = useMemo(() => {
@@ -62,7 +72,11 @@ export default function FundraisingRecordForm({ person, initial, allowVolunteerA
           pledgeStatus: d.pledgeStatus,
         };
         if (d.assignVolunteerId) {
+          // Moving to a known volunteer — that record already carries its own
+          // 和氣/互愛/協力, so the placeholder's per-donor tag no longer applies.
           movedDonors.push({ volunteerId: d.assignVolunteerId, donor });
+        } else if (allowVolunteerAssignment) {
+          donors.push({ ...donor, heQi: d.heQi, huAi: d.huAi, xieLi: d.xieLi });
         } else {
           donors.push(donor);
         }
@@ -124,6 +138,7 @@ export default function FundraisingRecordForm({ person, initial, allowVolunteerA
                 <th className="text-left font-bold px-1 w-32">捐款形式</th>
                 <th className="text-left font-bold px-1 w-24">金額</th>
                 <th className="text-left font-bold px-1 w-32">認捐狀態</th>
+                {allowVolunteerAssignment && <th className="text-left font-bold px-1 w-40">和氣／互愛／協力</th>}
                 {allowVolunteerAssignment && <th className="text-left font-bold px-1 w-48">已知志工（輸入姓名/電話）</th>}
                 <th className="w-8" />
               </tr>
@@ -179,6 +194,40 @@ export default function FundraisingRecordForm({ person, initial, allowVolunteerA
                       ))}
                     </select>
                   </td>
+                  {allowVolunteerAssignment && (
+                    <td className="px-1 space-y-1">
+                      <select
+                        value={d.heQi}
+                        onChange={(e) => updateDonor(i, "heQi", e.target.value)}
+                        className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm hover:border-indigo-300 transition-all duration-200 bg-white"
+                      >
+                        <option value="">和氣</option>
+                        {heQiOptions.map((v) => (
+                          <option key={v} value={v}>{v}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={d.huAi}
+                        onChange={(e) => updateDonor(i, "huAi", e.target.value)}
+                        className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm hover:border-indigo-300 transition-all duration-200 bg-white"
+                      >
+                        <option value="">互愛</option>
+                        {huAiOptions.map((v) => (
+                          <option key={v} value={v}>{v}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={d.xieLi}
+                        onChange={(e) => updateDonor(i, "xieLi", e.target.value)}
+                        className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-sm hover:border-indigo-300 transition-all duration-200 bg-white"
+                      >
+                        <option value="">協力</option>
+                        {xieLiOptions.map((v) => (
+                          <option key={v} value={v}>{v}</option>
+                        ))}
+                      </select>
+                    </td>
+                  )}
                   {allowVolunteerAssignment && (
                     <td className="px-1">
                       <input

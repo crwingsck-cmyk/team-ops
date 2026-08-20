@@ -77,14 +77,16 @@ export default function FundraisingPage() {
   }, [activeColumnKeys]);
 
   const rows = useMemo(() => {
-    const filtered = people.filter((p) => {
-      if (heQi !== "all" && p.heQi !== heQi) return false;
-      if (huAi !== "all" && p.huAi !== huAi) return false;
-      if (xieLi !== "all" && p.xieLi !== xieLi) return false;
+    // Filter after flattening (not on `people` directly) so a donor's own 和氣/
+    // 互愛/協力 tag — used by the 未指定志工 placeholder, whose donors don't
+    // share one group — determines its visibility, not just the person's.
+    return flattenDonorRows(people).filter((r) => {
+      if (heQi !== "all" && r.heQi !== heQi) return false;
+      if (huAi !== "all" && r.huAi !== huAi) return false;
+      if (xieLi !== "all" && r.xieLi !== xieLi) return false;
       if (!search) return true;
-      return chineseIncludes(`${p.name} ${p.phone}`, search);
+      return chineseIncludes(`${r.name} ${r.phone}`, search);
     });
-    return flattenDonorRows(filtered);
   }, [people, heQi, huAi, xieLi, search]);
 
   const volunteerOptions = useMemo(
@@ -239,6 +241,9 @@ export default function FundraisingPage() {
             initial={editingPerson.recordId ? editingPerson : null}
             allowVolunteerAssignment={editingPerson.id === UNASSIGNED_VOLUNTEER_ID}
             volunteerOptions={volunteerOptions}
+            heQiOptions={heQiOptions}
+            huAiOptions={huAiOptions}
+            xieLiOptions={xieLiOptions}
             onSubmit={handleRecordSubmit}
             onCancel={() => setEditingPerson(null)}
           />
