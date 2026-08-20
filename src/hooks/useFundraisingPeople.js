@@ -2,6 +2,10 @@ import { useMemo } from "react";
 import { useCollection } from "./useCollection";
 import { useGuestDirectory } from "./useGuestDirectory";
 
+// Not a real volunteer — a fixed row so donations with no known solicitor
+// still have somewhere to be recorded (personKey "unassigned" in fundraisingRecords).
+export const UNASSIGNED_VOLUNTEER_ID = "unassigned";
+
 export function useFundraisingPeople() {
   const { data: volunteers, loading: loadingVolunteers } = useCollection("volunteers");
   const { data: guestDocs, loading: loadingGuests } = useCollection("guests");
@@ -29,7 +33,19 @@ export function useFundraisingPeople() {
       area: v.address || "",
       notes: v.notes || "",
     }));
-    return volunteerRows.map((p) => {
+    const unassignedRow = {
+      id: UNASSIGNED_VOLUNTEER_ID,
+      category: "志工",
+      name: "未指定志工（募款人不明）",
+      phone: "",
+      tcIdentification: "",
+      heQi: "",
+      huAi: "",
+      xieLi: "",
+      area: "",
+      notes: "",
+    };
+    return [unassignedRow, ...volunteerRows].map((p) => {
       const record = recordsByPersonKey.get(p.id);
       const donors = record?.donors || [];
       return {
