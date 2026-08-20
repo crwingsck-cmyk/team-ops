@@ -118,7 +118,7 @@ export default function MembersPage() {
       ) : (
         <div className="space-y-3">
           {members.map((m) => (
-            <Card key={m.id} className="!p-4 flex items-center justify-between gap-4 flex-wrap">
+            <Card key={m.id} className="!p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-black italic text-slate-800">{m.label || "未命名成員"}</span>
@@ -136,7 +136,7 @@ export default function MembersPage() {
                 </div>
                 <p className="text-xs text-slate-400 font-mono mt-1 break-all">{m.id}</p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 flex-wrap sm:shrink-0">
                 <button
                   onClick={() => openEdit(m)}
                   title="編輯名稱"
