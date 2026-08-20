@@ -9,6 +9,9 @@ const EMPTY = {
   name: "",
   contactPerson: "",
   phone: "",
+  heQi: "",
+  huAi: "",
+  xieLi: "",
   date: "",
   donationType: "casual",
   amount: "",
@@ -17,7 +20,7 @@ const EMPTY = {
   notes: "",
 };
 
-export default function FundraisingOrganizationForm({ initial, onSubmit, onCancel }) {
+export default function FundraisingOrganizationForm({ initial, heQiOptions = [], huAiOptions = [], xieLiOptions = [], onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
 
   useEffect(() => {
@@ -38,6 +41,26 @@ export default function FundraisingOrganizationForm({ initial, onSubmit, onCance
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Input label="聯絡人" value={form.contactPerson} onChange={(e) => setForm({ ...form, contactPerson: e.target.value })} />
         <Input label="電話" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Select label="和氣" value={form.heQi} onChange={(e) => setForm({ ...form, heQi: e.target.value })}>
+          <option value="">未選擇</option>
+          {heQiOptions.map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </Select>
+        <Select label="互愛" value={form.huAi} onChange={(e) => setForm({ ...form, huAi: e.target.value })}>
+          <option value="">未選擇</option>
+          {huAiOptions.map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </Select>
+        <Select label="協力" value={form.xieLi} onChange={(e) => setForm({ ...form, xieLi: e.target.value })}>
+          <option value="">未選擇</option>
+          {xieLiOptions.map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </Select>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Input label="日期" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
