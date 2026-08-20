@@ -38,6 +38,9 @@ export function flattenDonorRows(people) {
     }
     return p.donors.map((d, i) => ({
       ...p,
+      // pledgeTarget is a per-person value, not per-donor — only keep it on the
+      // first donor row so summing the column doesn't multiply it by donor count.
+      pledgeTarget: i === 0 ? p.pledgeTarget : "",
       key: `${p.id}-${i}`,
       donorName: d.name,
       donorDate: d.date,
