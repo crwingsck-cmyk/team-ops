@@ -1,4 +1,4 @@
-import { LayoutDashboard, Megaphone, CalendarDays, Users, ClipboardList, History, FileBarChart, Coins } from "lucide-react";
+import { LayoutDashboard, Megaphone, CalendarDays, Users, ClipboardList, History, FileBarChart, Coins, UserCog } from "lucide-react";
 import Header from "./Header";
 import TabNav from "./TabNav";
 
@@ -11,14 +11,16 @@ export const TABS = [
   { id: "reports", label: "報表", icon: FileBarChart },
   { id: "fundraising", label: "募款募心", icon: Coins },
   { id: "meetings", label: "會議", icon: ClipboardList },
+  { id: "members", label: "成員", icon: UserCog, adminOnly: true },
 ];
 
-export default function Shell({ activeTab, onTabChange, children }) {
+export default function Shell({ activeTab, onTabChange, isAdmin, children }) {
+  const visibleTabs = TABS.filter((tab) => !tab.adminOnly || isAdmin);
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/40 to-slate-100">
       <div className="max-w-7xl mx-auto px-3 py-4 xl:px-6">
         <Header />
-        <TabNav tabs={TABS} activeTab={activeTab} onChange={onTabChange} />
+        <TabNav tabs={visibleTabs} activeTab={activeTab} onChange={onTabChange} />
         <main>{children}</main>
       </div>
     </div>

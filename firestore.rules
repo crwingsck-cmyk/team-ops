@@ -18,12 +18,11 @@ service cloud.firestore {
 
     // Each signed-in user may read their own membership record (and its role),
     // to know whether they've been allow-listed and what they can do.
-    // Membership docs are only ever written by an admin directly in the
-    // Firestore console (or later via a Cloud Function/Admin SDK) — never
-    // from the client.
+    // An admin may also read every member doc (to manage the roster) and is
+    // the only one who can add, edit, or remove membership records.
     match /team-ops/v1/members/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if false;
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create, update, delete: if isAdmin();
     }
 
     // Append-only audit trail — any member can read/write new entries,

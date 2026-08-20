@@ -12,6 +12,7 @@ import MeetingsPage from "./modules/meetings/MeetingsPage";
 import AttendanceHistoryPage from "./modules/attendance/AttendanceHistoryPage";
 import ReportsPage from "./modules/reports/ReportsPage";
 import FundraisingPage from "./modules/fundraising/FundraisingPage";
+import MembersPage from "./modules/members/MembersPage";
 
 const PAGES = {
   dashboard: DashboardPage,
@@ -22,18 +23,19 @@ const PAGES = {
   reports: ReportsPage,
   fundraising: FundraisingPage,
   meetings: MeetingsPage,
+  members: MembersPage,
 };
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const { user, loading: authLoading } = useAuth();
-  const { isMember, loading: membershipLoading } = useMembership();
+  const { isMember, isAdmin, loading: membershipLoading } = useMembership();
 
   const ActivePage = PAGES[activeTab] || DashboardPage;
   const loading = authLoading || (user && membershipLoading);
 
   return (
-    <Shell activeTab={activeTab} onTabChange={setActiveTab}>
+    <Shell activeTab={activeTab} onTabChange={setActiveTab} isAdmin={isAdmin}>
       {loading ? (
         <div className="text-center py-24 text-slate-400 italic">載入中...</div>
       ) : !user ? (
