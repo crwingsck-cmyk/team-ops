@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "./Button";
 
-export default function FilterFieldPicker({ fields, selected, max = 3, description, onSave, onCancel }) {
+export default function FilterFieldPicker({ fields, selected, max = 5, description, onSave, onCancel }) {
   const [picked, setPicked] = useState(selected);
 
   const toggle = (key) => {

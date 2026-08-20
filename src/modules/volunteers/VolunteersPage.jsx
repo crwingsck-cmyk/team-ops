@@ -28,7 +28,7 @@ function loadStoredFilterKeys() {
   try {
     const stored = JSON.parse(localStorage.getItem(FILTER_KEYS_STORAGE_KEY));
     if (Array.isArray(stored)) {
-      const filtered = stored.filter((k) => validKeys.has(k)).slice(0, 3);
+      const filtered = stored.filter((k) => validKeys.has(k)).slice(0, 5);
       if (filtered.length > 0) return filtered;
     }
   } catch {
