@@ -47,6 +47,7 @@ export default function FundraisingDetail({ person: p }) {
                   <p className="font-black text-slate-800">{(Number(d.amount) || 0).toLocaleString()}</p>
                 </div>
                 <div className="flex flex-wrap gap-x-4 mt-1 text-sm text-slate-500">
+                  {d.date && <span>日期：{d.date}</span>}
                   <span>捐款形式：{DONATION_TYPE_LABELS[d.donationType] || "-"}</span>
                   <span>認捐狀態：{PLEDGE_STATUS_LABELS[d.pledgeStatus]?.label || "尚未接洽"}</span>
                 </div>

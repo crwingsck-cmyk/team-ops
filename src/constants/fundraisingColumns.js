@@ -18,6 +18,7 @@ export const FUNDRAISING_COLUMNS = [
   { key: "area", label: "地區/住址" },
   { key: "pledgeTarget", label: "目標人數", format: (r) => (r.pledgeTarget !== "" && r.pledgeTarget != null ? r.pledgeTarget : "-") },
   { key: "donorName", label: "捐款者", format: (r) => r.donorName || "-" },
+  { key: "donorDate", label: "捐款日期", format: (r) => r.donorDate || "-" },
   { key: "donationType", label: "捐款形式", format: (r) => (r.donationType ? DONATION_TYPE_LABELS[r.donationType] || "-" : "-") },
   { key: "donorAmount", label: "募款金額", format: (r) => (r.donorAmount ? r.donorAmount.toLocaleString() : "-") },
   { key: "donorPledgeStatus", label: "認捐狀態", format: (r) => (r.donorName ? enumLabel(PLEDGE_STATUS_LABELS, r.donorPledgeStatus || "not_yet") : "-") },
@@ -25,7 +26,7 @@ export const FUNDRAISING_COLUMNS = [
   { key: "notes", label: "備註" },
 ];
 
-export const DEFAULT_FUNDRAISING_COLUMN_KEYS = ["name", "category", "phone", "pledgeTarget", "donorName", "donationType", "donorAmount", "donorPledgeStatus"];
+export const DEFAULT_FUNDRAISING_COLUMN_KEYS = ["name", "category", "phone", "pledgeTarget", "donorName", "donorDate", "donationType", "donorAmount", "donorPledgeStatus"];
 
 // Fundraising records are per-person (one record with many donors). Reports/exports
 // show one row per donor instead of mashing every donor into a single joined cell,
@@ -39,6 +40,7 @@ export function flattenDonorRows(people) {
       ...p,
       key: `${p.id}-${i}`,
       donorName: d.name,
+      donorDate: d.date,
       donationType: d.donationType,
       donorAmount: Number(d.amount) || 0,
       donorPledgeStatus: d.pledgeStatus,

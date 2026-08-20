@@ -3,7 +3,7 @@ import { Plus, X } from "lucide-react";
 import Button from "../../components/ui/Button";
 import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
 
-const EMPTY_DONOR = { name: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", progress: "" };
+const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", progress: "" };
 const EMPTY = { pledgeTarget: "", donors: [] };
 
 export default function FundraisingRecordForm({ person, initial, onSubmit, onCancel }) {
@@ -68,10 +68,11 @@ export default function FundraisingRecordForm({ person, initial, onSubmit, onCan
           </button>
         </div>
         <div className="overflow-x-auto -mx-1 px-1">
-          <table className="w-full min-w-[720px] border-separate border-spacing-y-2">
+          <table className="w-full min-w-[860px] border-separate border-spacing-y-2">
             <thead>
               <tr className="text-sm font-bold text-slate-500">
                 <th className="text-left font-bold px-1 w-40">姓名</th>
+                <th className="text-left font-bold px-1 w-36">日期</th>
                 <th className="text-left font-bold px-1 w-32">捐款形式</th>
                 <th className="text-left font-bold px-1 w-24">金額</th>
                 <th className="text-left font-bold px-1 w-32">認捐狀態</th>
@@ -87,6 +88,14 @@ export default function FundraisingRecordForm({ person, initial, onSubmit, onCan
                       placeholder="姓名"
                       value={d.name}
                       onChange={(e) => updateDonor(i, "name", e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+                    />
+                  </td>
+                  <td className="px-1">
+                    <input
+                      type="date"
+                      value={d.date}
+                      onChange={(e) => updateDonor(i, "date", e.target.value)}
                       className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
                     />
                   </td>
