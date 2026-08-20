@@ -32,7 +32,7 @@ function loadStoredKeys() {
 }
 
 export default function FundraisingPage() {
-  const { people, heQiOptions, huAiOptions, xieLiOptions, loading } = useFundraisingPeople();
+  const { people, guestDirectory, heQiOptions, huAiOptions, xieLiOptions, loading } = useFundraisingPeople();
   const { create: createRecord, update: updateRecord } = useFirestoreCrud("fundraisingRecords");
 
   const [activeColumnKeys, setActiveColumnKeys] = useState(loadStoredKeys);
@@ -101,7 +101,7 @@ export default function FundraisingPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-2xl font-black italic text-slate-800">募款募心</h2>
-          <p className="text-sm text-slate-500 mt-1">志工與大德資料庫彙整，可依和氣、互愛、協力分別篩選，並記錄每個人的募款狀況。</p>
+          <p className="text-sm text-slate-500 mt-1">志工資料庫彙整，可依和氣、互愛、協力分別篩選，並記錄每位志工向大德募款的狀況。</p>
         </div>
         {viewMode === "person" && (
           <div className="flex gap-2">
@@ -116,7 +116,7 @@ export default function FundraisingPage() {
           onClick={() => setViewMode("person")}
           className={`px-5 py-2.5 font-bold transition-colors ${viewMode === "person" ? "bg-indigo-600 text-white" : "bg-white text-slate-500 hover:text-slate-700"}`}
         >
-          個人
+          志工募款
         </button>
         <button
           onClick={() => setViewMode("organization")}
@@ -211,6 +211,7 @@ export default function FundraisingPage() {
           <FundraisingRecordForm
             person={editingPerson}
             initial={editingPerson.recordId ? editingPerson : null}
+            guestDirectory={guestDirectory}
             onSubmit={handleRecordSubmit}
             onCancel={() => setEditingPerson(null)}
           />

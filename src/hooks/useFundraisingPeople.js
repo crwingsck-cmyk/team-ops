@@ -29,19 +29,7 @@ export function useFundraisingPeople() {
       area: v.address || "",
       notes: v.notes || "",
     }));
-    const guestRows = guests.map((g) => ({
-      id: `g:${g.key}`,
-      category: "大德",
-      name: g.name,
-      phone: g.phone || "",
-      tcIdentification: g.tcIdentification || "",
-      heQi: "",
-      huAi: "",
-      xieLi: "",
-      area: g.area || "",
-      notes: g.notes || "",
-    }));
-    return [...volunteerRows, ...guestRows].map((p) => {
+    return volunteerRows.map((p) => {
       const record = recordsByPersonKey.get(p.id);
       const donors = record?.donors || [];
       return {
@@ -52,7 +40,7 @@ export function useFundraisingPeople() {
         pledgeTarget: record?.pledgeTarget ?? "",
       };
     });
-  }, [volunteers, guests, recordsByPersonKey]);
+  }, [volunteers, recordsByPersonKey]);
 
   const heQiOptions = useMemo(() => [...new Set(volunteers.map((v) => v.heQi).filter(Boolean))].sort(), [volunteers]);
   const huAiOptions = useMemo(() => [...new Set(volunteers.map((v) => v.huAi).filter(Boolean))].sort(), [volunteers]);
@@ -60,5 +48,5 @@ export function useFundraisingPeople() {
 
   const loading = loadingVolunteers || loadingGuests || loadingRegs || loadingEvents || loadingRecords;
 
-  return { people, heQiOptions, huAiOptions, xieLiOptions, loading };
+  return { people, guestDirectory: guests, heQiOptions, huAiOptions, xieLiOptions, loading };
 }
