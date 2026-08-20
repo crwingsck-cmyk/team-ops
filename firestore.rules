@@ -22,7 +22,10 @@ service cloud.firestore {
     // the only one who can add, edit, or remove membership records.
     match /team-ops/v1/members/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
-      allow create, update, delete: if isAdmin();
+      allow create, update: if isAdmin();
+      // An admin may remove any other member, but never their own record —
+      // this stops an admin from accidentally locking themselves out.
+      allow delete: if isAdmin() && request.auth.uid != uid;
     }
 
     // Append-only audit trail — any member can read/write new entries,
