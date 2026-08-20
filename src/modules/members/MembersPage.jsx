@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { setDoc, serverTimestamp } from "firebase/firestore";
-import { Plus, Trash2, ShieldCheck, ShieldAlert, UserRound } from "lucide-react";
+import { Plus, Pencil, Trash2, ShieldCheck, ShieldAlert, UserRound } from "lucide-react";
 import { useCollection, docRef } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useAuth } from "../../hooks/useAuth";
@@ -28,6 +28,8 @@ export default function MembersPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [removing, setRemoving] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [editLabel, setEditLabel] = useState("");
 
   if (membershipLoading) {
     return <div className="text-center py-16 text-slate-400 italic">載入中...</div>;
@@ -82,6 +84,17 @@ export default function MembersPage() {
     update(member.id, { role: nextRole });
   };
 
+  const openEdit = (member) => {
+    setEditing(member);
+    setEditLabel(member.label || "");
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    await update(editing.id, { label: editLabel.trim() });
+    setEditing(null);
+  };
+
   const handleRemove = async () => {
     await permanentlyDelete(removing.id);
     setRemoving(null);
@@ -124,6 +137,13 @@ export default function MembersPage() {
                 <p className="text-xs text-slate-400 font-mono mt-1 break-all">{m.id}</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => openEdit(m)}
+                  title="編輯名稱"
+                  className="p-2.5 rounded-xl text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                >
+                  <Pencil size={18} />
+                </button>
                 <Button variant="secondary" onClick={() => toggleRole(m)}>
                   {m.role === "admin" ? "設為一般成員" : "設為管理員"}
                 </Button>
@@ -162,6 +182,20 @@ export default function MembersPage() {
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>取消</Button>
             <Button type="submit" disabled={submitting}>新增</Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="編輯成員名稱">
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <Input
+            label="顯示名稱"
+            value={editLabel}
+            onChange={(e) => setEditLabel(e.target.value)}
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="secondary" onClick={() => setEditing(null)}>取消</Button>
+            <Button type="submit">儲存</Button>
           </div>
         </form>
       </Modal>
