@@ -10,6 +10,7 @@ import ReportTable from "../../components/ui/ReportTable";
 import FundraisingRecordForm from "./FundraisingRecordForm";
 import FundraisingDetail from "./FundraisingDetail";
 import FundraisingEventsSection from "./FundraisingEventsSection";
+import FundraisingOrganizationsSection from "./FundraisingOrganizationsSection";
 import { FUNDRAISING_COLUMNS, DEFAULT_FUNDRAISING_COLUMN_KEYS, flattenDonorRows } from "../../constants/fundraisingColumns";
 import { exportRowsToExcel } from "../../lib/exportExcel";
 import { chineseIncludes } from "../../lib/chineseSearch";
@@ -118,6 +119,12 @@ export default function FundraisingPage() {
           個人
         </button>
         <button
+          onClick={() => setViewMode("organization")}
+          className={`px-5 py-2.5 font-bold transition-colors ${viewMode === "organization" ? "bg-indigo-600 text-white" : "bg-white text-slate-500 hover:text-slate-700"}`}
+        >
+          公司/團體
+        </button>
+        <button
           onClick={() => setViewMode("event")}
           className={`px-5 py-2.5 font-bold transition-colors ${viewMode === "event" ? "bg-indigo-600 text-white" : "bg-white text-slate-500 hover:text-slate-700"}`}
         >
@@ -127,6 +134,8 @@ export default function FundraisingPage() {
 
       {viewMode === "event" ? (
         <FundraisingEventsSection />
+      ) : viewMode === "organization" ? (
+        <FundraisingOrganizationsSection />
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-3 mb-6">
