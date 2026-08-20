@@ -234,7 +234,7 @@ export default function FundraisingPage() {
         {viewingPerson && <FundraisingDetail person={viewingPerson} />}
       </Modal>
 
-      <Modal open={!!editingPerson} onClose={() => setEditingPerson(null)} title="記錄募款狀況">
+      <Modal open={!!editingPerson} onClose={() => setEditingPerson(null)} title="記錄募款狀況" size="xl">
         {editingPerson && (
           <FundraisingRecordForm
             person={editingPerson}

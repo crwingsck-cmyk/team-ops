@@ -1,6 +1,11 @@
 import { X } from "lucide-react";
 
-export default function Modal({ open, onClose, title, children, footer }) {
+const SIZE_CLASSES = {
+  md: "max-w-lg",
+  xl: "max-w-5xl",
+};
+
+export default function Modal({ open, onClose, title, children, footer, size = "md" }) {
   if (!open) return null;
 
   return (
@@ -9,7 +14,7 @@ export default function Modal({ open, onClose, title, children, footer }) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar"
+        className={`bg-white rounded-3xl shadow-2xl w-full ${SIZE_CLASSES[size]} max-h-[90vh] overflow-y-auto custom-scrollbar`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white">
