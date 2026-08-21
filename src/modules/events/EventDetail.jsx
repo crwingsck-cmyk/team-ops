@@ -25,17 +25,20 @@ function tcIdentificationLabel(key) {
   return TC_IDENTIFICATION_LABELS[key]?.split(" ")[0] || "";
 }
 
-const REG_STAT_TONE_CLASS = {
-  indigo: "text-indigo-600",
-  emerald: "text-emerald-600",
-  amber: "text-amber-600",
-};
-
-function RegStatCard({ label, value, tone = "indigo" }) {
+function Stat({ label, value }) {
   return (
-    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide leading-tight">{label}</p>
-      <p className={`text-lg font-black ${REG_STAT_TONE_CLASS[tone]}`}>{value}</p>
+    <div>
+      <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">{label}</p>
+      <p className="text-2xl font-black text-slate-800">{value}</p>
+    </div>
+  );
+}
+
+function BreakdownRow({ label, value }) {
+  return (
+    <div className="flex items-center text-sm text-slate-600 py-0.5">
+      <span className="flex-1">{label}</span>
+      <span className="w-20 shrink-0 text-right font-bold text-slate-800 tabular-nums">{value}</span>
     </div>
   );
 }
@@ -432,31 +435,49 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
         {registrations.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-bold text-slate-400 mb-2">報名人數</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-3">
-              <RegStatCard label="志工人數" value={regSummary.volunteerPersonCount} />
-              <RegStatCard label="志工同行人員" value={regSummary.volunteerCompanionCount} />
-              <RegStatCard label="大德人數" value={regSummary.daDePersonCount} />
-              <RegStatCard label="大德同行人員" value={regSummary.daDeCompanionCount} />
-              <RegStatCard label="同行人員總數" value={regSummary.companionCount} />
-              <RegStatCard label="報名總人數（含同行人員）" value={regSummary.volunteerCount + regSummary.daDeCount} />
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <Stat label="報名總人數（含同行人員）" value={regSummary.volunteerCount + regSummary.daDeCount} />
+              <Stat label="出席總人數（含同行人員）" value={regSummary.attendedVolunteerCount + regSummary.attendedDaDeCount} />
+              <Stat label="同行人員總數" value={regSummary.companionCount} />
+              <Stat label="已報名未出席人數" value={regSummary.notAttendedCount} />
             </div>
-            <p className="text-xs font-bold text-slate-400 mb-2">出席人數</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-3">
-              <RegStatCard label="出席志工人數" value={regSummary.attendedVolunteerPersonCount} tone="emerald" />
-              <RegStatCard label="出席志工同行人員" value={regSummary.attendedVolunteerCompanionCount} tone="emerald" />
-              <RegStatCard label="出席大德人數" value={regSummary.attendedDaDePersonCount} tone="emerald" />
-              <RegStatCard label="出席大德同行人員" value={regSummary.attendedDaDeCompanionCount} tone="emerald" />
-              <RegStatCard label="出席同行人員總數" value={regSummary.attendedCompanionCount} tone="emerald" />
-              <RegStatCard label="出席總人數（含同行人員）" value={regSummary.attendedVolunteerCount + regSummary.attendedDaDeCount} tone="emerald" />
+            <div className="pt-3 border-t border-slate-100">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs font-bold text-slate-400 uppercase tracking-wide">
+                    <th className="text-left pb-1.5">報名與出席人數</th>
+                    <th className="text-right pb-1.5 w-20">報名人數</th>
+                    <th className="text-right pb-1.5 w-20">出席人數</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="text-slate-600">
+                    <td className="py-0.5">志工</td>
+                    <td className="py-0.5 text-right text-slate-400 tabular-nums">{regSummary.volunteerPersonCount}</td>
+                    <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedVolunteerPersonCount}</td>
+                  </tr>
+                  <tr className="text-slate-600">
+                    <td className="py-0.5">志工同行人員</td>
+                    <td className="py-0.5 text-right text-slate-400 tabular-nums">{regSummary.volunteerCompanionCount}</td>
+                    <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedVolunteerCompanionCount}</td>
+                  </tr>
+                  <tr className="text-slate-600">
+                    <td className="py-0.5">大德</td>
+                    <td className="py-0.5 text-right text-slate-400 tabular-nums">{regSummary.daDePersonCount}</td>
+                    <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedDaDePersonCount}</td>
+                  </tr>
+                  <tr className="text-slate-600">
+                    <td className="py-0.5">大德同行人員</td>
+                    <td className="py-0.5 text-right text-slate-400 tabular-nums">{regSummary.daDeCompanionCount}</td>
+                    <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedDaDeCompanionCount}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
-              <RegStatCard label="已報名未出席人數" value={regSummary.notAttendedCount} tone="amber" />
-            </div>
-            <p className="text-xs font-bold text-slate-400 mb-2">慈濟身份出席人數（志工，不含大德）</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+            <div className="pt-3 border-t border-slate-100 mt-3">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">慈濟身份出席人數（志工，不含大德）</p>
               {VOLUNTEER_TC_IDENTIFICATION_KEYS.map((key) => (
-                <RegStatCard key={key} label={tcIdentificationLabel(key)} value={tcIdentificationAttendance[key] || 0} />
+                <BreakdownRow key={key} label={tcIdentificationLabel(key)} value={tcIdentificationAttendance[key] || 0} />
               ))}
             </div>
           </div>
