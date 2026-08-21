@@ -439,45 +439,45 @@ export default function EventDetail({ event, isAdmin, onBack }) {
               <Stat label="無法出席人數" value={regSummary.notAttendedCount} />
             </div>
             <div className="pt-3 border-t border-slate-100">
-              <table className="text-sm">
+              <table className="text-base">
                 <thead>
-                  <tr className="text-xs font-bold text-slate-400 uppercase tracking-wide">
-                    <th className="text-left pb-1.5 w-28">報名與出席人數</th>
+                  <tr className="text-sm font-bold text-slate-400 uppercase tracking-wide">
+                    <th className="text-left pb-1.5 w-32">報名與出席人數</th>
                     <th className="text-right pb-1.5 pr-6">報名人數</th>
                     <th className="text-right pb-1.5">出席人數</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="text-slate-600">
-                    <td className="py-0.5 w-28">志工</td>
-                    <td className="py-0.5 pr-6 text-right text-slate-400 tabular-nums">{regSummary.volunteerPersonCount}</td>
-                    <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedVolunteerPersonCount}</td>
+                    <td className="py-1 w-32">志工</td>
+                    <td className="py-1 pr-6 text-right text-slate-400 tabular-nums">{regSummary.volunteerPersonCount}</td>
+                    <td className="py-1 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedVolunteerPersonCount}</td>
                   </tr>
                   <tr className="text-slate-600">
-                    <td className="py-0.5 w-28">志工同行人員</td>
-                    <td className="py-0.5 pr-6 text-right text-slate-400 tabular-nums">{regSummary.volunteerCompanionCount}</td>
-                    <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedVolunteerCompanionCount}</td>
+                    <td className="py-1 w-32">志工同行人員</td>
+                    <td className="py-1 pr-6 text-right text-slate-400 tabular-nums">{regSummary.volunteerCompanionCount}</td>
+                    <td className="py-1 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedVolunteerCompanionCount}</td>
                   </tr>
                   <tr className="text-slate-600">
-                    <td className="py-0.5 w-28">大德</td>
-                    <td className="py-0.5 pr-6 text-right text-slate-400 tabular-nums">{regSummary.daDePersonCount}</td>
-                    <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedDaDePersonCount}</td>
+                    <td className="py-1 w-32">大德</td>
+                    <td className="py-1 pr-6 text-right text-slate-400 tabular-nums">{regSummary.daDePersonCount}</td>
+                    <td className="py-1 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedDaDePersonCount}</td>
                   </tr>
                   <tr className="text-slate-600">
-                    <td className="py-0.5 w-28">大德同行人員</td>
-                    <td className="py-0.5 pr-6 text-right text-slate-400 tabular-nums">{regSummary.daDeCompanionCount}</td>
-                    <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedDaDeCompanionCount}</td>
+                    <td className="py-1 w-32">大德同行人員</td>
+                    <td className="py-1 pr-6 text-right text-slate-400 tabular-nums">{regSummary.daDeCompanionCount}</td>
+                    <td className="py-1 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedDaDeCompanionCount}</td>
                   </tr>
                   <tr>
-                    <td colSpan={3} className="pt-3 pb-1.5 text-xs font-bold text-slate-400 uppercase tracking-wide">
+                    <td colSpan={3} className="pt-3 pb-1.5 text-sm font-bold text-slate-400 uppercase tracking-wide">
                       慈濟身份出席人數（志工，不含大德）
                     </td>
                   </tr>
                   {VOLUNTEER_TC_IDENTIFICATION_KEYS.map((key) => (
                     <tr key={key} className="text-slate-600">
-                      <td className="py-0.5 w-28">{tcIdentificationLabel(key)}</td>
-                      <td className="py-0.5 pr-6"></td>
-                      <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{tcIdentificationAttendance[key] || 0}</td>
+                      <td className="py-1 w-32">{tcIdentificationLabel(key)}</td>
+                      <td className="py-1 pr-6"></td>
+                      <td className="py-1 text-right font-bold text-slate-800 tabular-nums">{tcIdentificationAttendance[key] || 0}</td>
                     </tr>
                   ))}
                 </tbody>
