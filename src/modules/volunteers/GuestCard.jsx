@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2, Phone, MapPin, Check } from "lucide-react";
+import { Eye, Pencil, Trash2, Phone, MapPin, UserPlus, Check } from "lucide-react";
 import Card from "../../components/ui/Card";
 
 export default function GuestCard({ guest: g, isAdmin, onView, onEdit, onDelete }) {
@@ -26,6 +26,9 @@ export default function GuestCard({ guest: g, isAdmin, onView, onEdit, onDelete 
         )}
         {g.area && (
           <div className="flex items-center gap-1.5 text-sm text-slate-500"><MapPin size={15} className="shrink-0" /><span className="truncate">{g.area}</span></div>
+        )}
+        {g.inviterName && (
+          <div className="flex items-center gap-1.5 text-sm text-slate-500"><UserPlus size={15} className="shrink-0" /><span className="truncate">邀約人：{g.inviterName}</span></div>
         )}
         {g.records.length > 0 && (
           <div className="flex items-center gap-1.5 text-sm text-slate-500">

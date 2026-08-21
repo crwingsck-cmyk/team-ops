@@ -208,6 +208,7 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
                     <div className="flex-1 min-w-0 flex items-baseline gap-4 flex-wrap">
                       <span className="font-black italic text-slate-800 text-lg">{g.name}</span>
                       <span className="text-sm text-slate-500">{g.phone || "-"}</span>
+                      {g.inviterName && <span className="text-sm text-slate-500">邀約人：{g.inviterName}</span>}
                     </div>
                   </button>
                   <div className="flex gap-1 shrink-0">
