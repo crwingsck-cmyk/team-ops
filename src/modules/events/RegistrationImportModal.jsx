@@ -13,7 +13,7 @@ const TEXT_FIELDS = [
   { key: "area", label: "住的地區", keywords: ["地區", "地址", "Address", "Area"] },
   { key: "inviterName", label: "邀約人姓名", keywords: ["邀約人姓名", "邀約人", "Inviter"] },
   { key: "inviterPhone", label: "邀約人電話", keywords: ["邀約人電話", "Inviter Phone"] },
-  { key: "childrenCount", label: "參與人數（含自己本人）", keywords: ["小孩", "家人人數", "同行", "參與人數", "Children"] },
+  { key: "childrenCount", label: "報名人數（含自己本人）", keywords: ["小孩", "家人人數", "同行", "參與人數", "報名人數", "Children"] },
   { key: "notes", label: "備註", keywords: ["備註", "Notes"] },
 ];
 

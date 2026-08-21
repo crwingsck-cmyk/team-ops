@@ -168,7 +168,7 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
         </>
       )}
       <Input
-        label="參與人數（含自己本人）"
+        label="報名人數（含自己本人）"
         type="number"
         min="1"
         value={childrenCount}

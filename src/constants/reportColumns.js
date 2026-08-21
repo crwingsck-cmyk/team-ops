@@ -98,7 +98,7 @@ export const ATTENDANCE_REPORT_COLUMNS = [
   { key: "area", label: "地區" },
   { key: "status", label: "報名狀態", format: (r) => enumLabel(REGISTRATION_STATUS, r.status) },
   { key: "attended", label: "是否出席", format: (r) => (r.attended ? "已出席" : "未出席") },
-  { key: "childrenCount", label: "參與人數（含自己本人）" },
+  { key: "childrenCount", label: "報名人數（含自己本人）" },
   { key: "attendedChildrenCount", label: "實際出席人數（含自己本人）" },
   { key: "notes", label: "備註" },
 ];

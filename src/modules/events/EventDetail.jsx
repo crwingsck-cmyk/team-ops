@@ -70,7 +70,7 @@ const REGISTRATION_FILTER_FIELDS = [
   { key: "heQi", label: "和氣" },
   { key: "huAi", label: "互愛" },
   { key: "xieLi", label: "協力" },
-  { key: "childrenCount", label: "參與人數（含自己本人）", source: "raw" },
+  { key: "childrenCount", label: "報名人數（含自己本人）", source: "raw" },
 ];
 const DEFAULT_REG_FILTER_KEYS = ["tcIdentification", "xieLi", "inviterName"];
 
@@ -78,7 +78,7 @@ const REGISTRATION_DISPLAY_FIELDS = [
   { key: "phone", label: "電話" },
   { key: "tcIdentification", label: "慈濟身份" },
   { key: "heqiHuaiXieli", label: "和氣互愛協力" },
-  { key: "childrenCount", label: "參與人數（含自己本人）" },
+  { key: "childrenCount", label: "報名人數（含自己本人）" },
   { key: "gender", label: "性別" },
   { key: "inviterName", label: "邀約人姓名" },
   { key: "area", label: "地區" },
@@ -99,7 +99,7 @@ const REGISTRATION_EXPORT_COLUMNS = [
   { key: "gender", label: "性別" },
   { key: "area", label: "地區" },
   { key: "inviterName", label: "邀約人姓名" },
-  { key: "childrenCount", label: "參與人數（含自己本人）" },
+  { key: "childrenCount", label: "報名人數（含自己本人）" },
   { key: "attendingDates", label: "參與日期" },
   { key: "status", label: "報名狀態" },
   { key: "attended", label: "是否出席" },
@@ -600,7 +600,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                 if (key === "phone") return <span key={key} className="text-base text-slate-500 truncate">{registrant.phone || "-"}</span>;
                 if (key === "tcIdentification") return <span key={key} className="text-base text-slate-500 truncate">{tcIdentificationLabel(registrant.tcIdentification) || "-"}</span>;
                 if (key === "heqiHuaiXieli") return <span key={key} className="text-base text-slate-500 truncate">{registrant.heqiHuaiXieli || "-"}</span>;
-                if (key === "childrenCount") return <span key={key} className="text-base text-slate-500">參與人數：<span className="font-bold text-slate-800">{r.childrenCount || 1}</span></span>;
+                if (key === "childrenCount") return <span key={key} className="text-base text-slate-500">報名人數：<span className="font-bold text-slate-800">{r.childrenCount || 1}</span></span>;
                 if (key === "gender") return <span key={key} className="text-base text-slate-500 truncate">{GENDER_LABELS[registrant.gender] || "-"}</span>;
                 if (key === "inviterName") return <span key={key} className="text-base text-slate-500 truncate">邀約人：{r.inviterName || "-"}</span>;
                 if (key === "attendingDates") return <span key={key} className="text-base text-slate-500 truncate">參與日期：{r.attendingDates?.length > 0 ? r.attendingDates.join("、") : "-"}</span>;
