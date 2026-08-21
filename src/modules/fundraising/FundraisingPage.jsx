@@ -12,10 +12,12 @@ import FundraisingDetail from "./FundraisingDetail";
 import FundraisingEventsSection from "./FundraisingEventsSection";
 import FundraisingOrganizationsSection from "./FundraisingOrganizationsSection";
 import { FUNDRAISING_COLUMNS, DEFAULT_FUNDRAISING_COLUMN_KEYS, flattenDonorRows } from "../../constants/fundraisingColumns";
+import { FUNDRAISING_FILTER_FIELDS, DEFAULT_FUNDRAISING_FILTER_KEYS, fundraisingFilterOptionLabel } from "../../constants/fundraisingFilterFields";
 import { exportRowsToExcel } from "../../lib/exportExcel";
 import { chineseIncludes } from "../../lib/chineseSearch";
 
 const COLUMNS_STORAGE_KEY = "team-ops:fundraising:columns";
+const FILTER_KEYS_STORAGE_KEY = "team-ops:fundraising:filterKeys";
 
 function loadStoredKeys() {
   const validKeys = new Set(FUNDRAISING_COLUMNS.map((c) => c.key));
@@ -31,15 +33,31 @@ function loadStoredKeys() {
   return DEFAULT_FUNDRAISING_COLUMN_KEYS;
 }
 
+function loadStoredFilterKeys() {
+  const validKeys = new Set(FUNDRAISING_FILTER_FIELDS.map((f) => f.key));
+  try {
+    const stored = JSON.parse(localStorage.getItem(FILTER_KEYS_STORAGE_KEY));
+    if (Array.isArray(stored)) {
+      const filtered = stored.filter((k) => validKeys.has(k)).slice(0, 5);
+      if (filtered.length > 0) return filtered;
+    }
+  } catch {
+    // ignore malformed storage
+  }
+  return DEFAULT_FUNDRAISING_FILTER_KEYS;
+}
+
 export default function FundraisingPage() {
   const { people, heQiOptions, huAiOptions, xieLiOptions, loading } = useFundraisingPeople();
   const { create: createRecord, update: updateRecord } = useFirestoreCrud("fundraisingRecords");
 
   const [activeColumnKeys, setActiveColumnKeys] = useState(loadStoredKeys);
   const [showColumnPicker, setShowColumnPicker] = useState(false);
-  const [heQi, setHeQi] = useState("all");
-  const [huAi, setHuAi] = useState("all");
-  const [xieLi, setXieLi] = useState("all");
+  const [activeFilterKeys, setActiveFilterKeys] = useState(loadStoredFilterKeys);
+  const [filterValues, setFilterValues] = useState(() =>
+    Object.fromEntries(FUNDRAISING_FILTER_FIELDS.map((f) => [f.key, "all"]))
+  );
+  const [showFilterPicker, setShowFilterPicker] = useState(false);
   const [search, setSearch] = useState("");
   const [editingPerson, setEditingPerson] = useState(null);
   const [viewingPerson, setViewingPerson] = useState(null);
@@ -48,6 +66,12 @@ export default function FundraisingPage() {
   useEffect(() => {
     localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(activeColumnKeys));
   }, [activeColumnKeys]);
+
+  useEffect(() => {
+    localStorage.setItem(FILTER_KEYS_STORAGE_KEY, JSON.stringify(activeFilterKeys));
+  }, [activeFilterKeys]);
+
+  const setFilterValue = (key, value) => setFilterValues((prev) => ({ ...prev, [key]: value }));
 
   const columns = useMemo(() => {
     const base = FUNDRAISING_COLUMNS.filter((c) => activeColumnKeys.includes(c.key));
@@ -76,18 +100,39 @@ export default function FundraisingPage() {
     ];
   }, [activeColumnKeys]);
 
+  // Flattened once, unfiltered — donor rows (not `people` directly) so a
+  // donor's own 和氣/互愛/協力 tag, used by the 未指定志工 placeholder whose
+  // donors don't share one group, determines its own visibility/options.
+  const allRows = useMemo(() => flattenDonorRows(people), [people]);
+
+  const fieldOptionsMap = useMemo(() => {
+    const map = {};
+    FUNDRAISING_FILTER_FIELDS.forEach((field) => {
+      if (field.source === "enum") {
+        map[field.key] = Object.keys(field.enumOptions).map((k) => ({
+          value: k,
+          label: fundraisingFilterOptionLabel(field, k),
+        }));
+        return;
+      }
+      const set = new Set();
+      allRows.forEach((r) => { if (r[field.key]) set.add(r[field.key]); });
+      map[field.key] = [...set].sort().map((v) => ({ value: v, label: v }));
+    });
+    return map;
+  }, [allRows]);
+
   const rows = useMemo(() => {
-    // Filter after flattening (not on `people` directly) so a donor's own 和氣/
-    // 互愛/協力 tag — used by the 未指定志工 placeholder, whose donors don't
-    // share one group — determines its visibility, not just the person's.
-    return flattenDonorRows(people).filter((r) => {
-      if (heQi !== "all" && r.heQi !== heQi) return false;
-      if (huAi !== "all" && r.huAi !== huAi) return false;
-      if (xieLi !== "all" && r.xieLi !== xieLi) return false;
+    return allRows.filter((r) => {
+      for (const key of activeFilterKeys) {
+        const wanted = filterValues[key];
+        if (!wanted || wanted === "all") continue;
+        if (String(r[key] ?? "") !== wanted) return false;
+      }
       if (!search) return true;
       return chineseIncludes(`${r.name} ${r.phone}`, search);
     });
-  }, [people, heQi, huAi, xieLi, search]);
+  }, [allRows, activeFilterKeys, filterValues, search]);
 
   const volunteerOptions = useMemo(
     () => people.filter((p) => p.id !== UNASSIGNED_VOLUNTEER_ID).map((p) => ({ id: p.id.replace(/^v:/, ""), name: p.name, phone: p.phone })),
@@ -176,24 +221,30 @@ export default function FundraisingPage() {
                 className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-lg hover:border-indigo-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200"
               />
             </div>
-            <Select value={heQi} onChange={(e) => setHeQi(e.target.value)} className="sm:w-44">
-              <option value="all">全部和氣</option>
-              {heQiOptions.map((v) => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </Select>
-            <Select value={huAi} onChange={(e) => setHuAi(e.target.value)} className="sm:w-44">
-              <option value="all">全部互愛</option>
-              {huAiOptions.map((v) => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </Select>
-            <Select value={xieLi} onChange={(e) => setXieLi(e.target.value)} className="sm:w-44">
-              <option value="all">全部協力</option>
-              {xieLiOptions.map((v) => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </Select>
+            {activeFilterKeys.map((key) => {
+              const field = FUNDRAISING_FILTER_FIELDS.find((f) => f.key === key);
+              if (!field) return null;
+              return (
+                <Select
+                  key={key}
+                  value={filterValues[key] || "all"}
+                  onChange={(e) => setFilterValue(key, e.target.value)}
+                  className="sm:w-44"
+                >
+                  <option value="all">全部{field.label}</option>
+                  {(fieldOptionsMap[key] || []).map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </Select>
+              );
+            })}
+            <button
+              onClick={() => setShowFilterPicker(true)}
+              className="p-3 rounded-xl border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 transition-all"
+              title="自訂篩選欄位"
+            >
+              <Settings2 size={18} />
+            </button>
           </div>
 
           {loading ? (
@@ -212,6 +263,15 @@ export default function FundraisingPage() {
           description="選擇要顯示的欄位。"
           onSave={(keys) => { setActiveColumnKeys(keys); setShowColumnPicker(false); }}
           onCancel={() => setShowColumnPicker(false)}
+        />
+      </Modal>
+
+      <Modal open={showFilterPicker} onClose={() => setShowFilterPicker(false)} title="自訂篩選欄位">
+        <FilterFieldPicker
+          fields={FUNDRAISING_FILTER_FIELDS}
+          selected={activeFilterKeys}
+          onSave={(keys) => { setActiveFilterKeys(keys); setShowFilterPicker(false); }}
+          onCancel={() => setShowFilterPicker(false)}
         />
       </Modal>
 
