@@ -21,6 +21,32 @@ const GROUP_MODES = [
   { key: "event", label: "活動" },
 ];
 
+// Shapes an organization donation like a flattened person/donor row (see
+// flattenDonorRows) so it can flow through the same table columns, filters,
+// and group totals as individual donors instead of being left out.
+function organizationToRow(o) {
+  return {
+    id: `org:${o.id}`,
+    key: `org:${o.id}`,
+    category: "公司/團體",
+    name: o.name,
+    phone: o.phone || "",
+    tcIdentification: "",
+    heQi: o.heQi || "",
+    huAi: o.huAi || "",
+    xieLi: o.xieLi || "",
+    area: "",
+    pledgeTarget: "",
+    donorName: o.contactPerson || o.name,
+    donorDate: o.date || "",
+    donationType: o.donationType,
+    donorAmount: Number(o.amount) || 0,
+    donorPledgeStatus: o.pledgeStatus,
+    donorProgress: o.progress || "",
+    notes: o.notes || "",
+  };
+}
+
 function loadStoredKeys() {
   const validKeys = new Set(FUNDRAISING_COLUMNS.map((c) => c.key));
   try {
@@ -38,6 +64,7 @@ function loadStoredKeys() {
 export default function FundraisingReport() {
   const { people, heQiOptions, huAiOptions, xieLiOptions, loading } = useFundraisingPeople();
   const { data: events, loading: loadingEvents } = useCollection("fundraisingEvents", { orderByField: "date", orderByDirection: "desc" });
+  const { data: organizations, loading: loadingOrganizations } = useCollection("fundraisingOrganizations");
   const [activeKeys, setActiveKeys] = useState(loadStoredKeys);
   const [showPicker, setShowPicker] = useState(false);
   const [heQi, setHeQi] = useState("all");
@@ -55,16 +82,24 @@ export default function FundraisingReport() {
     [activeKeys]
   );
 
-  const filteredPeople = useMemo(() => {
-    return people.filter((p) => {
-      if (heQi !== "all" && p.heQi !== heQi) return false;
-      if (huAi !== "all" && p.huAi !== huAi) return false;
-      if (xieLi !== "all" && p.xieLi !== xieLi) return false;
+  // All donor rows (from people) plus organization donations, unified into one
+  // shape — includes 未指定志工's donors (via their own 和氣/互愛/協力 tag) and
+  // 公司/團體 donations, which used to be left out of the report entirely.
+  const allRows = useMemo(
+    () => [...flattenDonorRows(people), ...organizations.map(organizationToRow)],
+    [people, organizations]
+  );
+
+  // Filtered after unifying (not on `people` directly) so a donor's own tag —
+  // not just its person's — decides whether it matches the selected group.
+  const rows = useMemo(() => {
+    return allRows.filter((r) => {
+      if (heQi !== "all" && r.heQi !== heQi) return false;
+      if (huAi !== "all" && r.huAi !== huAi) return false;
+      if (xieLi !== "all" && r.xieLi !== xieLi) return false;
       return true;
     });
-  }, [people, heQi, huAi, xieLi]);
-
-  const rows = useMemo(() => flattenDonorRows(filteredPeople), [filteredPeople]);
+  }, [allRows, heQi, huAi, xieLi]);
 
   return (
     <div>
@@ -105,10 +140,10 @@ export default function FundraisingReport() {
               ))}
             </Select>
           </div>
-          {loading || loadingEvents ? (
+          {loading || loadingEvents || loadingOrganizations ? (
             <div className="text-center py-16 text-slate-400 italic">載入中...</div>
           ) : (
-            <FundraisingCardGrid groupMode={groupMode} people={people} events={events} />
+            <FundraisingCardGrid groupMode={groupMode} people={people} rows={allRows} events={events} />
           )}
         </>
       ) : (
@@ -134,7 +169,7 @@ export default function FundraisingReport() {
             </Select>
           </div>
 
-          {loading ? (
+          {loading || loadingOrganizations ? (
             <div className="text-center py-16 text-slate-400 italic">載入中...</div>
           ) : (
             <ReportTable columns={columns} rows={rows} />

@@ -27,10 +27,15 @@ function BreakdownRow({ label, count, value }) {
   );
 }
 
-function OrgUnitCard({ label, people }) {
-  const withDonors = people.filter((p) => p.donors?.length > 0);
-  const allDonors = withDonors.flatMap((p) => p.donors);
-  const pledgeTargetTotal = people.reduce((sum, p) => sum + (Number(p.pledgeTarget) || 0), 0);
+function OrgUnitCard({ label, rows }) {
+  // A row represents an actual donation once it carries a donationType — the
+  // placeholder row flattenDonorRows emits for a person with no donors yet
+  // doesn't, so it's excluded here but still counted in pledgeTargetTotal.
+  const donorRows = rows.filter((r) => r.donationType != null);
+  // Organization rows (id `org:...`) are donations, not solicitors — they
+  // count toward 捐款者人數 but not 募款者人數.
+  const donorPersonIds = new Set(donorRows.filter((r) => !String(r.id).startsWith("org:")).map((r) => r.id));
+  const pledgeTargetTotal = rows.reduce((sum, r) => sum + (Number(r.pledgeTarget) || 0), 0);
 
   const amountByType = {};
   const countByType = {};
@@ -40,10 +45,10 @@ function OrgUnitCard({ label, people }) {
     countByType[k] = 0;
   });
   Object.keys(PLEDGE_STATUS_LABELS).forEach((k) => (countByStatus[k] = 0));
-  allDonors.forEach((d) => {
-    const type = d.donationType || "casual";
-    const status = d.pledgeStatus || "not_yet";
-    amountByType[type] = (amountByType[type] || 0) + (Number(d.amount) || 0);
+  donorRows.forEach((r) => {
+    const type = r.donationType || "casual";
+    const status = r.donorPledgeStatus || "not_yet";
+    amountByType[type] = (amountByType[type] || 0) + (Number(r.donorAmount) || 0);
     countByType[type] = (countByType[type] || 0) + 1;
     countByStatus[status] = (countByStatus[status] || 0) + 1;
   });
@@ -53,8 +58,8 @@ function OrgUnitCard({ label, people }) {
       <h3 className="font-black italic text-slate-800 text-xl mb-3">{label}</h3>
       <div className="grid grid-cols-3 gap-3 mb-4">
         <Stat label="發願人數" value={pledgeTargetTotal} />
-        <Stat label="募款者人數" value={withDonors.length} />
-        <Stat label="捐款者人數" value={allDonors.length} />
+        <Stat label="募款者人數" value={donorPersonIds.size} />
+        <Stat label="捐款者人數" value={donorRows.length} />
       </div>
       <div className="pt-3 border-t border-slate-100">
         <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">各捐款形式金額</p>
@@ -168,7 +173,7 @@ function PersonCardSection({ people }) {
   );
 }
 
-export default function FundraisingCardGrid({ groupMode, people, events }) {
+export default function FundraisingCardGrid({ groupMode, people, rows, events }) {
   if (groupMode === "person") {
     return <PersonCardSection people={people} />;
   }
@@ -196,13 +201,15 @@ export default function FundraisingCardGrid({ groupMode, people, events }) {
     );
   }
 
-  // heQi / huAi / xieLi
+  // heQi / huAi / xieLi — grouped by each row's own tag (donors under 未指定
+  // 志工 carry their own, organization rows carry theirs) rather than the
+  // person's, so both flow into the right group's totals.
   const groups = new Map();
-  people.forEach((p) => {
-    const value = p[groupMode];
+  rows.forEach((r) => {
+    const value = r[groupMode];
     if (!value) return;
     if (!groups.has(value)) groups.set(value, []);
-    groups.get(value).push(p);
+    groups.get(value).push(r);
   });
 
   if (groups.size === 0) {
@@ -211,8 +218,8 @@ export default function FundraisingCardGrid({ groupMode, people, events }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[...groups.entries()].sort(([a], [b]) => a.localeCompare(b, "zh-Hant")).map(([label, groupPeople]) => (
-        <OrgUnitCard key={label} label={label} people={groupPeople} />
+      {[...groups.entries()].sort(([a], [b]) => a.localeCompare(b, "zh-Hant")).map(([label, groupRows]) => (
+        <OrgUnitCard key={label} label={label} rows={groupRows} />
       ))}
     </div>
   );
