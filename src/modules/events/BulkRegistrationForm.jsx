@@ -159,7 +159,7 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
         <p className="text-xs text-slate-400">在志工右側輸入該志工的參與人數（含自己本人，可留空，預設 1）</p>
       )}
 
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-2 pt-3 pb-1 sticky bottom-0 -mx-6 -mb-6 px-6 pb-6 bg-white border-t border-slate-100">
         <Button type="button" variant="secondary" onClick={onCancel}>取消</Button>
         <Button type="submit" disabled={selectedIds.size === 0}>加入 {selectedIds.size} 位</Button>
       </div>

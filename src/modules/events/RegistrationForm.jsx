@@ -194,7 +194,7 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
         <span className="text-sm font-bold text-slate-700">現場報到，直接標記已出席</span>
       </label>
       <Textarea label="備註" value={notes} onChange={(e) => setNotes(e.target.value)} />
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-2 pt-3 pb-1 sticky bottom-0 -mx-6 -mb-6 px-6 pb-6 bg-white border-t border-slate-100">
         <Button type="button" variant="secondary" onClick={onCancel}>取消</Button>
         <Button type="submit">{initial ? "儲存" : "確認報名"}</Button>
       </div>
