@@ -24,6 +24,7 @@ const COLUMNS = [
   { key: "amount", label: "金額", format: (r) => (r.amount || 0).toLocaleString() },
   { key: "pledgeStatus", label: "認捐狀態", format: (r) => PLEDGE_STATUS_LABELS[r.pledgeStatus]?.label || "-" },
   { key: "progress", label: "追蹤進度" },
+  { key: "enteredBy", label: "輸入者" },
   { key: "notes", label: "備註" },
 ];
 
@@ -31,7 +32,7 @@ export default function FundraisingOrganizationsSection() {
   const { data: organizations, loading } = useCollection("fundraisingOrganizations", { orderByField: "date", orderByDirection: "desc" });
   const { create, update, remove } = useFirestoreCrud("fundraisingOrganizations");
   const { isAdmin } = useMembership();
-  const { heQiOptions, huAiOptions, xieLiOptions } = useVolunteerOrgOptions();
+  const { heQiOptions, huAiOptions, xieLiOptions, volunteerOptions } = useVolunteerOrgOptions();
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -96,6 +97,7 @@ export default function FundraisingOrganizationsSection() {
           heQiOptions={heQiOptions}
           huAiOptions={huAiOptions}
           xieLiOptions={xieLiOptions}
+          volunteerOptions={volunteerOptions}
           onSubmit={handleSubmit}
           onCancel={() => setShowForm(false)}
         />

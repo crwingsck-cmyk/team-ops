@@ -97,7 +97,7 @@ export default function FundraisingPage() {
   const handleRecordSubmit = async (data) => {
     const { movedDonors = [], ...recordData } = data;
 
-    if (editingPerson.recordId || recordData.donors.length > 0 || recordData.pledgeTarget !== "") {
+    if (editingPerson.recordId || recordData.donors.length > 0 || recordData.pledgeTarget !== "" || recordData.enteredBy) {
       if (editingPerson.recordId) {
         await updateRecord(editingPerson.recordId, recordData);
       } else {

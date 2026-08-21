@@ -37,6 +37,7 @@ function organizationToRow(o) {
     xieLi: o.xieLi || "",
     area: "",
     pledgeTarget: "",
+    enteredBy: o.enteredBy || "",
     donorName: o.contactPerson || o.name,
     donorDate: o.date || "",
     donationType: o.donationType,

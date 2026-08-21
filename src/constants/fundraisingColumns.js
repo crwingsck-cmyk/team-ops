@@ -17,6 +17,7 @@ export const FUNDRAISING_COLUMNS = [
   { key: "xieLi", label: "協力" },
   { key: "area", label: "地區/住址" },
   { key: "pledgeTarget", label: "目標人數", format: (r) => (r.pledgeTarget !== "" && r.pledgeTarget != null ? r.pledgeTarget : "-") },
+  { key: "enteredBy", label: "輸入者", format: (r) => r.enteredBy || "-" },
   { key: "donorName", label: "捐款者", format: (r) => r.donorName || "-" },
   { key: "donorDate", label: "捐款日期", format: (r) => r.donorDate || "-" },
   { key: "donationType", label: "捐款形式", format: (r) => (r.donationType ? DONATION_TYPE_LABELS[r.donationType] || "-" : "-") },
@@ -38,9 +39,10 @@ export function flattenDonorRows(people) {
     }
     return p.donors.map((d, i) => ({
       ...p,
-      // pledgeTarget is a per-person value, not per-donor — only keep it on the
-      // first donor row so summing the column doesn't multiply it by donor count.
+      // pledgeTarget and enteredBy are per-record values, not per-donor — only
+      // keep them on the first donor row so they don't look repeated/multiplied.
       pledgeTarget: i === 0 ? p.pledgeTarget : "",
+      enteredBy: i === 0 ? p.enteredBy : "",
       // A donor can carry its own 和氣/互愛/協力 tag (used for the "未指定志工"
       // placeholder, whose donors don't share one group) — falls back to the
       // person's own value for everyone else.

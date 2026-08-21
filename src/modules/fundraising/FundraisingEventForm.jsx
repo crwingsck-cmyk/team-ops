@@ -4,6 +4,7 @@ import Select from "../../components/ui/Select";
 import Textarea from "../../components/ui/Textarea";
 import Button from "../../components/ui/Button";
 import ImageUploadField from "../../components/ui/ImageUploadField";
+import VolunteerSearchInput from "../../components/ui/VolunteerSearchInput";
 
 const EMPTY = {
   date: "",
@@ -22,7 +23,7 @@ const EMPTY = {
   story: "",
 };
 
-export default function FundraisingEventForm({ initial, heQiOptions = [], huAiOptions = [], xieLiOptions = [], onSubmit, onCancel }) {
+export default function FundraisingEventForm({ initial, heQiOptions = [], huAiOptions = [], xieLiOptions = [], volunteerOptions = [], onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
   const [uploading, setUploading] = useState(false);
 
@@ -92,7 +93,14 @@ export default function FundraisingEventForm({ initial, heQiOptions = [], huAiOp
           onChange={(e) => setForm({ ...form, guestCount: e.target.value })}
         />
       </div>
-      <Input label="填表者" value={form.submittedBy} onChange={(e) => setForm({ ...form, submittedBy: e.target.value })} />
+      <label className="block">
+        <span className="block text-base font-bold text-slate-600 mb-2">填表者</span>
+        <VolunteerSearchInput
+          options={volunteerOptions}
+          value={form.submittedBy}
+          onChange={(text) => setForm({ ...form, submittedBy: text })}
+        />
+      </label>
 
       <ImageUploadField
         label="照片（選填）"

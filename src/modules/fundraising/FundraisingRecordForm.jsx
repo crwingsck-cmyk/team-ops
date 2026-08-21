@@ -1,17 +1,11 @@
 import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import Button from "../../components/ui/Button";
+import VolunteerSearchInput from "../../components/ui/VolunteerSearchInput";
 import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
-import { chineseIncludes } from "../../lib/chineseSearch";
 
 const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", assignVolunteerId: "", assignVolunteerText: "", heQi: "", huAi: "", xieLi: "" };
-const EMPTY = { pledgeTarget: "", donors: [] };
-
-function assignVolunteerMatches(volunteerOptions, query) {
-  const q = query.trim();
-  if (!q) return [];
-  return volunteerOptions.filter((v) => chineseIncludes(`${v.name} ${v.phone}`, q)).slice(0, 8);
-}
+const EMPTY = { pledgeTarget: "", enteredBy: "", donors: [] };
 
 export default function FundraisingRecordForm({
   person,
@@ -25,13 +19,13 @@ export default function FundraisingRecordForm({
   onCancel,
 }) {
   const [form, setForm] = useState(EMPTY);
-  const [openAssignRow, setOpenAssignRow] = useState(null);
 
   useEffect(() => {
     if (initial) {
       const donors = (initial.donors || []).map((d) => ({ ...EMPTY_DONOR, ...d, amount: d.amount ?? "" }));
       setForm({
         pledgeTarget: initial.pledgeTarget ?? "",
+        enteredBy: initial.enteredBy || "",
         donors,
       });
     } else {
@@ -42,22 +36,6 @@ export default function FundraisingRecordForm({
   const addDonor = () => setForm((f) => ({ ...f, donors: [...f.donors, { ...EMPTY_DONOR }] }));
   const updateDonor = (i, key, value) =>
     setForm((f) => ({ ...f, donors: f.donors.map((d, idx) => (idx === i ? { ...d, [key]: value } : d)) }));
-  const updateAssignVolunteer = (i, value) => {
-    const trimmed = value.trim();
-    const match = volunteerOptions.find((v) => v.name.trim() === trimmed || (v.phone && v.phone.trim() === trimmed));
-    setForm((f) => ({
-      ...f,
-      donors: f.donors.map((d, idx) => (idx === i ? { ...d, assignVolunteerText: value, assignVolunteerId: match?.id || "" } : d)),
-    }));
-    setOpenAssignRow(i);
-  };
-  const selectAssignVolunteer = (i, match) => {
-    setForm((f) => ({
-      ...f,
-      donors: f.donors.map((d, idx) => (idx === i ? { ...d, assignVolunteerText: match.name, assignVolunteerId: match.id } : d)),
-    }));
-    setOpenAssignRow(null);
-  };
   const removeDonor = (i) => setForm((f) => ({ ...f, donors: f.donors.filter((_, idx) => idx !== i) }));
 
   const handleSubmit = (e) => {
@@ -86,6 +64,7 @@ export default function FundraisingRecordForm({
       });
     onSubmit({
       pledgeTarget: form.pledgeTarget === "" ? "" : Number(form.pledgeTarget),
+      enteredBy: form.enteredBy,
       donors,
       movedDonors,
     });
@@ -100,7 +79,7 @@ export default function FundraisingRecordForm({
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <label className="block">
           <span className="block text-base font-bold text-slate-600 mb-1">目標人數</span>
           <input
@@ -110,6 +89,14 @@ export default function FundraisingRecordForm({
             value={form.pledgeTarget}
             onChange={(e) => setForm((f) => ({ ...f, pledgeTarget: e.target.value }))}
             className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+          />
+        </label>
+        <label className="block">
+          <span className="block text-base font-bold text-slate-600 mb-1">輸入者</span>
+          <VolunteerSearchInput
+            options={volunteerOptions}
+            value={form.enteredBy}
+            onChange={(text) => setForm((f) => ({ ...f, enteredBy: text }))}
           />
         </label>
       </div>
@@ -139,137 +126,111 @@ export default function FundraisingRecordForm({
               </tr>
             </thead>
             <tbody>
-              {form.donors.map((d, i) => {
-                const matches = openAssignRow === i ? assignVolunteerMatches(volunteerOptions, d.assignVolunteerText) : [];
-                return (
-                  <tr key={i}>
+              {form.donors.map((d, i) => (
+                <tr key={i}>
+                  <td className="px-1">
+                    <input
+                      placeholder="姓名"
+                      value={d.name}
+                      onChange={(e) => updateDonor(i, "name", e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+                    />
+                  </td>
+                  <td className="px-1">
+                    <input
+                      type="date"
+                      value={d.date}
+                      onChange={(e) => updateDonor(i, "date", e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+                    />
+                  </td>
+                  <td className="px-1">
+                    <select
+                      value={d.donationType}
+                      onChange={(e) => updateDonor(i, "donationType", e.target.value)}
+                      className="w-full px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
+                    >
+                      {Object.entries(DONATION_TYPE_LABELS).map(([k, v]) => (
+                        <option key={k} value={k}>{v}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-1">
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="金額"
+                      value={d.amount}
+                      onChange={(e) => updateDonor(i, "amount", e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+                    />
+                  </td>
+                  <td className="px-1">
+                    <select
+                      value={d.pledgeStatus}
+                      onChange={(e) => updateDonor(i, "pledgeStatus", e.target.value)}
+                      className="w-full px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
+                    >
+                      {Object.entries(PLEDGE_STATUS_LABELS).map(([k, v]) => (
+                        <option key={k} value={k}>{v.label}</option>
+                      ))}
+                    </select>
+                  </td>
+                  {allowVolunteerAssignment && (
                     <td className="px-1">
-                      <input
-                        placeholder="姓名"
-                        value={d.name}
-                        onChange={(e) => updateDonor(i, "name", e.target.value)}
-                        className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+                      <div className="grid grid-cols-3 gap-1">
+                        <select
+                          value={d.heQi}
+                          onChange={(e) => updateDonor(i, "heQi", e.target.value)}
+                          className="w-full px-1.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 transition-all duration-200 bg-white"
+                        >
+                          <option value="">和氣</option>
+                          {heQiOptions.map((v) => (
+                            <option key={v} value={v}>{v}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={d.huAi}
+                          onChange={(e) => updateDonor(i, "huAi", e.target.value)}
+                          className="w-full px-1.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 transition-all duration-200 bg-white"
+                        >
+                          <option value="">互愛</option>
+                          {huAiOptions.map((v) => (
+                            <option key={v} value={v}>{v}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={d.xieLi}
+                          onChange={(e) => updateDonor(i, "xieLi", e.target.value)}
+                          className="w-full px-1.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 transition-all duration-200 bg-white"
+                        >
+                          <option value="">協力</option>
+                          {xieLiOptions.map((v) => (
+                            <option key={v} value={v}>{v}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </td>
+                  )}
+                  {allowVolunteerAssignment && (
+                    <td className="px-1">
+                      <VolunteerSearchInput
+                        options={volunteerOptions}
+                        value={d.assignVolunteerText}
+                        onChange={(text) => updateDonor(i, "assignVolunteerText", text)}
+                        onSelect={(match) => updateDonor(i, "assignVolunteerId", match?.id || "")}
+                        confirmedLabel="已對應志工，儲存後會移過去"
+                        unresolvedLabel="尚未對應到志工"
                       />
                     </td>
-                    <td className="px-1">
-                      <input
-                        type="date"
-                        value={d.date}
-                        onChange={(e) => updateDonor(i, "date", e.target.value)}
-                        className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
-                      />
-                    </td>
-                    <td className="px-1">
-                      <select
-                        value={d.donationType}
-                        onChange={(e) => updateDonor(i, "donationType", e.target.value)}
-                        className="w-full px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
-                      >
-                        {Object.entries(DONATION_TYPE_LABELS).map(([k, v]) => (
-                          <option key={k} value={k}>{v}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="px-1">
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder="金額"
-                        value={d.amount}
-                        onChange={(e) => updateDonor(i, "amount", e.target.value)}
-                        className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
-                      />
-                    </td>
-                    <td className="px-1">
-                      <select
-                        value={d.pledgeStatus}
-                        onChange={(e) => updateDonor(i, "pledgeStatus", e.target.value)}
-                        className="w-full px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
-                      >
-                        {Object.entries(PLEDGE_STATUS_LABELS).map(([k, v]) => (
-                          <option key={k} value={k}>{v.label}</option>
-                        ))}
-                      </select>
-                    </td>
-                    {allowVolunteerAssignment && (
-                      <td className="px-1">
-                        <div className="grid grid-cols-3 gap-1">
-                          <select
-                            value={d.heQi}
-                            onChange={(e) => updateDonor(i, "heQi", e.target.value)}
-                            className="w-full px-1.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 transition-all duration-200 bg-white"
-                          >
-                            <option value="">和氣</option>
-                            {heQiOptions.map((v) => (
-                              <option key={v} value={v}>{v}</option>
-                            ))}
-                          </select>
-                          <select
-                            value={d.huAi}
-                            onChange={(e) => updateDonor(i, "huAi", e.target.value)}
-                            className="w-full px-1.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 transition-all duration-200 bg-white"
-                          >
-                            <option value="">互愛</option>
-                            {huAiOptions.map((v) => (
-                              <option key={v} value={v}>{v}</option>
-                            ))}
-                          </select>
-                          <select
-                            value={d.xieLi}
-                            onChange={(e) => updateDonor(i, "xieLi", e.target.value)}
-                            className="w-full px-1.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 transition-all duration-200 bg-white"
-                          >
-                            <option value="">協力</option>
-                            {xieLiOptions.map((v) => (
-                              <option key={v} value={v}>{v}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </td>
-                    )}
-                    {allowVolunteerAssignment && (
-                      <td className="px-1">
-                        <div className="relative">
-                          <input
-                            placeholder="輸入姓名或電話搜尋"
-                            value={d.assignVolunteerText}
-                            onChange={(e) => updateAssignVolunteer(i, e.target.value)}
-                            onFocus={() => setOpenAssignRow(i)}
-                            onBlur={() => setTimeout(() => setOpenAssignRow((r) => (r === i ? null : r)), 150)}
-                            autoComplete="off"
-                            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200"
-                          />
-                          {matches.length > 0 && (
-                            <div className="absolute z-20 mt-1 w-64 max-h-56 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg p-1.5">
-                              {matches.map((m) => (
-                                <button
-                                  type="button"
-                                  key={m.id}
-                                  onMouseDown={() => selectAssignVolunteer(i, m)}
-                                  className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 text-left transition-colors"
-                                >
-                                  <span className="font-bold text-slate-800">{m.name}</span>
-                                  <span className="text-sm text-slate-500">{m.phone}</span>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        {d.assignVolunteerText && (
-                          <p className={`mt-1 text-sm font-bold ${d.assignVolunteerId ? "text-emerald-600" : "text-slate-400"}`}>
-                            {d.assignVolunteerId ? "已對應志工，儲存後會移過去" : "尚未對應到志工"}
-                          </p>
-                        )}
-                      </td>
-                    )}
-                    <td className="px-1">
-                      <button type="button" onClick={() => removeDonor(i)} className="p-2 text-slate-400 hover:text-rose-600">
-                        <X size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  )}
+                  <td className="px-1">
+                    <button type="button" onClick={() => removeDonor(i)} className="p-2 text-slate-400 hover:text-rose-600">
+                      <X size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

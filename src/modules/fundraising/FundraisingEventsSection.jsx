@@ -31,7 +31,7 @@ export default function FundraisingEventsSection() {
   const { data: events, loading } = useCollection("fundraisingEvents", { orderByField: "date", orderByDirection: "desc" });
   const { create, update, remove } = useFirestoreCrud("fundraisingEvents");
   const { isAdmin } = useMembership();
-  const { heQiOptions, huAiOptions, xieLiOptions } = useVolunteerOrgOptions();
+  const { heQiOptions, huAiOptions, xieLiOptions, volunteerOptions } = useVolunteerOrgOptions();
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -106,6 +106,7 @@ export default function FundraisingEventsSection() {
           heQiOptions={heQiOptions}
           huAiOptions={huAiOptions}
           xieLiOptions={xieLiOptions}
+          volunteerOptions={volunteerOptions}
           onSubmit={handleSubmit}
           onCancel={() => setShowForm(false)}
         />

@@ -3,6 +3,7 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Textarea from "../../components/ui/Textarea";
 import Button from "../../components/ui/Button";
+import VolunteerSearchInput from "../../components/ui/VolunteerSearchInput";
 import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
 
 const EMPTY = {
@@ -18,9 +19,10 @@ const EMPTY = {
   pledgeStatus: "not_yet",
   progress: "",
   notes: "",
+  enteredBy: "",
 };
 
-export default function FundraisingOrganizationForm({ initial, heQiOptions = [], huAiOptions = [], xieLiOptions = [], onSubmit, onCancel }) {
+export default function FundraisingOrganizationForm({ initial, heQiOptions = [], huAiOptions = [], xieLiOptions = [], volunteerOptions = [], onSubmit, onCancel }) {
   const [form, setForm] = useState(EMPTY);
 
   useEffect(() => {
@@ -79,6 +81,14 @@ export default function FundraisingOrganizationForm({ initial, heQiOptions = [],
         </Select>
       </div>
       <Input label="追蹤進度" value={form.progress} onChange={(e) => setForm({ ...form, progress: e.target.value })} />
+      <label className="block">
+        <span className="block text-base font-bold text-slate-600 mb-2">輸入者</span>
+        <VolunteerSearchInput
+          options={volunteerOptions}
+          value={form.enteredBy}
+          onChange={(text) => setForm({ ...form, enteredBy: text })}
+        />
+      </label>
       <Textarea label="備註（選填）" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} />
 
       <div className="flex justify-end gap-2 pt-2">

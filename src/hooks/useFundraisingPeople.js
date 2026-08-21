@@ -48,6 +48,7 @@ export function useFundraisingPeople() {
         donors,
         amount: donors.reduce((sum, d) => sum + (Number(d.amount) || 0), 0),
         pledgeTarget: record?.pledgeTarget ?? "",
+        enteredBy: record?.enteredBy || "",
       };
     });
   }, [volunteers, recordsByPersonKey]);
