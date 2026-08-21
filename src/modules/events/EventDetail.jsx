@@ -147,9 +147,12 @@ export default function EventDetail({ event, isAdmin, onBack }) {
   );
 
   const statusCounts = useMemo(() => {
-    const counts = {};
+    const counts = { notAttended: 0 };
     Object.keys(REGISTRATION_STATUS).forEach((k) => { counts[k] = 0; });
-    registrations.forEach((r) => { if (counts[r.status] !== undefined) counts[r.status] += 1; });
+    registrations.forEach((r) => {
+      if (counts[r.status] !== undefined) counts[r.status] += 1;
+      if (r.status !== "waitlisted" && !r.attended) counts.notAttended += 1;
+    });
     return counts;
   }, [registrations]);
 
@@ -175,7 +178,11 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
   const visibleRegistrations = useMemo(() => {
     return resolvedRegistrations.filter((r) => {
-      if (statusFilter !== "all" && r.raw.status !== statusFilter) return false;
+      if (statusFilter === "not_attended") {
+        if (r.raw.status === "waitlisted" || r.raw.attended) return false;
+      } else if (statusFilter !== "all" && r.raw.status !== statusFilter) {
+        return false;
+      }
       for (const field of REGISTRATION_FILTER_FIELDS) {
         if (!activeRegFilterKeys.includes(field.key)) continue;
         const val = field.source === "raw" ? r.raw[field.key] : r[field.key];
@@ -484,6 +491,14 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                 {v.label}（{statusCounts[k]}筆）
               </button>
             ))}
+            <button
+              onClick={() => setStatusFilter("not_attended")}
+              className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                statusFilter === "not_attended" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+              }`}
+            >
+              已報名未出席（{statusCounts.notAttended}筆）
+            </button>
           </div>
         )}
 
