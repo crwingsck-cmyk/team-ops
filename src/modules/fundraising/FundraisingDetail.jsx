@@ -1,4 +1,4 @@
-import { DONATION_TYPE_LABELS, PLEDGE_STATUS_LABELS } from "../../constants/categoryStyles";
+import { DONATION_TYPE_LABELS, DONATION_FREQUENCY_LABELS, PLEDGE_STATUS_LABELS } from "../../constants/categoryStyles";
 
 function Field({ label, children }) {
   if (children === undefined || children === null || children === "") return null;
@@ -49,6 +49,7 @@ export default function FundraisingDetail({ person: p }) {
                 <div className="flex flex-wrap gap-x-4 mt-1 text-sm text-slate-500">
                   {d.date && <span>日期：{d.date}</span>}
                   <span>捐款形式：{DONATION_TYPE_LABELS[d.donationType] || "-"}</span>
+                  {d.frequency && <span>捐款頻率：{DONATION_FREQUENCY_LABELS[d.frequency] || "-"}</span>}
                   <span>認捐狀態：{PLEDGE_STATUS_LABELS[d.pledgeStatus]?.label || "尚未接洽"}</span>
                 </div>
                 {d.progress && <p className="text-sm text-slate-500 mt-1">追蹤進度：{d.progress}</p>}

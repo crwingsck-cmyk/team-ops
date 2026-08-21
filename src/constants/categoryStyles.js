@@ -160,3 +160,12 @@ export const DONATION_TYPE_LABELS = {
   rong_dong: "榮董",
   casual: "樂捐",
 };
+
+export const DONATION_FREQUENCY_LABELS = {
+  monthly: "每月定時",
+  quarterly: "3個月一次",
+  semi_annual: "半年一次",
+  yearly: "每年一次",
+  irregular: "不定時",
+  one_time: "單筆/一次性",
+};

@@ -4,7 +4,7 @@ import Select from "../../components/ui/Select";
 import Textarea from "../../components/ui/Textarea";
 import Button from "../../components/ui/Button";
 import VolunteerSearchInput from "../../components/ui/VolunteerSearchInput";
-import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
+import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS, DONATION_FREQUENCY_LABELS } from "../../constants/categoryStyles";
 
 const EMPTY = {
   name: "",
@@ -15,6 +15,7 @@ const EMPTY = {
   xieLi: "",
   date: "",
   donationType: "casual",
+  frequency: "one_time",
   amount: "",
   pledgeStatus: "not_yet",
   progress: "",
@@ -72,7 +73,12 @@ export default function FundraisingOrganizationForm({ initial, heQiOptions = [],
           ))}
         </Select>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Select label="捐款頻率" value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })}>
+          {Object.entries(DONATION_FREQUENCY_LABELS).map(([k, v]) => (
+            <option key={k} value={k}>{v}</option>
+          ))}
+        </Select>
         <Input label="金額" type="number" min="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
         <Select label="認捐狀態" value={form.pledgeStatus} onChange={(e) => setForm({ ...form, pledgeStatus: e.target.value })}>
           {Object.entries(PLEDGE_STATUS_LABELS).map(([k, v]) => (

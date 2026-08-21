@@ -1,4 +1,4 @@
-import { TC_IDENTIFICATION_LABELS, PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "./categoryStyles";
+import { TC_IDENTIFICATION_LABELS, PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS, DONATION_FREQUENCY_LABELS } from "./categoryStyles";
 
 function enumLabel(map, value) {
   const raw = map[value];
@@ -21,6 +21,7 @@ export const FUNDRAISING_COLUMNS = [
   { key: "donorName", label: "捐款者", format: (r) => r.donorName || "-" },
   { key: "donorDate", label: "捐款日期", format: (r) => r.donorDate || "-" },
   { key: "donationType", label: "捐款形式", format: (r) => (r.donationType ? DONATION_TYPE_LABELS[r.donationType] || "-" : "-") },
+  { key: "donorFrequency", label: "捐款頻率", format: (r) => (r.donorFrequency ? DONATION_FREQUENCY_LABELS[r.donorFrequency] || "-" : "-") },
   { key: "donorAmount", label: "募款金額", format: (r) => (r.donorAmount ? r.donorAmount.toLocaleString() : "-") },
   { key: "donorPledgeStatus", label: "認捐狀態", format: (r) => (r.donorName ? enumLabel(PLEDGE_STATUS_LABELS, r.donorPledgeStatus || "not_yet") : "-") },
   { key: "donorProgress", label: "追蹤進度", format: (r) => r.donorProgress || "-" },
@@ -55,6 +56,7 @@ export function flattenDonorRows(people) {
       donorName: d.name,
       donorDate: d.date,
       donationType: d.donationType,
+      donorFrequency: d.frequency,
       donorAmount: Number(d.amount) || 0,
       donorPledgeStatus: d.pledgeStatus,
       donorProgress: d.progress,

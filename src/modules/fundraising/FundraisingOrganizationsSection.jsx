@@ -13,7 +13,7 @@ import CustomFilterBar from "../../components/ui/CustomFilterBar";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import FundraisingOrganizationForm from "./FundraisingOrganizationForm";
 import { exportRowsToExcel } from "../../lib/exportExcel";
-import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
+import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS, DONATION_FREQUENCY_LABELS } from "../../constants/categoryStyles";
 import { FUNDRAISING_ORG_FILTER_FIELDS, DEFAULT_FUNDRAISING_ORG_FILTER_KEYS, fundraisingOrgFilterOptionLabel } from "../../constants/fundraisingOrgFilterFields";
 import { chineseIncludes } from "../../lib/chineseSearch";
 
@@ -28,6 +28,7 @@ const COLUMNS = [
   { key: "xieLi", label: "協力" },
   { key: "date", label: "日期" },
   { key: "donationType", label: "捐款形式", format: (r) => DONATION_TYPE_LABELS[r.donationType] || "-" },
+  { key: "frequency", label: "捐款頻率", format: (r) => DONATION_FREQUENCY_LABELS[r.frequency] || "-" },
   { key: "amount", label: "金額", format: (r) => (r.amount || 0).toLocaleString() },
   { key: "pledgeStatus", label: "認捐狀態", format: (r) => PLEDGE_STATUS_LABELS[r.pledgeStatus]?.label || "-" },
   { key: "progress", label: "追蹤進度" },

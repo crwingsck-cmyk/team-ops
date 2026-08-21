@@ -41,6 +41,7 @@ function organizationToRow(o) {
     donorName: o.contactPerson || o.name,
     donorDate: o.date || "",
     donationType: o.donationType,
+    donorFrequency: o.frequency,
     donorAmount: Number(o.amount) || 0,
     donorPledgeStatus: o.pledgeStatus,
     donorProgress: o.progress || "",

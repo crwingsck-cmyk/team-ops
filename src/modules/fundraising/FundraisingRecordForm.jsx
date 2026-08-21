@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import Button from "../../components/ui/Button";
 import VolunteerSearchInput from "../../components/ui/VolunteerSearchInput";
-import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS } from "../../constants/categoryStyles";
+import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS, DONATION_FREQUENCY_LABELS } from "../../constants/categoryStyles";
 
-const EMPTY_DONOR = { name: "", date: "", donationType: "casual", amount: "", pledgeStatus: "not_yet", assignVolunteerId: "", assignVolunteerText: "", heQi: "", huAi: "", xieLi: "" };
+const EMPTY_DONOR = { name: "", date: "", donationType: "casual", frequency: "one_time", amount: "", pledgeStatus: "not_yet", assignVolunteerId: "", assignVolunteerText: "", heQi: "", huAi: "", xieLi: "" };
 const EMPTY = { pledgeTarget: "", enteredBy: "", donors: [] };
 
 export default function FundraisingRecordForm({
@@ -49,6 +49,7 @@ export default function FundraisingRecordForm({
           name: d.name,
           date: d.date,
           donationType: d.donationType,
+          frequency: d.frequency,
           amount: d.amount === "" ? 0 : Number(d.amount),
           pledgeStatus: d.pledgeStatus,
         };
@@ -112,12 +113,13 @@ export default function FundraisingRecordForm({
           <p className="text-base text-slate-500 mb-3">若後來知道是哪位志工募的，在「已知志工」輸入姓名或電話搜尋並選取，這筆捐款者會自動移到該志工的募款資料中。</p>
         )}
         <div className="overflow-x-auto -mx-1 px-1">
-          <table className="w-full min-w-[1100px] border-separate border-spacing-y-3">
+          <table className="w-full min-w-[1230px] border-separate border-spacing-y-3">
             <thead>
               <tr className="text-base font-bold text-slate-500">
                 <th className="text-left font-bold px-1 w-44">姓名</th>
                 <th className="text-left font-bold px-1 w-40">日期</th>
                 <th className="text-left font-bold px-1 w-36">捐款形式</th>
+                <th className="text-left font-bold px-1 w-32">捐款頻率</th>
                 <th className="text-left font-bold px-1 w-28">金額</th>
                 <th className="text-left font-bold px-1 w-36">認捐狀態</th>
                 {allowVolunteerAssignment && <th className="text-left font-bold px-1 w-64">和氣／互愛／協力</th>}
@@ -151,6 +153,17 @@ export default function FundraisingRecordForm({
                       className="w-full px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
                     >
                       {Object.entries(DONATION_TYPE_LABELS).map(([k, v]) => (
+                        <option key={k} value={k}>{v}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-1">
+                    <select
+                      value={d.frequency}
+                      onChange={(e) => updateDonor(i, "frequency", e.target.value)}
+                      className="w-full px-2.5 py-2.5 rounded-lg border border-slate-200 text-base hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
+                    >
+                      {Object.entries(DONATION_FREQUENCY_LABELS).map(([k, v]) => (
                         <option key={k} value={k}>{v}</option>
                       ))}
                     </select>

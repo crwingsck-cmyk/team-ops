@@ -1,4 +1,4 @@
-import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS, TC_IDENTIFICATION_LABELS } from "./categoryStyles";
+import { PLEDGE_STATUS_LABELS, DONATION_TYPE_LABELS, DONATION_FREQUENCY_LABELS, TC_IDENTIFICATION_LABELS } from "./categoryStyles";
 import { volunteerFilterOptionLabel } from "./volunteerFilterFields";
 
 export const FUNDRAISING_FILTER_FIELDS = [
@@ -7,6 +7,7 @@ export const FUNDRAISING_FILTER_FIELDS = [
   { key: "xieLi", label: "協力", source: "dynamic" },
   { key: "donorPledgeStatus", label: "認捐狀態", source: "enum", enumOptions: PLEDGE_STATUS_LABELS },
   { key: "donationType", label: "捐款形式", source: "enum", enumOptions: DONATION_TYPE_LABELS },
+  { key: "donorFrequency", label: "捐款頻率", source: "enum", enumOptions: DONATION_FREQUENCY_LABELS },
   { key: "enteredBy", label: "輸入者", source: "dynamic" },
   { key: "tcIdentification", label: "慈濟身份", source: "enum", enumOptions: TC_IDENTIFICATION_LABELS },
 ];
