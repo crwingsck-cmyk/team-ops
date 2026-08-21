@@ -4,6 +4,9 @@ import Select from "../../components/ui/Select";
 import Textarea from "../../components/ui/Textarea";
 import Button from "../../components/ui/Button";
 import { TC_IDENTIFICATION_LABELS, REGISTRATION_STATUS, registrationStatusSelectClass } from "../../constants/categoryStyles";
+import { chineseIncludes } from "../../lib/chineseSearch";
+
+const NAME_SUGGESTION_FONT = '"KaiTi", "STKaiti", "DFKai-SB", "BiauKai", serif';
 
 export default function RegistrationForm({ initial, onSubmit, onCancel, guestDirectory = [] }) {
   const isVolunteer = !!initial?.volunteerId;
@@ -18,6 +21,7 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
   const [notes, setNotes] = useState("");
   const [attended, setAttended] = useState(false);
   const [phoneSuggestOpen, setPhoneSuggestOpen] = useState(false);
+  const [nameSuggestOpen, setNameSuggestOpen] = useState(false);
 
   useEffect(() => {
     setName(initial?.name || "");
@@ -53,10 +57,22 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
     setInviterPhone(match.inviterPhone || "");
   };
 
+  const nameMatches = useMemo(() => {
+    const q = name.trim();
+    if (!q) return [];
+    return guestDirectory.filter((g) => g.name && chineseIncludes(g.name, q)).slice(0, 8);
+  }, [guestDirectory, name]);
+
   const handleNameChange = (value) => {
     setName(value);
+    setNameSuggestOpen(true);
     const match = guestByName.get(value.trim());
     if (match) applyGuestMatch({ ...match, name: value });
+  };
+
+  const selectNameMatch = (match) => {
+    applyGuestMatch(match);
+    setNameSuggestOpen(false);
   };
 
   const phoneMatches = useMemo(() => {
@@ -115,18 +131,32 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
         </div>
       ) : (
         <>
-          <Input
-            label="名字"
-            required
-            value={name}
-            onChange={(e) => handleNameChange(e.target.value)}
-            list="guest-name-suggestions"
-          />
-          <datalist id="guest-name-suggestions">
-            {guestDirectory.map((g) => (
-              <option key={g.name} value={g.name} />
-            ))}
-          </datalist>
+          <div className="relative">
+            <Input
+              label="名字"
+              required
+              value={name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              onFocus={() => setNameSuggestOpen(true)}
+              onBlur={() => setTimeout(() => setNameSuggestOpen(false), 150)}
+              autoComplete="off"
+            />
+            {nameSuggestOpen && nameMatches.length > 0 && (
+              <div className="absolute z-20 mt-1 w-full max-h-56 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg p-1.5">
+                {nameMatches.map((g) => (
+                  <button
+                    type="button"
+                    key={g.name}
+                    onMouseDown={() => selectNameMatch(g)}
+                    className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 text-left transition-colors"
+                  >
+                    <span className="italic font-bold text-slate-800" style={{ fontFamily: NAME_SUGGESTION_FONT }}>{g.name}</span>
+                    <span className="text-sm text-slate-500">{g.phone || "-"}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="relative">
             <Input
               label="電話號碼"
