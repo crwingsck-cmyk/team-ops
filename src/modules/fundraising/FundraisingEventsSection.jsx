@@ -1,15 +1,23 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, Download, Pencil, Trash2 } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useMembership } from "../../hooks/useMembership";
 import { useVolunteerOrgOptions } from "../../hooks/useVolunteerOrgOptions";
+import { useCustomFilters, buildFieldOptionsMap, matchesActiveFilters } from "../../hooks/useCustomFilters";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import ReportTable from "../../components/ui/ReportTable";
+import CustomFilterBar from "../../components/ui/CustomFilterBar";
+import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import FundraisingEventForm from "./FundraisingEventForm";
 import { exportRowsToExcel } from "../../lib/exportExcel";
+import { FUNDRAISING_EVENT_FILTER_FIELDS, DEFAULT_FUNDRAISING_EVENT_FILTER_KEYS } from "../../constants/fundraisingEventFilterFields";
+import { volunteerFilterOptionLabel } from "../../constants/volunteerFilterFields";
+import { chineseIncludes } from "../../lib/chineseSearch";
+
+const FILTER_KEYS_STORAGE_KEY = "team-ops:fundraising:eventFilterKeys";
 
 const COLUMNS = [
   { key: "date", label: "日期" },
@@ -32,10 +40,29 @@ export default function FundraisingEventsSection() {
   const { create, update, remove } = useFirestoreCrud("fundraisingEvents");
   const { isAdmin } = useMembership();
   const { heQiOptions, huAiOptions, xieLiOptions, volunteerOptions } = useVolunteerOrgOptions();
+  const { activeKeys, setActiveKeys, values, setValue, showPicker, setShowPicker } = useCustomFilters(
+    FUNDRAISING_EVENT_FILTER_FIELDS,
+    FILTER_KEYS_STORAGE_KEY,
+    DEFAULT_FUNDRAISING_EVENT_FILTER_KEYS
+  );
 
+  const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
+
+  const fieldOptionsMap = useMemo(
+    () => buildFieldOptionsMap(FUNDRAISING_EVENT_FILTER_FIELDS, events, volunteerFilterOptionLabel),
+    [events]
+  );
+
+  const filteredEvents = useMemo(() => {
+    return events.filter((e) => {
+      if (!matchesActiveFilters(e, activeKeys, values)) return false;
+      if (!search) return true;
+      return chineseIncludes(`${e.location || ""} ${e.eventType || ""}`, search);
+    });
+  }, [events, activeKeys, values, search]);
 
   const openCreate = () => {
     setEditing(null);
@@ -90,14 +117,26 @@ export default function FundraisingEventsSection() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-end gap-2 mb-4">
-        <Button variant="secondary" icon={Download} onClick={() => exportRowsToExcel("活動募款紀錄.xlsx", COLUMNS, events)}>匯出 Excel</Button>
+        <Button variant="secondary" icon={Download} onClick={() => exportRowsToExcel("活動募款紀錄.xlsx", COLUMNS, filteredEvents)}>匯出 Excel</Button>
         <Button icon={Plus} onClick={openCreate}>新增活動募款</Button>
       </div>
+
+      <CustomFilterBar
+        search={search}
+        onSearch={setSearch}
+        searchPlaceholder="搜尋地點或活動形式..."
+        fields={FUNDRAISING_EVENT_FILTER_FIELDS}
+        activeKeys={activeKeys}
+        values={values}
+        onChange={setValue}
+        fieldOptionsMap={fieldOptionsMap}
+        onOpenPicker={() => setShowPicker(true)}
+      />
 
       {loading ? (
         <div className="text-center py-16 text-slate-400 italic">載入中...</div>
       ) : (
-        <ReportTable columns={columns} rows={events} />
+        <ReportTable columns={columns} rows={filteredEvents} />
       )}
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title={editing?.id ? "編輯活動募款" : "新增活動募款"}>
@@ -109,6 +148,15 @@ export default function FundraisingEventsSection() {
           volunteerOptions={volunteerOptions}
           onSubmit={handleSubmit}
           onCancel={() => setShowForm(false)}
+        />
+      </Modal>
+
+      <Modal open={showPicker} onClose={() => setShowPicker(false)} title="自訂篩選欄位">
+        <FilterFieldPicker
+          fields={FUNDRAISING_EVENT_FILTER_FIELDS}
+          selected={activeKeys}
+          onSave={(keys) => { setActiveKeys(keys); setShowPicker(false); }}
+          onCancel={() => setShowPicker(false)}
         />
       </Modal>
 

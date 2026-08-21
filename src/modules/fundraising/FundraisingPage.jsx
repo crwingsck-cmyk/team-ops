@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Settings2, Download, Search, Pencil, Eye } from "lucide-react";
+import { Settings2, Download, Pencil, Eye } from "lucide-react";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useFundraisingPeople, UNASSIGNED_VOLUNTEER_ID } from "../../hooks/useFundraisingPeople";
+import { useCustomFilters, buildFieldOptionsMap, matchesActiveFilters } from "../../hooks/useCustomFilters";
 import Button from "../../components/ui/Button";
-import Select from "../../components/ui/Select";
 import Modal from "../../components/ui/Modal";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
+import CustomFilterBar from "../../components/ui/CustomFilterBar";
 import ReportTable from "../../components/ui/ReportTable";
 import FundraisingRecordForm from "./FundraisingRecordForm";
 import FundraisingDetail from "./FundraisingDetail";
@@ -33,31 +34,20 @@ function loadStoredKeys() {
   return DEFAULT_FUNDRAISING_COLUMN_KEYS;
 }
 
-function loadStoredFilterKeys() {
-  const validKeys = new Set(FUNDRAISING_FILTER_FIELDS.map((f) => f.key));
-  try {
-    const stored = JSON.parse(localStorage.getItem(FILTER_KEYS_STORAGE_KEY));
-    if (Array.isArray(stored)) {
-      const filtered = stored.filter((k) => validKeys.has(k)).slice(0, 5);
-      if (filtered.length > 0) return filtered;
-    }
-  } catch {
-    // ignore malformed storage
-  }
-  return DEFAULT_FUNDRAISING_FILTER_KEYS;
-}
-
 export default function FundraisingPage() {
   const { people, heQiOptions, huAiOptions, xieLiOptions, loading } = useFundraisingPeople();
   const { create: createRecord, update: updateRecord } = useFirestoreCrud("fundraisingRecords");
 
   const [activeColumnKeys, setActiveColumnKeys] = useState(loadStoredKeys);
   const [showColumnPicker, setShowColumnPicker] = useState(false);
-  const [activeFilterKeys, setActiveFilterKeys] = useState(loadStoredFilterKeys);
-  const [filterValues, setFilterValues] = useState(() =>
-    Object.fromEntries(FUNDRAISING_FILTER_FIELDS.map((f) => [f.key, "all"]))
-  );
-  const [showFilterPicker, setShowFilterPicker] = useState(false);
+  const {
+    activeKeys: activeFilterKeys,
+    setActiveKeys: setActiveFilterKeys,
+    values: filterValues,
+    setValue: setFilterValue,
+    showPicker: showFilterPicker,
+    setShowPicker: setShowFilterPicker,
+  } = useCustomFilters(FUNDRAISING_FILTER_FIELDS, FILTER_KEYS_STORAGE_KEY, DEFAULT_FUNDRAISING_FILTER_KEYS);
   const [search, setSearch] = useState("");
   const [editingPerson, setEditingPerson] = useState(null);
   const [viewingPerson, setViewingPerson] = useState(null);
@@ -66,12 +56,6 @@ export default function FundraisingPage() {
   useEffect(() => {
     localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(activeColumnKeys));
   }, [activeColumnKeys]);
-
-  useEffect(() => {
-    localStorage.setItem(FILTER_KEYS_STORAGE_KEY, JSON.stringify(activeFilterKeys));
-  }, [activeFilterKeys]);
-
-  const setFilterValue = (key, value) => setFilterValues((prev) => ({ ...prev, [key]: value }));
 
   const columns = useMemo(() => {
     const base = FUNDRAISING_COLUMNS.filter((c) => activeColumnKeys.includes(c.key));
@@ -105,30 +89,14 @@ export default function FundraisingPage() {
   // donors don't share one group, determines its own visibility/options.
   const allRows = useMemo(() => flattenDonorRows(people), [people]);
 
-  const fieldOptionsMap = useMemo(() => {
-    const map = {};
-    FUNDRAISING_FILTER_FIELDS.forEach((field) => {
-      if (field.source === "enum") {
-        map[field.key] = Object.keys(field.enumOptions).map((k) => ({
-          value: k,
-          label: fundraisingFilterOptionLabel(field, k),
-        }));
-        return;
-      }
-      const set = new Set();
-      allRows.forEach((r) => { if (r[field.key]) set.add(r[field.key]); });
-      map[field.key] = [...set].sort().map((v) => ({ value: v, label: v }));
-    });
-    return map;
-  }, [allRows]);
+  const fieldOptionsMap = useMemo(
+    () => buildFieldOptionsMap(FUNDRAISING_FILTER_FIELDS, allRows, fundraisingFilterOptionLabel),
+    [allRows]
+  );
 
   const rows = useMemo(() => {
     return allRows.filter((r) => {
-      for (const key of activeFilterKeys) {
-        const wanted = filterValues[key];
-        if (!wanted || wanted === "all") continue;
-        if (String(r[key] ?? "") !== wanted) return false;
-      }
+      if (!matchesActiveFilters(r, activeFilterKeys, filterValues)) return false;
       if (!search) return true;
       return chineseIncludes(`${r.name} ${r.phone}`, search);
     });
@@ -211,41 +179,17 @@ export default function FundraisingPage() {
         <FundraisingOrganizationsSection />
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-3 mb-6">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="搜尋姓名或電話..."
-                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-lg hover:border-indigo-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200"
-              />
-            </div>
-            {activeFilterKeys.map((key) => {
-              const field = FUNDRAISING_FILTER_FIELDS.find((f) => f.key === key);
-              if (!field) return null;
-              return (
-                <Select
-                  key={key}
-                  value={filterValues[key] || "all"}
-                  onChange={(e) => setFilterValue(key, e.target.value)}
-                  className="sm:w-44"
-                >
-                  <option value="all">全部{field.label}</option>
-                  {(fieldOptionsMap[key] || []).map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </Select>
-              );
-            })}
-            <button
-              onClick={() => setShowFilterPicker(true)}
-              className="p-3 rounded-xl border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 transition-all"
-              title="自訂篩選欄位"
-            >
-              <Settings2 size={18} />
-            </button>
-          </div>
+          <CustomFilterBar
+            search={search}
+            onSearch={setSearch}
+            searchPlaceholder="搜尋姓名或電話..."
+            fields={FUNDRAISING_FILTER_FIELDS}
+            activeKeys={activeFilterKeys}
+            values={filterValues}
+            onChange={setFilterValue}
+            fieldOptionsMap={fieldOptionsMap}
+            onOpenPicker={() => setShowFilterPicker(true)}
+          />
 
           {loading ? (
             <div className="text-center py-16 text-slate-400 italic">載入中...</div>
