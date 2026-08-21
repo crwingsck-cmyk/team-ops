@@ -1,5 +1,5 @@
 import { Search, Settings2, Plus, Upload } from "lucide-react";
-import Select from "../../components/ui/Select";
+import MultiSelectFilter from "../../components/ui/MultiSelectFilter";
 import Button from "../../components/ui/Button";
 import { GUEST_FILTER_FIELDS } from "../../constants/guestFilterFields";
 
@@ -29,17 +29,14 @@ export default function GuestFilterBar({
         const field = GUEST_FILTER_FIELDS.find((f) => f.key === key);
         if (!field) return null;
         return (
-          <Select
+          <MultiSelectFilter
             key={key}
-            value={filterValues[key] || "all"}
-            onChange={(e) => onFilterChange(key, e.target.value)}
+            label={field.label}
+            options={fieldOptionsMap[key] || []}
+            selected={filterValues[key] || []}
+            onChange={(vals) => onFilterChange(key, vals)}
             className="sm:w-44"
-          >
-            <option value="all">全部{field.label}</option>
-            {(fieldOptionsMap[key] || []).map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </Select>
+          />
         );
       })}
       <button

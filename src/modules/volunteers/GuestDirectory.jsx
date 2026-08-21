@@ -57,7 +57,7 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
   const [expandedKeys, setExpandedKeys] = useState(() => new Set());
   const [activeFilterKeys, setActiveFilterKeys] = useState(loadStoredFilterKeys);
   const [filterValues, setFilterValues] = useState(() =>
-    Object.fromEntries(GUEST_FILTER_FIELDS.map((f) => [f.key, "all"]))
+    Object.fromEntries(GUEST_FILTER_FIELDS.map((f) => [f.key, []]))
   );
   const [showFieldPicker, setShowFieldPicker] = useState(false);
   const [activeColumnKeys, setActiveColumnKeys] = useState(loadStoredColumnKeys);
@@ -128,10 +128,12 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
   const filtered = useMemo(() => {
     return guests.filter((g) => {
       for (const key of activeFilterKeys) {
-        const wanted = filterValues[key];
-        if (!wanted || wanted === "all") continue;
+        const wanted = filterValues[key] || [];
+        if (wanted.length === 0) continue;
         const fieldVal = g[key];
-        const matches = Array.isArray(fieldVal) ? fieldVal.includes(wanted) : String(fieldVal ?? "") === wanted;
+        const matches = Array.isArray(fieldVal)
+          ? fieldVal.some((fv) => wanted.includes(fv))
+          : wanted.includes(String(fieldVal ?? ""));
         if (!matches) return false;
       }
       if (queryTitle) {
