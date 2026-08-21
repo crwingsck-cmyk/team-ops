@@ -470,7 +470,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                 statusFilter === "all" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
               }`}
             >
-              全部（{registrations.length}）
+              全部（{registrations.length}筆）
             </button>
             {Object.entries(REGISTRATION_STATUS).map(([k, v]) => (
               <button
@@ -480,7 +480,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                   statusFilter === k ? `${v.bg} ${v.text}` : "bg-slate-100 text-slate-400 hover:bg-slate-200"
                 }`}
               >
-                {v.label}（{statusCounts[k]}）
+                {v.label}（{statusCounts[k]}筆）
               </button>
             ))}
           </div>
