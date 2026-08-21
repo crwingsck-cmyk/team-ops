@@ -32,21 +32,15 @@ export default function EventAttendanceSummaryGrid({ events, registrations }) {
         const sumHeadcount = (list) => list.reduce((sum, r) => sum + headcount(r), 0);
         const attendedCount = regs.filter((r) => r.attended).reduce((sum, r) => sum + attendedHeadcount(r), 0);
         const registeredCount = sumHeadcount(regs.filter((r) => r.status !== "waitlisted"));
-        const waitlistedCount = sumHeadcount(regs.filter((r) => r.status === "waitlisted"));
-        const cancelledCount = sumHeadcount(regs.filter((r) => r.status === "cancelled"));
-        const confirmedCount = registeredCount - cancelledCount;
+        const notAttendedCount = registeredCount - attendedCount;
         return (
           <Card key={event.id}>
             <h3 className="font-black italic text-slate-800 text-lg mb-1">{event.title}{event.deletedAt ? "（已刪除）" : ""}</h3>
             <p className="text-sm text-slate-500 mb-3">{dateRangeText(event)}</p>
-            <div className="grid grid-cols-2 gap-3">
-              <Stat label="出席人數" value={attendedCount} />
-              <Stat label="已報名人數" value={registeredCount} />
-              <Stat label="考慮中人數" value={waitlistedCount} />
-              <Stat label="已報名但無法出席人數" value={cancelledCount} />
-              <div className="col-span-2">
-                <Stat label="確定出席人數（已報名扣除無法出席）" value={confirmedCount} />
-              </div>
+            <div className="grid grid-cols-3 gap-3">
+              <Stat label="總報名人數" value={registeredCount} />
+              <Stat label="總出席人數" value={attendedCount} />
+              <Stat label="無法出席人數" value={notAttendedCount} />
             </div>
           </Card>
         );
