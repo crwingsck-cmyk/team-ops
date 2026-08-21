@@ -36,13 +36,18 @@ function OrgUnitCard({ label, rows }) {
   const totalAmount = donorRows.reduce((sum, r) => sum + (Number(r.donorAmount) || 0), 0);
 
   const amountByType = {};
+  const countByType = {};
   const countByStatus = {};
-  Object.keys(DONATION_TYPE_LABELS).forEach((k) => (amountByType[k] = 0));
+  Object.keys(DONATION_TYPE_LABELS).forEach((k) => {
+    amountByType[k] = 0;
+    countByType[k] = 0;
+  });
   Object.keys(PLEDGE_STATUS_LABELS).forEach((k) => (countByStatus[k] = 0));
   donorRows.forEach((r) => {
     const type = r.donationType || "casual";
     const status = r.donorPledgeStatus || "not_yet";
     amountByType[type] = (amountByType[type] || 0) + (Number(r.donorAmount) || 0);
+    countByType[type] = (countByType[type] || 0) + 1;
     countByStatus[status] = (countByStatus[status] || 0) + 1;
   });
 
@@ -56,10 +61,24 @@ function OrgUnitCard({ label, rows }) {
         <Stat label="捐款總額" value={totalAmount.toLocaleString()} />
       </div>
       <div className="pt-3 border-t border-slate-100">
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">各捐款形式金額</p>
-        {Object.entries(DONATION_TYPE_LABELS).map(([k, v]) => (
-          <BreakdownRow key={k} label={v} value={amountByType[k].toLocaleString()} />
-        ))}
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-xs font-bold text-slate-400 uppercase tracking-wide">
+              <th className="text-left pb-1.5">各捐款形式金額</th>
+              <th className="text-right pb-1.5 w-14">人數</th>
+              <th className="text-right pb-1.5 w-20">金額</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(DONATION_TYPE_LABELS).map(([k, v]) => (
+              <tr key={k} className="text-slate-600">
+                <td className="py-0.5">{v}</td>
+                <td className="py-0.5 text-right text-slate-400 tabular-nums">{countByType[k]}</td>
+                <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{amountByType[k].toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       <div className="pt-3 border-t border-slate-100 mt-3">
         <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">認捐狀態人數</p>
