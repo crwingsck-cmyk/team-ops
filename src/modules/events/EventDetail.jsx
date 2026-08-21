@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Plus, Users2, Trash2, MapPin, Calendar, Users, Search, Settings2, Check, Upload, Pencil } from "lucide-react";
+import { ArrowLeft, Plus, Users2, Trash2, MapPin, Calendar, Users, Search, Settings2, Check, Upload, Download, Pencil } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import Card from "../../components/ui/Card";
@@ -19,6 +19,7 @@ import { TC_IDENTIFICATION_LABELS, GENDER_LABELS, REGISTRATION_STATUS, registrat
 import { heqiHuaiXieliText } from "../../lib/volunteer";
 import { getDays, eventFirstDate } from "../../lib/eventDays";
 import { chineseIncludes } from "../../lib/chineseSearch";
+import { exportRowsToExcel } from "../../lib/exportExcel";
 
 function tcIdentificationLabel(key) {
   return TC_IDENTIFICATION_LABELS[key]?.split(" ")[0] || "";
@@ -88,6 +89,23 @@ const REGISTRATION_DISPLAY_FIELDS = [
 ];
 const DEFAULT_REG_DISPLAY_KEYS = ["phone", "tcIdentification", "heqiHuaiXieli", "childrenCount"];
 const MAX_REG_DISPLAY_KEYS = 4;
+
+const REGISTRATION_EXPORT_COLUMNS = [
+  { key: "name", label: "姓名" },
+  { key: "phone", label: "電話" },
+  { key: "category", label: "類別" },
+  { key: "tcIdentification", label: "慈濟身份" },
+  { key: "heqiHuaiXieli", label: "和氣互愛協力" },
+  { key: "gender", label: "性別" },
+  { key: "area", label: "地區" },
+  { key: "inviterName", label: "邀約人姓名" },
+  { key: "childrenCount", label: "參與人數（含自己本人）" },
+  { key: "attendingDates", label: "參與日期" },
+  { key: "status", label: "報名狀態" },
+  { key: "attended", label: "是否出席" },
+  { key: "attendedChildrenCount", label: "實際出席人數（含自己本人）" },
+  { key: "notes", label: "備註" },
+];
 const GRID_COLS_CLASS = { 1: "sm:grid-cols-1", 2: "sm:grid-cols-2", 3: "sm:grid-cols-3", 4: "sm:grid-cols-4", 5: "sm:grid-cols-5" };
 
 export default function EventDetail({ event, isAdmin, onBack }) {
@@ -170,6 +188,27 @@ export default function EventDetail({ event, isAdmin, onBack }) {
       return chineseIncludes(registrantSearchText(r), regSearch);
     });
   }, [resolvedRegistrations, statusFilter, activeRegFilterKeys, regFilterValues, regSearch]);
+
+  const exportRows = useMemo(
+    () =>
+      visibleRegistrations.map((r) => ({
+        name: r.name,
+        phone: r.phone || "",
+        category: r.raw.volunteerId ? "志工" : "大德",
+        tcIdentification: tcIdentificationLabel(r.tcIdentification),
+        heqiHuaiXieli: r.heqiHuaiXieli || "",
+        gender: GENDER_LABELS[r.gender] || "",
+        area: r.raw.area || "",
+        inviterName: r.raw.inviterName || "",
+        childrenCount: r.raw.childrenCount || 1,
+        attendingDates: r.raw.attendingDates?.length > 0 ? r.raw.attendingDates.join("、") : "",
+        status: REGISTRATION_STATUS[r.raw.status]?.label || "",
+        attended: r.raw.attended ? "已出席" : "未出席",
+        attendedChildrenCount: r.raw.attendedChildrenCount ?? "",
+        notes: r.raw.notes || "",
+      })),
+    [visibleRegistrations]
+  );
 
   const guestDirectory = useMemo(() => {
     const map = new Map();
@@ -317,6 +356,15 @@ export default function EventDetail({ event, isAdmin, onBack }) {
             )}
             <Button variant="secondary" icon={Users2} onClick={() => setShowBulkForm(true)}>志工報名</Button>
             <Button variant="secondary" icon={Upload} onClick={() => setShowImportForm(true)}>Excel 匯入報名名單</Button>
+            {registrations.length > 0 && (
+              <Button
+                variant="secondary"
+                icon={Download}
+                onClick={() => exportRowsToExcel(`${event.title}-報名名單.xlsx`, REGISTRATION_EXPORT_COLUMNS, exportRows)}
+              >
+                匯出 Excel
+              </Button>
+            )}
             <Button icon={Plus} onClick={() => setShowForm(true)}>新增大德報名</Button>
           </div>
         </div>
