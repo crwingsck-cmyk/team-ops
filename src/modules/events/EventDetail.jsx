@@ -35,9 +35,7 @@ function RegStatCard({ label, value, tone = "indigo" }) {
   return (
     <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
       <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide leading-tight">{label}</p>
-      <p className={`text-lg font-black ${REG_STAT_TONE_CLASS[tone]}`}>
-        {value} <span className="text-xs font-bold text-slate-400">人</span>
-      </p>
+      <p className={`text-lg font-black ${REG_STAT_TONE_CLASS[tone]}`}>{value}</p>
     </div>
   );
 }
@@ -448,7 +446,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
               <RegStatCard label="已報名未出席人數" value={regSummary.notAttendedCount} tone="amber" />
             </div>
             <p className="text-xs font-bold text-slate-400 mb-2">慈濟身份出席人數（志工，不含大德）</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
               {VOLUNTEER_TC_IDENTIFICATION_KEYS.map((key) => (
                 <RegStatCard key={key} label={tcIdentificationLabel(key)} value={tcIdentificationAttendance[key] || 0} />
               ))}
