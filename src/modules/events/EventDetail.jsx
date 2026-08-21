@@ -25,11 +25,17 @@ function tcIdentificationLabel(key) {
   return TC_IDENTIFICATION_LABELS[key]?.split(" ")[0] || "";
 }
 
-function RegStatCard({ label, value, accent }) {
+const REG_STAT_TONE_CLASS = {
+  indigo: "text-indigo-600",
+  emerald: "text-emerald-600",
+  amber: "text-amber-600",
+};
+
+function RegStatCard({ label, value, tone = "indigo" }) {
   return (
     <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
       <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">{label}</p>
-      <p className={`text-2xl font-black ${accent ? "text-emerald-600" : "text-indigo-600"}`}>
+      <p className={`text-2xl font-black ${REG_STAT_TONE_CLASS[tone]}`}>
         {value} <span className="text-sm font-bold text-slate-400">人</span>
       </p>
     </div>
@@ -243,27 +249,64 @@ export default function EventDetail({ event, isAdmin, onBack }) {
   }, [allRegistrations, guests]);
 
   const regSummary = useMemo(() => {
-    let volunteerCount = 0;
-    let daDeCount = 0;
-    let childrenCount = 0;
-    let attendedVolunteerCount = 0;
-    let attendedDaDeCount = 0;
+    let volunteerPersonCount = 0;
+    let volunteerCompanionCount = 0;
+    let daDePersonCount = 0;
+    let daDeCompanionCount = 0;
+    let attendedVolunteerPersonCount = 0;
+    let attendedVolunteerCompanionCount = 0;
+    let attendedDaDePersonCount = 0;
+    let attendedDaDeCompanionCount = 0;
     let registeredCount = 0;
     registrations.forEach((r) => {
       if (r.status === "waitlisted") return;
       registeredCount += 1;
       const headcount = Number(r.childrenCount) || 1;
       const companions = Math.max(0, headcount - 1);
-      if (r.volunteerId) volunteerCount += headcount;
-      else daDeCount += headcount;
-      childrenCount += companions;
+      if (r.volunteerId) {
+        volunteerPersonCount += 1;
+        volunteerCompanionCount += companions;
+      } else {
+        daDePersonCount += 1;
+        daDeCompanionCount += companions;
+      }
       if (r.attended) {
         const attendedHeadcount = Number(r.attendedChildrenCount ?? r.childrenCount) || 1;
-        if (r.volunteerId) attendedVolunteerCount += attendedHeadcount;
-        else attendedDaDeCount += attendedHeadcount;
+        const attendedCompanions = Math.max(0, attendedHeadcount - 1);
+        if (r.volunteerId) {
+          attendedVolunteerPersonCount += 1;
+          attendedVolunteerCompanionCount += attendedCompanions;
+        } else {
+          attendedDaDePersonCount += 1;
+          attendedDaDeCompanionCount += attendedCompanions;
+        }
       }
     });
-    return { volunteerCount, daDeCount, childrenCount, attendedVolunteerCount, attendedDaDeCount, registeredCount };
+    const volunteerCount = volunteerPersonCount + volunteerCompanionCount;
+    const daDeCount = daDePersonCount + daDeCompanionCount;
+    const companionCount = volunteerCompanionCount + daDeCompanionCount;
+    const attendedVolunteerCount = attendedVolunteerPersonCount + attendedVolunteerCompanionCount;
+    const attendedDaDeCount = attendedDaDePersonCount + attendedDaDeCompanionCount;
+    const attendedCompanionCount = attendedVolunteerCompanionCount + attendedDaDeCompanionCount;
+    const notAttendedCount = volunteerCount + daDeCount - (attendedVolunteerCount + attendedDaDeCount);
+    return {
+      volunteerPersonCount,
+      volunteerCompanionCount,
+      volunteerCount,
+      daDePersonCount,
+      daDeCompanionCount,
+      daDeCount,
+      companionCount,
+      attendedVolunteerPersonCount,
+      attendedVolunteerCompanionCount,
+      attendedVolunteerCount,
+      attendedDaDePersonCount,
+      attendedDaDeCompanionCount,
+      attendedDaDeCount,
+      attendedCompanionCount,
+      notAttendedCount,
+      registeredCount,
+    };
   }, [registrations]);
 
   const registeredVolunteerIds = useMemo(
@@ -370,13 +413,28 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         </div>
 
         {registrations.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-            <RegStatCard label="志工報名及參與人數（含自己本人）" value={regSummary.volunteerCount} />
-            <RegStatCard label="大德報名及參與人數（含自己本人）" value={regSummary.daDeCount} />
-            <RegStatCard label="報名總人數" value={regSummary.volunteerCount + regSummary.daDeCount} />
-            <RegStatCard label="出席志工人數" value={regSummary.attendedVolunteerCount} accent />
-            <RegStatCard label="出席大德人數" value={regSummary.attendedDaDeCount} accent />
-            <RegStatCard label="出席總人數" value={regSummary.attendedVolunteerCount + regSummary.attendedDaDeCount} accent />
+          <div className="mb-4">
+            <p className="text-xs font-bold text-slate-400 mb-2">報名人數</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+              <RegStatCard label="志工人數" value={regSummary.volunteerPersonCount} />
+              <RegStatCard label="志工同行人員" value={regSummary.volunteerCompanionCount} />
+              <RegStatCard label="大德人數" value={regSummary.daDePersonCount} />
+              <RegStatCard label="大德同行人員" value={regSummary.daDeCompanionCount} />
+              <RegStatCard label="同行人員總數" value={regSummary.companionCount} />
+              <RegStatCard label="報名總人數（含同行人員）" value={regSummary.volunteerCount + regSummary.daDeCount} />
+            </div>
+            <p className="text-xs font-bold text-slate-400 mb-2">出席人數</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+              <RegStatCard label="出席志工人數" value={regSummary.attendedVolunteerPersonCount} tone="emerald" />
+              <RegStatCard label="出席志工同行人員" value={regSummary.attendedVolunteerCompanionCount} tone="emerald" />
+              <RegStatCard label="出席大德人數" value={regSummary.attendedDaDePersonCount} tone="emerald" />
+              <RegStatCard label="出席大德同行人員" value={regSummary.attendedDaDeCompanionCount} tone="emerald" />
+              <RegStatCard label="出席同行人員總數" value={regSummary.attendedCompanionCount} tone="emerald" />
+              <RegStatCard label="出席總人數（含同行人員）" value={regSummary.attendedVolunteerCount + regSummary.attendedDaDeCount} tone="emerald" />
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <RegStatCard label="已報名未出席人數" value={regSummary.notAttendedCount} tone="amber" />
+            </div>
           </div>
         )}
 
