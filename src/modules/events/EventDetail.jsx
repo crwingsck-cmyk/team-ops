@@ -435,14 +435,14 @@ export default function EventDetail({ event, isAdmin, onBack }) {
 
         {registrations.length > 0 && (
           <div className="mb-4">
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="flex flex-wrap gap-x-12 gap-y-3 mb-4">
               <Stat label="報名總人數（含同行人員）" value={regSummary.volunteerCount + regSummary.daDeCount} />
               <Stat label="出席總人數（含同行人員）" value={regSummary.attendedVolunteerCount + regSummary.attendedDaDeCount} />
               <Stat label="同行人員總數" value={regSummary.companionCount} />
-              <Stat label="已報名未出席人數" value={regSummary.notAttendedCount} />
+              <Stat label="無法出席人數" value={regSummary.notAttendedCount} />
             </div>
             <div className="pt-3 border-t border-slate-100">
-              <table className="w-full text-sm">
+              <table className="w-full max-w-md text-sm">
                 <thead>
                   <tr className="text-xs font-bold text-slate-400 uppercase tracking-wide">
                     <th className="text-left pb-1.5">報名與出席人數</th>
@@ -474,7 +474,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                 </tbody>
               </table>
             </div>
-            <div className="pt-3 border-t border-slate-100 mt-3">
+            <div className="pt-3 border-t border-slate-100 mt-3 max-w-xs">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">慈濟身份出席人數（志工，不含大德）</p>
               {VOLUNTEER_TC_IDENTIFICATION_KEYS.map((key) => (
                 <BreakdownRow key={key} label={tcIdentificationLabel(key)} value={tcIdentificationAttendance[key] || 0} />
