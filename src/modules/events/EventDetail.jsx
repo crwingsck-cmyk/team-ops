@@ -259,16 +259,17 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     let attendedDaDeCompanionCount = 0;
     let registeredCount = 0;
     registrations.forEach((r) => {
-      if (r.status === "waitlisted") return;
-      registeredCount += 1;
       const headcount = Number(r.childrenCount) || 1;
       const companions = Math.max(0, headcount - 1);
-      if (r.volunteerId) {
-        volunteerPersonCount += 1;
-        volunteerCompanionCount += companions;
-      } else {
-        daDePersonCount += 1;
-        daDeCompanionCount += companions;
+      if (r.status === "registered") {
+        registeredCount += 1;
+        if (r.volunteerId) {
+          volunteerPersonCount += 1;
+          volunteerCompanionCount += companions;
+        } else {
+          daDePersonCount += 1;
+          daDeCompanionCount += companions;
+        }
       }
       if (r.attended) {
         const attendedHeadcount = Number(r.attendedChildrenCount ?? r.childrenCount) || 1;
@@ -581,22 +582,24 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                   >
                     <Check size={16} /> 出席
                   </button>
-                  {r.attended && (
-                    <input
-                      type="number"
-                      min="1"
-                      key={`${r.id}-children-${r.attendedChildrenCount ?? "default"}`}
-                      defaultValue={r.attendedChildrenCount ?? r.childrenCount ?? 1}
-                      onBlur={(e) => {
-                        const val = e.target.value === "" ? 1 : Math.max(1, Number(e.target.value));
-                        if (val !== (r.attendedChildrenCount ?? r.childrenCount ?? 1)) {
-                          update(r.id, { attendedChildrenCount: val });
-                        }
-                      }}
-                      title="實際出席人數（含自己本人）"
-                      className="w-14 px-2 py-1.5 rounded-lg border border-slate-200 text-sm text-center"
-                    />
-                  )}
+                  <div className="w-14 shrink-0">
+                    {r.attended && (
+                      <input
+                        type="number"
+                        min="1"
+                        key={`${r.id}-children-${r.attendedChildrenCount ?? "default"}`}
+                        defaultValue={r.attendedChildrenCount ?? r.childrenCount ?? 1}
+                        onBlur={(e) => {
+                          const val = e.target.value === "" ? 1 : Math.max(1, Number(e.target.value));
+                          if (val !== (r.attendedChildrenCount ?? r.childrenCount ?? 1)) {
+                            update(r.id, { attendedChildrenCount: val });
+                          }
+                        }}
+                        title="實際出席人數（含自己本人）"
+                        className="w-14 px-2 py-1.5 rounded-lg border border-slate-200 text-sm text-center"
+                      />
+                    )}
+                  </div>
                   <Select
                     value={r.status}
                     onChange={(e) => update(r.id, { status: e.target.value })}
