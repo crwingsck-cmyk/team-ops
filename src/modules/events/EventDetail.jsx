@@ -33,10 +33,10 @@ const REG_STAT_TONE_CLASS = {
 
 function RegStatCard({ label, value, tone = "indigo" }) {
   return (
-    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-      <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">{label}</p>
-      <p className={`text-2xl font-black ${REG_STAT_TONE_CLASS[tone]}`}>
-        {value} <span className="text-sm font-bold text-slate-400">人</span>
+    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide leading-tight">{label}</p>
+      <p className={`text-lg font-black ${REG_STAT_TONE_CLASS[tone]}`}>
+        {value} <span className="text-xs font-bold text-slate-400">人</span>
       </p>
     </div>
   );
@@ -427,7 +427,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         {registrations.length > 0 && (
           <div className="mb-4">
             <p className="text-xs font-bold text-slate-400 mb-2">報名人數</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-3">
               <RegStatCard label="志工人數" value={regSummary.volunteerPersonCount} />
               <RegStatCard label="志工同行人員" value={regSummary.volunteerCompanionCount} />
               <RegStatCard label="大德人數" value={regSummary.daDePersonCount} />
@@ -436,7 +436,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
               <RegStatCard label="報名總人數（含同行人員）" value={regSummary.volunteerCount + regSummary.daDeCount} />
             </div>
             <p className="text-xs font-bold text-slate-400 mb-2">出席人數</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-3">
               <RegStatCard label="出席志工人數" value={regSummary.attendedVolunteerPersonCount} tone="emerald" />
               <RegStatCard label="出席志工同行人員" value={regSummary.attendedVolunteerCompanionCount} tone="emerald" />
               <RegStatCard label="出席大德人數" value={regSummary.attendedDaDePersonCount} tone="emerald" />
