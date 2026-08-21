@@ -261,7 +261,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     registrations.forEach((r) => {
       const headcount = Number(r.childrenCount) || 1;
       const companions = Math.max(0, headcount - 1);
-      if (r.status === "registered") {
+      if (r.status !== "waitlisted") {
         registeredCount += 1;
         if (r.volunteerId) {
           volunteerPersonCount += 1;
