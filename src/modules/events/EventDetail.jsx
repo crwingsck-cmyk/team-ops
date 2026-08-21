@@ -96,6 +96,8 @@ const REGISTRATION_DISPLAY_FIELDS = [
 const DEFAULT_REG_DISPLAY_KEYS = ["phone", "tcIdentification", "heqiHuaiXieli", "childrenCount"];
 const MAX_REG_DISPLAY_KEYS = 4;
 
+const VOLUNTEER_TC_IDENTIFICATION_KEYS = Object.keys(TC_IDENTIFICATION_LABELS).filter((k) => k !== "da_de");
+
 const REGISTRATION_EXPORT_COLUMNS = [
   { key: "name", label: "姓名" },
   { key: "phone", label: "電話" },
@@ -309,6 +311,16 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     };
   }, [registrations]);
 
+  const tcIdentificationAttendance = useMemo(() => {
+    const counts = {};
+    Object.keys(TC_IDENTIFICATION_LABELS).forEach((k) => { counts[k] = 0; });
+    resolvedRegistrations.forEach((r) => {
+      if (!r.raw.volunteerId || !r.raw.attended) return;
+      if (counts[r.tcIdentification] !== undefined) counts[r.tcIdentification] += 1;
+    });
+    return counts;
+  }, [resolvedRegistrations]);
+
   const registeredVolunteerIds = useMemo(
     () => new Set(registrations.map((r) => r.volunteerId).filter(Boolean)),
     [registrations]
@@ -432,8 +444,14 @@ export default function EventDetail({ event, isAdmin, onBack }) {
               <RegStatCard label="出席同行人員總數" value={regSummary.attendedCompanionCount} tone="emerald" />
               <RegStatCard label="出席總人數（含同行人員）" value={regSummary.attendedVolunteerCount + regSummary.attendedDaDeCount} tone="emerald" />
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
               <RegStatCard label="已報名未出席人數" value={regSummary.notAttendedCount} tone="amber" />
+            </div>
+            <p className="text-xs font-bold text-slate-400 mb-2">慈濟身份出席人數（志工，不含大德）</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {VOLUNTEER_TC_IDENTIFICATION_KEYS.map((key) => (
+                <RegStatCard key={key} label={tcIdentificationLabel(key)} value={tcIdentificationAttendance[key] || 0} />
+              ))}
             </div>
           </div>
         )}
