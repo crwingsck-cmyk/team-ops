@@ -15,14 +15,11 @@ function Stat({ label, value }) {
   );
 }
 
-function BreakdownRow({ label, count, value }) {
+function BreakdownRow({ label, value }) {
   return (
     <div className="flex items-center text-sm text-slate-600 py-0.5">
       <span className="flex-1">{label}</span>
-      {count !== undefined && (
-        <span className="w-12 shrink-0 text-right text-slate-400 tabular-nums">{count}人</span>
-      )}
-      <span className="w-16 shrink-0 text-right font-bold text-slate-800 tabular-nums">{value}</span>
+      <span className="w-20 shrink-0 text-right font-bold text-slate-800 tabular-nums">{value}</span>
     </div>
   );
 }
@@ -36,35 +33,32 @@ function OrgUnitCard({ label, rows }) {
   // count toward 捐款者人數 but not 募款者人數.
   const donorPersonIds = new Set(donorRows.filter((r) => !String(r.id).startsWith("org:")).map((r) => r.id));
   const pledgeTargetTotal = rows.reduce((sum, r) => sum + (Number(r.pledgeTarget) || 0), 0);
+  const totalAmount = donorRows.reduce((sum, r) => sum + (Number(r.donorAmount) || 0), 0);
 
   const amountByType = {};
-  const countByType = {};
   const countByStatus = {};
-  Object.keys(DONATION_TYPE_LABELS).forEach((k) => {
-    amountByType[k] = 0;
-    countByType[k] = 0;
-  });
+  Object.keys(DONATION_TYPE_LABELS).forEach((k) => (amountByType[k] = 0));
   Object.keys(PLEDGE_STATUS_LABELS).forEach((k) => (countByStatus[k] = 0));
   donorRows.forEach((r) => {
     const type = r.donationType || "casual";
     const status = r.donorPledgeStatus || "not_yet";
     amountByType[type] = (amountByType[type] || 0) + (Number(r.donorAmount) || 0);
-    countByType[type] = (countByType[type] || 0) + 1;
     countByStatus[status] = (countByStatus[status] || 0) + 1;
   });
 
   return (
     <Card>
       <h3 className="font-black italic text-slate-800 text-xl mb-3">{label}</h3>
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-2 gap-3 mb-4">
         <Stat label="發願人數" value={pledgeTargetTotal} />
         <Stat label="募款者人數" value={donorPersonIds.size} />
         <Stat label="捐款者人數" value={donorRows.length} />
+        <Stat label="捐款總額" value={totalAmount.toLocaleString()} />
       </div>
       <div className="pt-3 border-t border-slate-100">
         <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">各捐款形式金額</p>
         {Object.entries(DONATION_TYPE_LABELS).map(([k, v]) => (
-          <BreakdownRow key={k} label={v} count={countByType[k]} value={amountByType[k].toLocaleString()} />
+          <BreakdownRow key={k} label={v} value={amountByType[k].toLocaleString()} />
         ))}
       </div>
       <div className="pt-3 border-t border-slate-100 mt-3">
