@@ -16,6 +16,7 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
   const [childrenCount, setChildrenCount] = useState("1");
   const [status, setStatus] = useState("registered");
   const [notes, setNotes] = useState("");
+  const [attended, setAttended] = useState(false);
   const [phoneSuggestOpen, setPhoneSuggestOpen] = useState(false);
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
     setChildrenCount(initial?.childrenCount ?? "1");
     setStatus(initial?.status || "registered");
     setNotes(initial?.notes || "");
+    setAttended(initial?.attended || false);
   }, [initial]);
 
   const guestByName = useMemo(() => {
@@ -77,11 +79,14 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const resolvedChildrenCount = childrenCount === "" ? 1 : Math.max(1, Number(childrenCount));
     if (isVolunteer) {
       onSubmit({
-        childrenCount: childrenCount === "" ? 1 : Math.max(1, Number(childrenCount)),
+        childrenCount: resolvedChildrenCount,
         notes,
         status,
+        attended,
+        attendedChildrenCount: attended ? resolvedChildrenCount : null,
       });
       return;
     }
@@ -93,9 +98,11 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
       area,
       inviterName,
       inviterPhone,
-      childrenCount: childrenCount === "" ? 1 : Math.max(1, Number(childrenCount)),
+      childrenCount: resolvedChildrenCount,
       notes,
       status,
+      attended,
+      attendedChildrenCount: attended ? resolvedChildrenCount : null,
     });
   };
 
@@ -177,6 +184,15 @@ export default function RegistrationForm({ initial, onSubmit, onCancel, guestDir
           <option key={k} value={k}>{v.label}</option>
         ))}
       </Select>
+      <label className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-slate-200 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={attended}
+          onChange={(e) => setAttended(e.target.checked)}
+          className="w-5 h-5 shrink-0 accent-emerald-600"
+        />
+        <span className="text-sm font-bold text-slate-700">現場報到，直接標記已出席</span>
+      </label>
       <Textarea label="備註" value={notes} onChange={(e) => setNotes(e.target.value)} />
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="secondary" onClick={onCancel}>取消</Button>

@@ -16,6 +16,7 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
   const [status, setStatus] = useState("registered");
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [childrenCounts, setChildrenCounts] = useState({});
+  const [attended, setAttended] = useState(false);
 
   const available = useMemo(
     () => volunteers.filter((v) => !alreadyRegisteredIds.has(v.id)),
@@ -64,7 +65,7 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
     const selected = volunteers
       .filter((v) => selectedIds.has(v.id))
       .map((v) => ({ ...v, childrenCount: childrenCounts[v.id] ? Math.max(1, Number(childrenCounts[v.id])) : 1 }));
-    onSubmit(selected, status);
+    onSubmit(selected, status, attended);
   };
 
   return (
@@ -97,6 +98,16 @@ export default function BulkRegistrationForm({ volunteers, alreadyRegisteredIds,
           <option key={k} value={k}>{v.label}</option>
         ))}
       </Select>
+
+      <label className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-slate-200 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={attended}
+          onChange={(e) => setAttended(e.target.checked)}
+          className="w-5 h-5 shrink-0 accent-emerald-600"
+        />
+        <span className="text-sm font-bold text-slate-700">現場報到，加入後直接標記已出席</span>
+      </label>
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">已選 {selectedIds.size} 位</p>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Plus, Users2, Trash2, MapPin, Calendar, Users, Search, Settings2, Check, Upload, Download, Pencil } from "lucide-react";
+import { ArrowLeft, Plus, Users2, Trash2, MapPin, Calendar, Users, Search, Settings2, Check, Upload, Download, Pencil, ClipboardCheck } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import Card from "../../components/ui/Card";
@@ -141,11 +141,12 @@ export default function EventDetail({ event, isAdmin, onBack }) {
   );
 
   const statusCounts = useMemo(() => {
-    const counts = { notAttended: 0 };
+    const counts = { notAttended: 0, notChecked: 0 };
     Object.keys(REGISTRATION_STATUS).forEach((k) => { counts[k] = 0; });
     registrations.forEach((r) => {
       if (counts[r.status] !== undefined) counts[r.status] += 1;
       if (r.status !== "waitlisted" && !r.attended) counts.notAttended += 1;
+      if (!r.checked) counts.notChecked += 1;
     });
     return counts;
   }, [registrations]);
@@ -174,6 +175,8 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     return resolvedRegistrations.filter((r) => {
       if (statusFilter === "not_attended") {
         if (r.raw.status === "waitlisted" || r.raw.attended) return false;
+      } else if (statusFilter === "not_checked") {
+        if (r.raw.checked) return false;
       } else if (statusFilter !== "all" && r.raw.status !== statusFilter) {
         return false;
       }
@@ -339,8 +342,9 @@ export default function EventDetail({ event, isAdmin, onBack }) {
     setEditingRegistration(null);
   };
 
-  const handleBulkSubmit = async (selectedVolunteers, status) => {
+  const handleBulkSubmit = async (selectedVolunteers, status, attended) => {
     for (const v of selectedVolunteers) {
+      const childrenCount = v.childrenCount || 1;
       await create({
         eventId: event.id,
         eventTitle: event.title,
@@ -352,9 +356,11 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         heQi: v.heQi || "",
         huAi: v.huAi || "",
         xieLi: v.xieLi || "",
-        childrenCount: v.childrenCount || 1,
+        childrenCount,
         notes: "",
         status,
+        attended,
+        attendedChildrenCount: attended ? childrenCount : null,
       });
     }
     setShowBulkForm(false);
@@ -517,6 +523,14 @@ export default function EventDetail({ event, isAdmin, onBack }) {
             >
               已報名未出席（{statusCounts.notAttended}筆）
             </button>
+            <button
+              onClick={() => setStatusFilter("not_checked")}
+              className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                statusFilter === "not_checked" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+              }`}
+            >
+              尚未核對（{statusCounts.notChecked}筆）
+            </button>
           </div>
         )}
 
@@ -604,6 +618,17 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                   {activeRegDisplayKeys.includes("notes") && r.notes && <p className="text-base italic text-slate-500 mt-1">{r.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap sm:shrink-0">
+                  <button
+                    onClick={() => update(r.id, { checked: !r.checked })}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-bold border transition-all ${
+                      r.checked
+                        ? "bg-indigo-600 text-white border-indigo-600"
+                        : "bg-white text-slate-400 border-slate-200 hover:border-indigo-400 hover:text-indigo-600"
+                    }`}
+                    title="標記已核對（紙本／系統比對）"
+                  >
+                    <ClipboardCheck size={16} /> 核對
+                  </button>
                   <button
                     onClick={() => update(r.id, { attended: !r.attended })}
                     className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-bold border transition-all ${
