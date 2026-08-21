@@ -36,9 +36,9 @@ function Stat({ label, value }) {
 
 function BreakdownRow({ label, value }) {
   return (
-    <div className="flex items-center text-sm text-slate-600 py-0.5">
-      <span className="flex-1">{label}</span>
-      <span className="w-20 shrink-0 text-right font-bold text-slate-800 tabular-nums">{value}</span>
+    <div className="flex items-center gap-4 text-sm text-slate-600 py-0.5">
+      <span className="w-14 shrink-0">{label}</span>
+      <span className="font-bold text-slate-800 tabular-nums">{value}</span>
     </div>
   );
 }
@@ -442,39 +442,39 @@ export default function EventDetail({ event, isAdmin, onBack }) {
               <Stat label="無法出席人數" value={regSummary.notAttendedCount} />
             </div>
             <div className="pt-3 border-t border-slate-100">
-              <table className="w-full max-w-md text-sm">
+              <table className="text-sm">
                 <thead>
                   <tr className="text-xs font-bold text-slate-400 uppercase tracking-wide">
-                    <th className="text-left pb-1.5">報名與出席人數</th>
-                    <th className="text-right pb-1.5 w-20">報名人數</th>
-                    <th className="text-right pb-1.5 w-20">出席人數</th>
+                    <th className="text-left pb-1.5 pr-8">報名與出席人數</th>
+                    <th className="text-right pb-1.5 pr-6">報名人數</th>
+                    <th className="text-right pb-1.5">出席人數</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="text-slate-600">
-                    <td className="py-0.5">志工</td>
-                    <td className="py-0.5 text-right text-slate-400 tabular-nums">{regSummary.volunteerPersonCount}</td>
+                    <td className="py-0.5 pr-8">志工</td>
+                    <td className="py-0.5 pr-6 text-right text-slate-400 tabular-nums">{regSummary.volunteerPersonCount}</td>
                     <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedVolunteerPersonCount}</td>
                   </tr>
                   <tr className="text-slate-600">
-                    <td className="py-0.5">志工同行人員</td>
-                    <td className="py-0.5 text-right text-slate-400 tabular-nums">{regSummary.volunteerCompanionCount}</td>
+                    <td className="py-0.5 pr-8">志工同行人員</td>
+                    <td className="py-0.5 pr-6 text-right text-slate-400 tabular-nums">{regSummary.volunteerCompanionCount}</td>
                     <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedVolunteerCompanionCount}</td>
                   </tr>
                   <tr className="text-slate-600">
-                    <td className="py-0.5">大德</td>
-                    <td className="py-0.5 text-right text-slate-400 tabular-nums">{regSummary.daDePersonCount}</td>
+                    <td className="py-0.5 pr-8">大德</td>
+                    <td className="py-0.5 pr-6 text-right text-slate-400 tabular-nums">{regSummary.daDePersonCount}</td>
                     <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedDaDePersonCount}</td>
                   </tr>
                   <tr className="text-slate-600">
-                    <td className="py-0.5">大德同行人員</td>
-                    <td className="py-0.5 text-right text-slate-400 tabular-nums">{regSummary.daDeCompanionCount}</td>
+                    <td className="py-0.5 pr-8">大德同行人員</td>
+                    <td className="py-0.5 pr-6 text-right text-slate-400 tabular-nums">{regSummary.daDeCompanionCount}</td>
                     <td className="py-0.5 text-right font-bold text-slate-800 tabular-nums">{regSummary.attendedDaDeCompanionCount}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div className="pt-3 border-t border-slate-100 mt-3 max-w-xs">
+            <div className="pt-3 border-t border-slate-100 mt-3">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">慈濟身份出席人數（志工，不含大德）</p>
               {VOLUNTEER_TC_IDENTIFICATION_KEYS.map((key) => (
                 <BreakdownRow key={key} label={tcIdentificationLabel(key)} value={tcIdentificationAttendance[key] || 0} />
