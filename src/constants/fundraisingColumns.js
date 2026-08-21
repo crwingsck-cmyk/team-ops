@@ -39,10 +39,12 @@ export function flattenDonorRows(people) {
     }
     return p.donors.map((d, i) => ({
       ...p,
-      // pledgeTarget and enteredBy are per-record values, not per-donor — only
-      // keep them on the first donor row so they don't look repeated/multiplied.
+      // pledgeTarget is a per-record number that gets summed in exports — only
+      // keep it on the first donor row so it isn't multiplied by donor count.
+      // enteredBy is just a label (nothing sums it), so it stays on every row
+      // via the `...p` spread above — that's what makes per-row filtering by
+      // 輸入者 work for every donor, not just the first.
       pledgeTarget: i === 0 ? p.pledgeTarget : "",
-      enteredBy: i === 0 ? p.enteredBy : "",
       // A donor can carry its own 和氣/互愛/協力 tag (used for the "未指定志工"
       // placeholder, whose donors don't share one group) — falls back to the
       // person's own value for everyone else.
