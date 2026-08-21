@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Pencil, Users, Upload, LayoutGrid, List } from "lucide-react";
+import { Plus, Pencil, Users, Upload, LayoutGrid, List, Table2, Settings2, Download } from "lucide-react";
 import { useCollection } from "../../hooks/useCollection";
 import { useFirestoreCrud } from "../../hooks/useFirestoreCrud";
 import { useMembership } from "../../hooks/useMembership";
@@ -7,6 +7,7 @@ import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import EmptyState from "../../components/ui/EmptyState";
+import ReportTable from "../../components/ui/ReportTable";
 import VolunteerCard from "./VolunteerCard";
 import VolunteerListView from "./VolunteerListView";
 import VolunteerForm from "./VolunteerForm";
@@ -19,9 +20,12 @@ import GuestForm from "./GuestForm";
 import GuestDetail from "./GuestDetail";
 import GuestImportModal from "./GuestImportModal";
 import { VOLUNTEER_FILTER_FIELDS, DEFAULT_VOLUNTEER_FILTER_KEYS, volunteerFilterOptionLabel } from "../../constants/volunteerFilterFields";
+import { VOLUNTEER_REPORT_COLUMNS, DEFAULT_VOLUNTEER_REPORT_KEYS } from "../../constants/reportColumns";
+import { exportRowsToExcel } from "../../lib/exportExcel";
 import { chineseIncludes } from "../../lib/chineseSearch";
 
 const FILTER_KEYS_STORAGE_KEY = "team-ops:volunteerFilterKeys";
+const COLUMN_KEYS_STORAGE_KEY = "team-ops:volunteerDisplayColumns";
 
 function loadStoredFilterKeys() {
   const validKeys = new Set(VOLUNTEER_FILTER_FIELDS.map((f) => f.key));
@@ -35,6 +39,20 @@ function loadStoredFilterKeys() {
     // ignore malformed storage
   }
   return DEFAULT_VOLUNTEER_FILTER_KEYS;
+}
+
+function loadStoredColumnKeys() {
+  const validKeys = new Set(VOLUNTEER_REPORT_COLUMNS.map((c) => c.key));
+  try {
+    const stored = JSON.parse(localStorage.getItem(COLUMN_KEYS_STORAGE_KEY));
+    if (Array.isArray(stored)) {
+      const filtered = stored.filter((k) => validKeys.has(k));
+      if (filtered.length > 0) return filtered;
+    }
+  } catch {
+    // ignore malformed storage
+  }
+  return DEFAULT_VOLUNTEER_REPORT_KEYS;
 }
 
 export default function VolunteersPage() {
@@ -53,6 +71,8 @@ export default function VolunteersPage() {
     Object.fromEntries(VOLUNTEER_FILTER_FIELDS.map((f) => [f.key, "all"]))
   );
   const [showFieldPicker, setShowFieldPicker] = useState(false);
+  const [activeColumnKeys, setActiveColumnKeys] = useState(loadStoredColumnKeys);
+  const [showColumnPicker, setShowColumnPicker] = useState(false);
   const [viewMode, setViewMode] = useState("list");
   const [showForm, setShowForm] = useState(false);
   const [viewing, setViewing] = useState(null);
@@ -68,6 +88,15 @@ export default function VolunteersPage() {
   useEffect(() => {
     localStorage.setItem(FILTER_KEYS_STORAGE_KEY, JSON.stringify(activeFilterKeys));
   }, [activeFilterKeys]);
+
+  useEffect(() => {
+    localStorage.setItem(COLUMN_KEYS_STORAGE_KEY, JSON.stringify(activeColumnKeys));
+  }, [activeColumnKeys]);
+
+  const tableColumns = useMemo(
+    () => VOLUNTEER_REPORT_COLUMNS.filter((c) => activeColumnKeys.includes(c.key)),
+    [activeColumnKeys]
+  );
 
   const fieldOptionsMap = useMemo(() => {
     const map = {};
@@ -193,7 +222,20 @@ export default function VolunteersPage() {
             >
               <List size={18} />
             </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`p-3 transition-colors ${viewMode === "table" ? "bg-indigo-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"}`}
+              title="表格式"
+            >
+              <Table2 size={18} />
+            </button>
           </div>
+          {dbMode === "volunteer" && viewMode === "table" && (
+            <>
+              <Button variant="secondary" icon={Settings2} onClick={() => setShowColumnPicker(true)}>選擇顯示欄位</Button>
+              <Button variant="secondary" icon={Download} onClick={() => exportRowsToExcel("志工資料庫.xlsx", tableColumns, filtered)}>匯出 Excel</Button>
+            </>
+          )}
           {dbMode === "volunteer" && (
             <Button variant="secondary" icon={Upload} onClick={() => setShowImport(true)}>匯入 Excel</Button>
           )}
@@ -264,6 +306,8 @@ export default function VolunteersPage() {
                 />
               ))}
             </div>
+          ) : viewMode === "table" ? (
+            <ReportTable columns={tableColumns} rows={filtered} />
           ) : (
             <VolunteerListView
               volunteers={filtered}
@@ -325,6 +369,17 @@ export default function VolunteersPage() {
             setShowFieldPicker(false);
           }}
           onCancel={() => setShowFieldPicker(false)}
+        />
+      </Modal>
+
+      <Modal open={showColumnPicker} onClose={() => setShowColumnPicker(false)} title="選擇要顯示的欄位">
+        <FilterFieldPicker
+          fields={VOLUNTEER_REPORT_COLUMNS}
+          selected={activeColumnKeys}
+          max={VOLUNTEER_REPORT_COLUMNS.length}
+          description="選擇要顯示在表格裡的欄位。"
+          onSave={(keys) => { setActiveColumnKeys(keys); setShowColumnPicker(false); }}
+          onCancel={() => setShowColumnPicker(false)}
         />
       </Modal>
 

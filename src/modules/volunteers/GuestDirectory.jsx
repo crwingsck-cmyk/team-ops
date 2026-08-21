@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, CalendarDays, Check, X, ChevronDown, ChevronUp, Plus, Eye, Pencil, Trash2 } from "lucide-react";
+import { Search, CalendarDays, Check, X, ChevronDown, ChevronUp, Plus, Eye, Pencil, Trash2, Settings2, Download } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import Select from "../../components/ui/Select";
 import EmptyState from "../../components/ui/EmptyState";
+import ReportTable from "../../components/ui/ReportTable";
 import FilterFieldPicker from "../../components/ui/FilterFieldPicker";
 import GuestFilterBar from "./GuestFilterBar";
 import GuestCard from "./GuestCard";
@@ -12,9 +13,12 @@ import { chineseIncludes } from "../../lib/chineseSearch";
 import { eventFirstDate, dateRangeText } from "../../lib/eventDays";
 import { REGISTRATION_STATUS } from "../../constants/categoryStyles";
 import { GUEST_FILTER_FIELDS, DEFAULT_GUEST_FILTER_KEYS, guestFilterOptionLabel } from "../../constants/guestFilterFields";
+import { GUEST_REPORT_COLUMNS, DEFAULT_GUEST_REPORT_KEYS } from "../../constants/reportColumns";
+import { exportRowsToExcel } from "../../lib/exportExcel";
 import { useGuestDirectory } from "../../hooks/useGuestDirectory";
 
 const FILTER_KEYS_STORAGE_KEY = "team-ops:guestFilterKeys";
+const COLUMN_KEYS_STORAGE_KEY = "team-ops:guestDisplayColumns";
 
 function loadStoredFilterKeys() {
   const validKeys = new Set(GUEST_FILTER_FIELDS.map((f) => f.key));
@@ -30,6 +34,20 @@ function loadStoredFilterKeys() {
   return DEFAULT_GUEST_FILTER_KEYS;
 }
 
+function loadStoredColumnKeys() {
+  const validKeys = new Set(GUEST_REPORT_COLUMNS.map((c) => c.key));
+  try {
+    const stored = JSON.parse(localStorage.getItem(COLUMN_KEYS_STORAGE_KEY));
+    if (Array.isArray(stored)) {
+      const filtered = stored.filter((k) => validKeys.has(k));
+      if (filtered.length > 0) return filtered;
+    }
+  } catch {
+    // ignore malformed storage
+  }
+  return DEFAULT_GUEST_REPORT_KEYS;
+}
+
 function registrationDate(r, event) {
   return event ? eventFirstDate(event) : (r.eventDate || "");
 }
@@ -42,6 +60,8 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
     Object.fromEntries(GUEST_FILTER_FIELDS.map((f) => [f.key, "all"]))
   );
   const [showFieldPicker, setShowFieldPicker] = useState(false);
+  const [activeColumnKeys, setActiveColumnKeys] = useState(loadStoredColumnKeys);
+  const [showColumnPicker, setShowColumnPicker] = useState(false);
   const [queryTitle, setQueryTitle] = useState("");
   const [queryEventIds, setQueryEventIds] = useState([]);
 
@@ -52,6 +72,15 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
   useEffect(() => {
     localStorage.setItem(FILTER_KEYS_STORAGE_KEY, JSON.stringify(activeFilterKeys));
   }, [activeFilterKeys]);
+
+  useEffect(() => {
+    localStorage.setItem(COLUMN_KEYS_STORAGE_KEY, JSON.stringify(activeColumnKeys));
+  }, [activeColumnKeys]);
+
+  const tableColumns = useMemo(
+    () => GUEST_REPORT_COLUMNS.filter((c) => activeColumnKeys.includes(c.key)),
+    [activeColumnKeys]
+  );
 
   const eventsById = useMemo(() => new Map(events.map((e) => [e.id, e])), [events]);
 
@@ -137,6 +166,13 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
         onImport={onImport}
       />
 
+      {viewMode === "table" && (
+        <div className="flex flex-wrap justify-end gap-2 mb-4">
+          <Button variant="secondary" icon={Settings2} onClick={() => setShowColumnPicker(true)}>選擇顯示欄位</Button>
+          <Button variant="secondary" icon={Download} onClick={() => exportRowsToExcel("大德資料庫.xlsx", tableColumns, filtered)}>匯出 Excel</Button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-3 mb-6 p-4 rounded-2xl border border-slate-200 bg-slate-50">
         <div className="flex flex-col sm:flex-row gap-3">
           <span className="text-sm font-bold text-slate-500 sm:self-center shrink-0">查詢是否出席：</span>
@@ -192,6 +228,8 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
             <GuestCard key={g.key} guest={g} isAdmin={isAdmin} onView={onView} onEdit={onEdit} onDelete={onDelete} />
           ))}
         </div>
+      ) : viewMode === "table" ? (
+        <ReportTable columns={tableColumns} rows={filtered} />
       ) : (
         <div className="space-y-3">
           {filtered.map((g) => {
@@ -285,6 +323,17 @@ export default function GuestDirectory({ registrations, events, guests: guestDoc
             setShowFieldPicker(false);
           }}
           onCancel={() => setShowFieldPicker(false)}
+        />
+      </Modal>
+
+      <Modal open={showColumnPicker} onClose={() => setShowColumnPicker(false)} title="選擇要顯示的欄位">
+        <FilterFieldPicker
+          fields={GUEST_REPORT_COLUMNS}
+          selected={activeColumnKeys}
+          max={GUEST_REPORT_COLUMNS.length}
+          description="選擇要顯示在表格裡的欄位。"
+          onSave={(keys) => { setActiveColumnKeys(keys); setShowColumnPicker(false); }}
+          onCancel={() => setShowColumnPicker(false)}
         />
       </Modal>
     </div>
