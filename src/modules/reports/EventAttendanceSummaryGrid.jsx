@@ -42,7 +42,7 @@ export default function EventAttendanceSummaryGrid({ events, registrations }) {
               <Stat label="出席人數" value={attendedCount} />
               <Stat label="已報名人數" value={registeredCount} />
               <Stat label="考慮中人數" value={waitlistedCount} />
-              <Stat label="無法出席人數" value={cancelledCount} />
+              <Stat label="已報名但無法出席人數" value={cancelledCount} />
             </div>
           </Card>
         );

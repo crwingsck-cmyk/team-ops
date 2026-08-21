@@ -217,7 +217,7 @@ export default function EventDetail({ event, isAdmin, onBack }) {
         attendingDates: r.raw.attendingDates?.length > 0 ? r.raw.attendingDates.join("、") : "",
         status: REGISTRATION_STATUS[r.raw.status]?.label || "",
         attended: r.raw.attended ? "已出席" : "未出席",
-        attendedChildrenCount: r.raw.attendedChildrenCount ?? "",
+        attendedChildrenCount: r.raw.attended ? (r.raw.attendedChildrenCount || r.raw.childrenCount || 1) : "",
         notes: r.raw.notes || "",
       })),
     [visibleRegistrations]
@@ -602,11 +602,11 @@ export default function EventDetail({ event, isAdmin, onBack }) {
                       <input
                         type="number"
                         min="1"
-                        key={`${r.id}-children-${r.attendedChildrenCount ?? "default"}`}
-                        defaultValue={r.attendedChildrenCount ?? r.childrenCount ?? 1}
+                        key={`${r.id}-children-${r.attendedChildrenCount || "default"}`}
+                        defaultValue={r.attendedChildrenCount || r.childrenCount || 1}
                         onBlur={(e) => {
                           const val = e.target.value === "" ? 1 : Math.max(1, Number(e.target.value));
-                          if (val !== (r.attendedChildrenCount ?? r.childrenCount ?? 1)) {
+                          if (val !== (r.attendedChildrenCount || r.childrenCount || 1)) {
                             update(r.id, { attendedChildrenCount: val });
                           }
                         }}
