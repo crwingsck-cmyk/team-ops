@@ -30,7 +30,7 @@ export default function EventAttendanceSummaryGrid({ events, registrations }) {
         const headcount = (r) => Number(r.childrenCount) || 1;
         const attendedHeadcount = (r) => Number(r.attendedChildrenCount ?? r.childrenCount) || 1;
         const sumHeadcount = (list) => list.reduce((sum, r) => sum + headcount(r), 0);
-        const registered = regs.filter((r) => r.status === "registered");
+        const registered = regs.filter((r) => r.status !== "waitlisted");
         const attendedCount = registered.filter((r) => r.attended).reduce((sum, r) => sum + attendedHeadcount(r), 0);
         const registeredCount = sumHeadcount(registered);
         const notAttendedCount = registeredCount - attendedCount;
