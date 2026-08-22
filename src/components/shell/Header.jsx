@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { HeartHandshake, Trash2 } from "lucide-react";
-import { GoogleAuthProvider, signInWithRedirect, signOut } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import { useAuth } from "../../hooks/useAuth";
 import { useMembership } from "../../hooks/useMembership";
@@ -16,7 +16,7 @@ const GoogleIcon = () => (
 );
 
 export default function Header() {
-  const { user, authError } = useAuth();
+  const { user } = useAuth();
   const { isAdmin } = useMembership();
   const [showRecycleBin, setShowRecycleBin] = useState(false);
   const [signInError, setSignInError] = useState("");
@@ -24,8 +24,9 @@ export default function Header() {
   const handleGoogleSignIn = async () => {
     setSignInError("");
     try {
-      await signInWithRedirect(auth, new GoogleAuthProvider());
+      await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (err) {
+      if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
       console.error(err);
       setSignInError(`${err.code || "登入失敗"}：${err.message || String(err)}`);
     }
@@ -90,8 +91,8 @@ export default function Header() {
                 <GoogleIcon />
                 Google 登入
               </button>
-              {(signInError || authError) && (
-                <p className="max-w-xs text-right text-xs font-bold text-rose-300 break-words">{signInError || authError}</p>
+              {signInError && (
+                <p className="max-w-xs text-right text-xs font-bold text-rose-300 break-words">{signInError}</p>
               )}
             </div>
           )}
