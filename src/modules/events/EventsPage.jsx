@@ -31,7 +31,7 @@ export default function EventsPage() {
   const registrationStatsByEvent = useMemo(() => {
     const stats = {};
     for (const r of registrations) {
-      if (r.status === "cancelled") continue;
+      if (r.status !== "registered") continue;
       const s = stats[r.eventId] || (stats[r.eventId] = { registered: 0, attended: 0 });
       const headcount = Number(r.childrenCount) || 1;
       s.registered += headcount;
